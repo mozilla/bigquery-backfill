@@ -43,8 +43,7 @@ We visit the GCP console, choose the `moz-fx-data-backfill-4` project
 and go to the Dataflow section to watch the progress of the job.
 It took about X minutes to run to completion.
 
-We validate the results by checking counts per day and also by checking whether
-we have any overlapping IDs between prod and the backfilled table:
+We validate the results by checking counts per day:
 
 ```
 WITH
@@ -63,3 +62,9 @@ Now, we append this data to the production live table
 (requires ops-level permissions) and rerun copy_deduplicate
 for the `sync_v*` tables at the command line, then check if
 there's any downstream ETL we need to rerun via Airflow.
+
+```
+bq cp --append_table \
+   moz-fx-data-backfill-4:telemetry_stable.sync_v4 \
+   moz-fx-data-shared-prod:telemetry_stable.sync_v4
+```
