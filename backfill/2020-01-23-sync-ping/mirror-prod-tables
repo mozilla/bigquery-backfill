@@ -1,0 +1,34 @@
+#!/bin/bash
+
+PROJECT=moz-fx-data-backfill-4
+
+for dataset in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod | grep 'telemetry_stable'); do
+    bq mk $PROJECT:$dataset
+    for table in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod $dataset | tail -n+3 | awk '{print $1}' | grep -E 'sync_v'); do
+        bq rm -f $PROJECT:$dataset.$table
+        bq mk -t \
+           --time_partitioning_field=submission_timestamp \
+           --clustering_fields=normalized_channel,sample_id \
+           --schema <(bq show --format=json moz-fx-data-shared-prod:$dataset.$table | jq '.schema.fields') \
+           $PROJECT:$dataset.$table
+    done
+done
+
+for dataset in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod | grep 'payload_bytes_error'); do
+    bq mk $PROJECT:$dataset
+    for table in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod $dataset | tail -n+3 | awk '{print $1}'); do
+        bq rm -f $PROJECT:$dataset.$table
+        bq mk -t \
+           --time_partitioning_field=submission_timestamp \
+           --clustering_fields=submission_timestamp \
+           --schema <(bq show --format=json moz-fx-data-shared-prod:$dataset.$table | jq '.schema.fields') \
+           $PROJECT:$dataset.$table
+    done
+done
+
+# Also create a "backfill_input" table with the payload_bytes_error schema
+bq mk -t \
+   --time_partitioning_field=submission_timestamp \
+   --clustering_fields=submission_timestamp \
+   --schema <(bq show --format=json moz-fx-data-shared-prod:payload_bytes_error.telemetry | jq '.schema.fields') \
+   $PROJECT:payload_bytes_error.backfill_input
