@@ -87,7 +87,7 @@ there's any downstream ETL we need to rerun via Airflow.
 
 ```
 ./script/copy_deduplicate --project-id moz-fx-data-backfill-4 \
-    --dates 2020-01-20 2020-01-21 2020-01-22 2020-01-23
+    --dates 2020-01-20 2020-01-21 2020-01-22 2020-01-23 \
     --only telemetry_live.sync_v*
 ```
 
