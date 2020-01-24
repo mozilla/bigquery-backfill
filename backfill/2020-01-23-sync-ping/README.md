@@ -39,29 +39,57 @@ WHERE
 Next, we construct a suitable Dataflow job configuration in
 `launch-dataflow-sync-ping` and run the script.
 
+It may be useful to do a quick run with a subset of data in order to make
+sure the scripts are all properly set by writing a subset of the backfill
+input to a table:
+
+```
+SELECT
+  *
+FROM
+  `moz-fx-data-backfill-4.payload_bytes_error.backfill_input`
+LIMIT
+  1000
+```
+
 We visit the GCP console, choose the `moz-fx-data-backfill-4` project
 and go to the Dataflow section to watch the progress of the job.
-It took about X minutes to run to completion.
+It took about 47 minutes to run to completion.
 
 We validate the results by checking counts per day:
 
 ```
-WITH
 SELECT
   DATE(submission_timestamp),
   COUNT(*)
 FROM
-  `moz-fx-data-backfill-4.telemetry.sync_v*`
+  `moz-fx-data-backfill-4.telemetry_live.sync_v*`
 GROUP BY
   1
 ORDER BY
   1
 ```
 
+There are no results in the `sync_v5` table so we can just look at `sync_v4`.
+
 Now, we append this data to the production live table
-(requires ops-level permissions) and rerun copy_deduplicate
-for the `sync_v*` tables at the command line, then check if
+(requires ops-level permissions):
+
+```
+bq cp --append_table \
+   moz-fx-data-backfill-4:telemetry_live.sync_v4 \
+   moz-fx-data-shared-prod:telemetry_live.sync_v4
+```
+ 
+We can then run copy_deduplicate
+for the `sync_v4` table at the command line, then check if
 there's any downstream ETL we need to rerun via Airflow.
+
+```
+./script/copy_deduplicate --project-id moz-fx-data-backfill-4 \
+    --dates 2020-01-20 2020-01-21 2020-01-22 2020-01-23
+    --only telemetry_live.sync_v*
+```
 
 ```
 bq cp --append_table \

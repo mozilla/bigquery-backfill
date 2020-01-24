@@ -2,7 +2,7 @@
 
 PROJECT=moz-fx-data-backfill-4
 
-for dataset in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod | grep 'telemetry_live'); do
+for dataset in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod | egrep 'telemetry_[(live)(stable)]'); do
     bq mk $PROJECT:$dataset
     for table in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod $dataset | tail -n+3 | awk '{print $1}' | grep -E 'sync_v'); do
         bq rm -f $PROJECT:$dataset.$table
