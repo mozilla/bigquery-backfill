@@ -41,7 +41,9 @@ Next, we construct a suitable Dataflow job configuration in
 
 It may be useful to do a quick run with a subset of data in order to make
 sure the scripts are all properly configured by writing a subset of the backfill
-input to a table and then running the script on the subset:
+input to a table and then running the script on the subset.  An important thing to 
+remember to do is to delete the data written in the test; clean up can be done
+by rerunning the `mirror-prod-tables` script.
 
 ```sql
 SELECT
