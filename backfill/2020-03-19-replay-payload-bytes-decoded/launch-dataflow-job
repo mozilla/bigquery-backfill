@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -exo pipefail
+
+PROJECT="moz-fx-data-backfill-17"
+JOB_NAME="backfill-stable-from-pbd"
+
+## this script assumes it's being run from the ingestion-beam directory
+## of the gcp-ingestion repo.
+
+mvn compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Sink -Dexec.args="\
+    --runner=Dataflow \
+    --jobName=$JOB_NAME \
+    --project=$PROJECT  \
+    --schemasLocation=gs://moz-fx-data-prod-dataflow/schemas/202003140150_467991a.tar.gz \
+    --inputType=bigquery_table \
+    --input=$PROJECT:payload_bytes_decoded.telemetry_all \
+    --outputType=bigquery \
+    --bqWriteMethod=file_loads \
+    --bqClusteringFields=normalized_channel,sample_id \
+    --output=${PROJECT}:\${document_namespace}_stable.\${document_type}_v\${document_version} \
+    --outputTableRowFormat=payload \
+    --errorOutputType=bigquery \
+    --errorOutput=${PROJECT}:payload_bytes_error.telemetry \
+    --experiments=shuffle_mode=service \
+    --region=us-central1 \
+    --usePublicIps=false \
+    --gcsUploadBufferSizeBytes=16777216 \
+"
