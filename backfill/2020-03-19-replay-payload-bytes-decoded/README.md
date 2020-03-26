@@ -9,11 +9,17 @@ We choose the backfill-17 project for doing this work to match the date (17th).
 
 ## Stage target payloads into a table
 
-First, we stage a backfill table following the pbd structure and we run a
+First, we create placeholder datasets and tables in the target project:
+
+```
+./mirror-prod-tables
+```
+
+Next, we stage a source table following the pbd structure and we run a
 query to populate it:
 
 ```
-# Create the destination dataset
+# Create the dataset that will hold the backfill source data
 bq mk moz-fx-data-backfill-17:payload_bytes_decoded
 
 # Copy a small pbd table (we choose core_v1) to the backfill project;
@@ -29,6 +35,20 @@ into place in the historical ping tables (`_stable` tables). The query took
 about 30 minutes to complete and scanned about 5 TB of compressed data.
 
 ## Run a Dataflow job to populate temporary stable tables
+
+Running the Dataflow job requires credentials to be available in the environment.
+One method of doing so is running:
+
+```
+gcloud auth application-default login
+```
+
+Or you can provision a service account in the backfill project, store the JSON blob locally,
+and set `GOOGLE_APPLICATION_CREDENTIALS` to point at it.
+
+Also, if you run maven within a docker container, you'll need to take care to pass
+credentials to the container; you'll need to mount in the JSON file to a location
+that the GCP SDKs will pick it up.
 
 We launch the Dataflow job:
 
