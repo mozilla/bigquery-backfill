@@ -12,4 +12,13 @@ This backfills the structured ingestion tables from 2020-02-18 through
 * Copy data into `gs://bug-1625560-backfill` via `copy-data.sh`
 * Create mirrored tables via `mirror-prod-tables.sh`
 * Run dataflow jobs for backfill into stable-like tables via
-  `launch-dataflow-job.sh`
+  `launch-dataflow-job.sh`. See [1].
+* Debug failures on telemetry backfills
+
+[1] Running `launch-dataflow-job.sh`:
+
+```bash
+# assume gcp-ingestion and bigquery-backfill share the same parent
+    cd gcp-ingestion/ingestion-beam
+    ../../bigquery-backfill/backfill/2020-03-30-gcs-error/launch-dataflow-job.sh (structured|telemetry)
+```
