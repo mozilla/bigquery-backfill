@@ -16,7 +16,7 @@ for ds in $(ds_range "$start_ds" "$end_ds"); do
     source="${BUCKET}/${ingestion_type}-decoded_bq-sink/error/${ds}"
     if ! gsutil ls "$source" 2> /dev/null; then
         echo "skipping $ds for $ingestion_type"
-        return
+        continue
     fi
 
     job_name="backfill-${ingestion_type}-${ds}-stable-from-gcs-errors"
