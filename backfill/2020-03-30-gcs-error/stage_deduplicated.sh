@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SRC_PROJECT=moz-fx-data-backfill-30
-DST_PROJECT=moz-fx-data-backfill-30
+DST_PROJECT=moz-fx-data-backfill-31
 
 set -x
 

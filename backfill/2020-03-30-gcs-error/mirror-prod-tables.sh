@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROJECT=moz-fx-data-backfill-30
+PROJECT=${1:-moz-fx-data-backfill-30}
 
 set -x
 

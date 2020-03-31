@@ -14,14 +14,14 @@ This backfills the structured ingestion tables from 2020-02-18 through
 * Run dataflow jobs for backfill into stable-like tables via
   `launch-dataflow-job.sh`. See [1].
 * Debug failures on telemetry backfills
-* Run dataflow jobs for a single date
+* Run dataflow jobs for a single date (Friday, 2020-02-21)
 
 [1] Running `launch-dataflow-job.sh`:
 
 ```bash
 # assume gcp-ingestion and bigquery-backfill share the same parent
-    cd gcp-ingestion/ingestion-beam
-    ../../bigquery-backfill/backfill/2020-03-30-gcs-error/launch-dataflow-job.sh (structured|telemetry)
+cd gcp-ingestion/ingestion-beam
+../../bigquery-backfill/backfill/2020-03-30-gcs-error/launch-dataflow-job.sh (structured|telemetry) [DATE_DS]
 ```
 
 
