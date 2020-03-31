@@ -3,6 +3,7 @@
 set -exo pipefail
 
 ingestion_type=${1:?must be one of structured or telemetry}
+pattern=${2:-"*"}
 
 PROJECT="moz-fx-data-backfill-30"
 JOB_NAME="backfill-${ingestion_type}-stable-from-gcs-errors"
@@ -18,7 +19,7 @@ mvn compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Sink -Dexec.args="\
     --schemasLocation=gs://moz-fx-data-prod-dataflow/schemas/202003270223_317d115.tar.gz \
     --inputType=file \
     --inputFileFormat=json \
-    --input=${BUCKET}/${ingestion_type}-decoded_bq-sink/error/*/**.ndjson.gz \
+    --input=${BUCKET}/${ingestion_type}-decoded_bq-sink/error/${pattern}/**.ndjson.gz \
     --outputType=bigquery \
     --bqWriteMethod=file_loads \
     --bqClusteringFields=normalized_channel,sample_id \

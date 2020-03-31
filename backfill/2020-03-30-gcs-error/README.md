@@ -14,6 +14,7 @@ This backfills the structured ingestion tables from 2020-02-18 through
 * Run dataflow jobs for backfill into stable-like tables via
   `launch-dataflow-job.sh`. See [1].
 * Debug failures on telemetry backfills
+* Run dataflow jobs for a single date
 
 [1] Running `launch-dataflow-job.sh`:
 
