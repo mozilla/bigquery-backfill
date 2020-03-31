@@ -14,9 +14,16 @@ This backfills the structured ingestion tables from 2020-02-18 through
 * Run dataflow jobs for backfill into stable-like tables via
   `launch-dataflow-job.sh`. See [1].
 * Debug failures on telemetry backfills
+  - Telemetry: Unpaired surrogate at index 853 [2]
+  - Structured: Error during BigQuery IO [3]
 * Run dataflow jobs for a single date (Friday, 2020-02-21)
+  * Structured succeeds in 26 min 33 sec scaling up to 125 nodes
+  * Telemetry succeeds in 39 min 3 sec scaling up to 232 nodes
+* Appropriate `moz-fx-data-backfill-31` for staging of data
 
-[1] Running `launch-dataflow-job.sh`:
+[1]
+
+Running `launch-dataflow-job.sh`:
 
 ```bash
 # assume gcp-ingestion and bigquery-backfill share the same parent
@@ -24,10 +31,8 @@ cd gcp-ingestion/ingestion-beam
 ../../bigquery-backfill/backfill/2020-03-30-gcs-error/launch-dataflow-job.sh (structured|telemetry) [DATE_DS]
 ```
 
+[2]
 
-## Issues
-
-During the backfill, two separate issues were uncovered during the processing of the error streams.
 In the first 20 minutes of processing Telemetry pings, the following error caused the job to fail.
 
 ```bash
@@ -54,6 +59,8 @@ org.apache.beam.runners.dataflow.worker.repackaged.org.apache.beam.runners.core.
 org.apache.beam.runners.dataflow.worker.repackaged.org.apache.beam.runners.core.SimpleDoFnRunner$DoFnProcessContext.output(SimpleDoFnRunner.java:568)
 org.apache.beam.sdk.io.gcp.bigquery.PrepareWrite$1.processElement(PrepareWrite.java:82)
 ```
+
+[3]
 
 During the processing of Structured pings, the job failed after 12 hours and 28 minutes with an `OutOfMemoryError`:
 

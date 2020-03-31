@@ -1,3 +1,4 @@
+# gsutil ls gs://moz-fx-data-prod-data/structured-decoded_bq-sink/error/ | xargs -n1 gsutil du -sh
 1.7 MiB      gs://moz-fx-data-prod-data/structured-decoded_bq-sink/error/.temp-beam-1beeb7cd-8cf5-4e0a-9ae4-da54bad44e4f
 2.17 MiB     gs://moz-fx-data-prod-data/structured-decoded_bq-sink/error/2019-06-13
 8.58 KiB     gs://moz-fx-data-prod-data/structured-decoded_bq-sink/error/2019-06-21

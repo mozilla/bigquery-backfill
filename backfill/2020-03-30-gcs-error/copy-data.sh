@@ -4,22 +4,7 @@ set +x
 PROJECT=moz-fx-data-backfill-30
 BUCKET=gs://bug-1625560-backfill
 
-# cross-platform date range
-function ds_range {
-    DS_START=$1 DS_END=$2 python3 - <<EOD
-from datetime import date, timedelta, datetime
-from os import environ
-def parse(ds):
-    return datetime.strptime(ds, "%Y-%m-%d")
-start_date = parse(environ["DS_START"])
-end_date = parse(environ["DS_END"])
-dates = []
-for i in range((end_date - start_date).days):
-    dt = start_date + timedelta(i)
-    dates.append(dt.strftime("%Y-%m-%d"))
-print("\n".join(dates))
-EOD
-}
+source "${BASH_SOURCE%/*}/utils.sh"
 
 # set project to the correct id
 original_project=$(gcloud config get-value project)
@@ -30,7 +15,7 @@ trap cleanup EXIT
 gcloud config set project $PROJECT
 
 # create the bucket if it doesn't exist
-if ! gsutil ls $BUCKET; then
+if ! gsutil ls $BUCKET 2> /dev/null; then
     gsutil mb $BUCKET
 fi
 
