@@ -8,7 +8,6 @@ start_ds=${2:?must be date in YYYY-MM-DD format}
 end_ds=${3:-$start_ds}
 
 PROJECT="moz-fx-data-backfill-30"
-JOB_NAME="backfill-${ingestion_type}-${ds}-stable-from-gcs-errors"
 BUCKET=gs://bug-1625560-backfill
 
 source "${BASH_SOURCE%/*}/utils.sh"
@@ -20,10 +19,12 @@ for ds in $(ds_range "$start_ds" "$end_ds"); do
         return
     fi
 
+    job_name="backfill-${ingestion_type}-${ds}-stable-from-gcs-errors"
+
     mvn compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Sink -Dexec.args="\
         --runner=Dataflow \
         --maxNumWorkers=$max_workers \
-        --jobName=$JOB_NAME \
+        --jobName=$job_name \
         --project=$PROJECT  \
         --schemasLocation=gs://moz-fx-data-prod-dataflow/schemas/202003270223_317d115.tar.gz \
         --inputType=file \
