@@ -13,6 +13,7 @@ function make_query {
     cat << EOF
 WITH seen_documents AS (
     SELECT DISTINCT
+        date(submission_timestamp) as submission_date,
         document_id
     FROM
         \`moz-fx-data-shared-prod\`.${dataset}.${table}
@@ -25,24 +26,28 @@ filtered_errors AS (
     SELECT
         *
     FROM
-        \`${SRC_PROJECT}\`.${dataset}.${table}
+        \`${SRC_PROJECT}\`.${dataset}.${table} t1
     LEFT OUTER JOIN
-        seen_documents
-    USING
-        (document_id)
+        seen_documents t2
+    ON
+        t1.document_id = t2.document_id
+        AND date(t1.submission_timestamp) = t2.submission_date
     WHERE
-        seen_documents.document_id IS NULL
+        t2.document_id IS NULL
 ),
 -- https://github.com/mozilla/bigquery-etl/blob/master/script/copy_deduplicate
 numbered_duplicates AS (
     SELECT
         *,
-        ROW_NUMBER() OVER (PARTITION_BY document_id) AS _n
+        ROW_NUMBER() OVER (
+            PARTITION BY document_id, submission_date
+            ORDER BY submission_timestamp
+        ) AS _n
     FROM
         filtered_errors
 )
 SELECT
-    * EXCEPT(_n)
+    * EXCEPT(_n, submission_date)
 FROM
     numbered_duplicates
 WHERE
