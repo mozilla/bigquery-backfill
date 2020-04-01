@@ -32,7 +32,7 @@ This backfills the structured ingestion tables from 2020-02-18 through
   * Based on a dry run, the job is expected to scan 1.42362 TB
 * Run deduplication into `moz-fx-data-backfill-31`
   * Runtime of 37 minutes
-* Run `validation.sh` to check table counts before and after de-duplication
+* Run `validate.sh` to check table counts before and after de-duplication
   * Copy `validation.table_counts` into `moz-fx-data-shared-prod:analysis.bug1625560_table_counts`
   * It is difficult to decouple dupes from within errors vs dupes within
     production tables, but overall the de-deuplication rate is low enough (0.1%)
@@ -45,7 +45,7 @@ This backfills the structured ingestion tables from 2020-02-18 through
 ```bash
 # assume gcp-ingestion and bigquery-backfill share the same parent
 cd gcp-ingestion/ingestion-beam
-../../bigquery-backfill/backfill/2020-03-30-gcs-error/launch-dataflow-job.sh (structured|telemetry) [DATE_DS]
+../../bigquery-backfill/backfill/2020-03-30-gcs-error/launch-dataflow-job.sh (structured|telemetry) [START_DS] [END_DS]
 ```
 
 [2] In the first 20 minutes of processing Telemetry pings, the following error
