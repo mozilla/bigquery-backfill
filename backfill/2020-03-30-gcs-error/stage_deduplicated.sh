@@ -4,9 +4,10 @@ SRC_PROJECT=moz-fx-data-backfill-30
 DST_PROJECT=moz-fx-data-backfill-31
 DEBUG=${DEBUG:=false}
 
+# xargs usage: https://unix.stackexchange.com/a/65225
 dates=$(
     gsutil ls "gs://bug-1625560-backfill/*/error/" | \
-    xargs basename | \
+    xargs -L1 sh -c 'basename $1' dummy | \
     grep -v ":" | \
     sort | \
     uniq
@@ -87,7 +88,7 @@ for dataset in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod | grep '_sta
             --destination_table "${DST_PROJECT}:${dataset}.${table}" \
             --replace \
             --max_rows 0 \
-            < "$tmp" >> "$logs"
+            < "$tmp" | tee -a "$logs"
     done
 done
 
