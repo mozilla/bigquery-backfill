@@ -2,14 +2,29 @@
 
 SRC_PROJECT=moz-fx-data-backfill-30
 DST_PROJECT=moz-fx-data-backfill-31
+DEBUG=${DEBUG:=false}
 
 set -x
 
+dates=$(
+    gsutil ls "gs://bug-1625560-backfill/*/error/" | \
+    xargs basename | \
+    grep -v ":" | \
+    sort | \
+    uniq
+)
+
+function format_dates {
+    DATES="$1" python3 - << EOF
+from os import environ
+dates = environ.get("DATES").split()
+print(",".join(f"'{ds}'" for ds in dates))
+EOF
+}
+
 function make_query {
     local dataset=$1 
-    local table=$2 
-    local start_ds=$3
-    local end_ds=$4
+    local table=$2
     cat << EOF
 WITH seen_documents AS (
     SELECT DISTINCT
@@ -18,13 +33,13 @@ WITH seen_documents AS (
     FROM
         \`moz-fx-data-shared-prod\`.${dataset}.${table}
     WHERE
-        date(submission_date) >= "${start_ds}"
-        AND date(submission_date) <= "${end_ds}"
+        date(submission_timestamp) in ($(format_dates "$dates"))
 ),
 -- filter out documents that have already been processed
 filtered_errors AS (
     SELECT
-        *
+        * EXCEPT(document_id),
+        t1.document_id
     FROM
         \`${SRC_PROJECT}\`.${dataset}.${table} t1
     LEFT OUTER JOIN
@@ -55,10 +70,15 @@ WHERE
 EOF
 }
 
+if $DEBUG; then
+    make_query "activity_stream_stable" "events_v1"
+    exit
+fi
+
 for dataset in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod | grep '_stable'); do
     for table in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod "$dataset" | grep TABLE | awk '{print $1}'); do
         tmp=$(mktemp)
-        make_query "$dataset" "$table" "2020-02-18" "2020-03-14" > "$tmp"
+        make_query "$dataset" "$table" > "$tmp"
         cat $tmp
         bq query \
             --nouse_legacy_sql \
