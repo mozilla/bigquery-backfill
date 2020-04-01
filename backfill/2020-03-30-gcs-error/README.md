@@ -14,16 +14,22 @@ This backfills the structured ingestion tables from 2020-02-18 through
 * Run dataflow jobs for backfill into stable-like tables via
   `launch-dataflow-job.sh`. See [1].
 * Debug failures on telemetry backfills
-  - Telemetry: Unpaired surrogate at index 853 [2]
-  - Structured: Error during BigQuery IO [3]
+  * Telemetry: Unpaired surrogate at index 853 [2]
+  * Structured: Error during BigQuery IO [3]
 * Run dataflow jobs for a single date (Friday, 2020-02-21)
   * Structured succeeds in 26 min 33 sec scaling up to 125 nodes
   * Telemetry succeeds in 39 min 3 sec scaling up to 232 nodes
+* Run modified dataflow job script for 2020-02-18 through 2020-02-20
+* Run modified dataflow job script for all affected date ranges [4]
+* Manually verify all dates have been run
+  * Compare `listing_backfill_input.txt` with `listing_backfill_jobs.txt`
+  * Job listing was missing telemetry 2020-02-23, reran this particular date
 * Appropriate `moz-fx-data-backfill-31` for staging of data
+  * Create mirrored tables
+* Verify dedupe script
+  * `DEBUG=true ./stage_deduplicated.sh` and check within bq console
 
-[1]
-
-Running `launch-dataflow-job.sh`:
+[1] Running `launch-dataflow-job.sh`:
 
 ```bash
 # assume gcp-ingestion and bigquery-backfill share the same parent
@@ -31,9 +37,8 @@ cd gcp-ingestion/ingestion-beam
 ../../bigquery-backfill/backfill/2020-03-30-gcs-error/launch-dataflow-job.sh (structured|telemetry) [DATE_DS]
 ```
 
-[2]
-
-In the first 20 minutes of processing Telemetry pings, the following error caused the job to fail.
+[2] In the first 20 minutes of processing Telemetry pings, the following error
+caused the job to fail.
 
 ```bash
 2020-03-30 16:15:37.000 PDT
@@ -60,9 +65,8 @@ org.apache.beam.runners.dataflow.worker.repackaged.org.apache.beam.runners.core.
 org.apache.beam.sdk.io.gcp.bigquery.PrepareWrite$1.processElement(PrepareWrite.java:82)
 ```
 
-[3]
-
-During the processing of Structured pings, the job failed after 12 hours and 28 minutes with an `OutOfMemoryError`:
+[3] During the processing of Structured pings, the job failed after 12 hours and
+28 minutes with an `OutOfMemoryError`:
 
 ```bash
 java.util.regex.Pattern.sequence(Pattern.java:2063)
@@ -76,3 +80,7 @@ org.apache.beam.sdk.extensions.gcp.util.gcsfs.GcsPath.<init>(GcsPath.java:186)
 org.apache.beam.sdk.extensions.gcp.util.gcsfs.GcsPath.fromUri(GcsPath.java:119)
 org.apache.beam.sdk.extensions.gcp.util.GcsUtil.makeRemoveBatches(GcsUtil.java:738)
 ```
+
+[4] It's unknown whether the errors seen in [2] and [3] were transient or based
+on the size of the input. Splitting the backfill on a per day basis allowed for
+all of the jobs to complete, though.
