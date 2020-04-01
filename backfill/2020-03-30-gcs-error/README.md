@@ -39,6 +39,14 @@ This backfills the structured ingestion tables from 2020-02-18 through
     across all documents to conclude that these documents are indeed missing.
     There are a total of 64M rows that are added to the production tables across
     10 days. [5]
+* Get review (and r+) and hand off `append_to_prod.sh` to be run.
+* Run `verify_activity_stream_events_v1.sql` and verify counts
+  * This ensures that all documents in on `2020-02-24` in backfill-31 are seen
+    in shared-prod. Both counts are identical.
+* Clean up resources
+  * Delete dataflow staging bucket `dataflow-staging-us-central1-1030821713646`
+  * Delete backfill bucket: `bug-1625560-backfill`
+  * Run `cleanup_datasets.sh` to remove all tables
 
 [1] Running `launch-dataflow-job.sh`:
 
