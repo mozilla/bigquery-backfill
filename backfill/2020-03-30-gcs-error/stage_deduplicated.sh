@@ -81,8 +81,7 @@ for dataset in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod | grep '_sta
         make_query "$dataset" "$table" > "$tmp"
         echo "running deduplication for $dataset.$table from $SRC_PROJECT into $DST_PROJECT" | tee -a "$logs"
         bq query \
-            "$(if $DEBUG; then echo "--dry_run"; fi)" \
-            --nouse_legacy_sql \
+            "$(if $DEBUG; then echo "--dry_run"; fi)" --nouse_legacy_sql \
             --project_id "$SRC_PROJECT" \
             --dataset_id "$dataset" \
             --destination_table "${DST_PROJECT}:${dataset}.${table}" \
