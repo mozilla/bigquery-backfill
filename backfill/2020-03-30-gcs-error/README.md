@@ -5,7 +5,7 @@ See [bug 1625560](https://bugzilla.mozilla.org/show_bug.cgi?id=1625560) for more
 This backfills the structured ingestion tables from 2020-02-18 through
 2020-03-14. Telemetry is backfilled from 2020-02-19 through 2020-03-12.
 
-## Action items
+## Action items and notes
 
 * Generate listing of telemetry and structured errors
 * Appropriate `moz-fx-data-backfill-30` for backfill
@@ -30,6 +30,15 @@ This backfills the structured ingestion tables from 2020-02-18 through
 * Verify dedupe script
   * `DEBUG=true ./stage_deduplicated.sh` and check within bq console
   * Based on a dry run, the job is expected to scan 1.42362 TB
+* Run deduplication into `moz-fx-data-backfill-31`
+  * Runtime of 37 minutes
+* Run `validation.sh` to check table counts before and after de-duplication
+  * Copy `validation.table_counts` into `moz-fx-data-shared-prod:analysis.bug1625560_table_counts`
+  * It is difficult to decouple dupes from within errors vs dupes within
+    production tables, but overall the de-deuplication rate is low enough (0.1%)
+    across all documents to conclude that these documents are indeed missing.
+    There are a total of 64M rows that are added to the production tables across
+    10 days. [5]
 
 [1] Running `launch-dataflow-job.sh`:
 
@@ -86,3 +95,49 @@ org.apache.beam.sdk.extensions.gcp.util.GcsUtil.makeRemoveBatches(GcsUtil.java:7
 [4] It's unknown whether the errors seen in [2] and [3] were transient or based
 on the size of the input. Splitting the backfill on a per day basis allowed for
 all of the jobs to complete, though.
+
+[5]
+
+In total:
+
+```sql
+SELECT
+  sum(num_deduped) as total,
+  sum(diff)/sum(num_raw)*100 as pct
+FROM
+  `moz-fx-data-shared-prod`.analysis.bug1625560_table_counts
+```
+
+total | pct
+-|-
+64016735 | 0.11772261910367669
+
+By submission date:
+
+```sql
+SELECT
+  submission_date,
+  SUM(num_deduped) AS total,
+  SUM(diff)/SUM(num_raw)*100 AS pct
+FROM
+  `moz-fx-data-shared-prod`.analysis.bug1625560_table_counts
+GROUP BY
+  1
+ORDER BY
+  1
+```
+
+submission_date | total | pct
+-|-|-
+2020-02-18 | 1 | 0.0
+2020-02-19 | 1423198 | 0.5950198258454709
+2020-02-20 | 7653097 | 0.14137651534486476
+2020-02-21 | 13375280 | 0.13259873281933995
+2020-02-22 | 9383805 | 0.05117903502222374
+2020-02-23 | 6791811 | 0.03523591060322731
+2020-02-24 | 11194373 | 0.09718647389177747
+2020-02-25 | 13911544 | 0.1448851036364546
+2020-02-26 | 266301 | 0.022525820221428815
+2020-03-11 | 15954 | 0.018800526414739612
+2020-03-12 | 1367 | 0.07309941520467836
+2020-03-14 | 4 | 0.0
