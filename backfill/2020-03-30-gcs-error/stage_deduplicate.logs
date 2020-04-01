@@ -1,0 +1,386 @@
+running deduplication for activity_stream_stable.events_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 129754366735 bytes of data.
+running deduplication for activity_stream_stable.impression_stats_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 78114163557 bytes of data.
+running deduplication for activity_stream_stable.sessions_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 18847691489 bytes of data.
+running deduplication for activity_stream_stable.spoc_fills_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 39567237866 bytes of data.
+running deduplication for coverage_stable.coverage_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 36211 bytes of data.
+running deduplication for default_browser_agent_stable.default_browser_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for edge_validator_stable.error_report_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for eng_workflow_stable.bmobugs_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1122523 bytes of data.
+running deduplication for eng_workflow_stable.build_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 6565712 bytes of data.
+running deduplication for eng_workflow_stable.hgpush_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 139442 bytes of data.
+running deduplication for firefox_installer_stable.install_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1139051804 bytes of data.
+running deduplication for firefox_launcher_process_stable.launcher_process_failure_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1569766139 bytes of data.
+running deduplication for messaging_system_stable.cfr_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 63636358648 bytes of data.
+running deduplication for messaging_system_stable.onboarding_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1439928752 bytes of data.
+running deduplication for messaging_system_stable.personalization_experiment_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for messaging_system_stable.snippets_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 124965034171 bytes of data.
+running deduplication for messaging_system_stable.undesired_events_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 317193331311 bytes of data.
+running deduplication for mobile_stable.activation_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 573064244 bytes of data.
+running deduplication for mozdata_stable.event_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for mozilla_lockbox_stable.baseline_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 25309128 bytes of data.
+running deduplication for mozilla_lockbox_stable.bookmarks_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for mozilla_lockbox_stable.deletion_request_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 99098 bytes of data.
+running deduplication for mozilla_lockbox_stable.events_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for mozilla_lockbox_stable.history_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for mozilla_lockbox_stable.logins_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1139006 bytes of data.
+running deduplication for mozilla_lockbox_stable.metrics_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 4671121 bytes of data.
+running deduplication for mozza_stable.event_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_fenix_nightly_stable.activation_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 874072 bytes of data.
+running deduplication for org_mozilla_fenix_nightly_stable.baseline_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 128191979 bytes of data.
+running deduplication for org_mozilla_fenix_nightly_stable.bookmarks_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 90814950 bytes of data.
+running deduplication for org_mozilla_fenix_nightly_stable.deletion_request_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 156667 bytes of data.
+running deduplication for org_mozilla_fenix_nightly_stable.events_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 110035437 bytes of data.
+running deduplication for org_mozilla_fenix_nightly_stable.history_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 82720054 bytes of data.
+running deduplication for org_mozilla_fenix_nightly_stable.installation_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 368 bytes of data.
+running deduplication for org_mozilla_fenix_nightly_stable.logins_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 80561255 bytes of data.
+running deduplication for org_mozilla_fenix_nightly_stable.metrics_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 463462235 bytes of data.
+running deduplication for org_mozilla_fenix_nightly_stable.migration_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_fenix_stable.activation_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 2015629 bytes of data.
+running deduplication for org_mozilla_fenix_stable.baseline_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 460854601 bytes of data.
+running deduplication for org_mozilla_fenix_stable.bookmarks_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 353725869 bytes of data.
+running deduplication for org_mozilla_fenix_stable.deletion_request_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 353008 bytes of data.
+running deduplication for org_mozilla_fenix_stable.events_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 430247194 bytes of data.
+running deduplication for org_mozilla_fenix_stable.history_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 321817325 bytes of data.
+running deduplication for org_mozilla_fenix_stable.installation_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 184 bytes of data.
+running deduplication for org_mozilla_fenix_stable.logins_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 307604063 bytes of data.
+running deduplication for org_mozilla_fenix_stable.metrics_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1329745983 bytes of data.
+running deduplication for org_mozilla_fenix_stable.migration_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_fennec_aurora_stable.activation_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 2505657 bytes of data.
+running deduplication for org_mozilla_fennec_aurora_stable.baseline_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 183735904 bytes of data.
+running deduplication for org_mozilla_fennec_aurora_stable.bookmarks_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 136676246 bytes of data.
+running deduplication for org_mozilla_fennec_aurora_stable.deletion_request_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 138236 bytes of data.
+running deduplication for org_mozilla_fennec_aurora_stable.events_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 154461007 bytes of data.
+running deduplication for org_mozilla_fennec_aurora_stable.history_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 127193234 bytes of data.
+running deduplication for org_mozilla_fennec_aurora_stable.installation_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_fennec_aurora_stable.logins_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 127145851 bytes of data.
+running deduplication for org_mozilla_fennec_aurora_stable.metrics_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 754997409 bytes of data.
+running deduplication for org_mozilla_fennec_aurora_stable.migration_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 13984061 bytes of data.
+running deduplication for org_mozilla_firefox_beta_stable.activation_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 22304 bytes of data.
+running deduplication for org_mozilla_firefox_beta_stable.baseline_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 111542 bytes of data.
+running deduplication for org_mozilla_firefox_beta_stable.bookmarks_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 27292 bytes of data.
+running deduplication for org_mozilla_firefox_beta_stable.deletion_request_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1001 bytes of data.
+running deduplication for org_mozilla_firefox_beta_stable.events_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 81698 bytes of data.
+running deduplication for org_mozilla_firefox_beta_stable.history_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 24369 bytes of data.
+running deduplication for org_mozilla_firefox_beta_stable.installation_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_firefox_beta_stable.logins_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 26111 bytes of data.
+running deduplication for org_mozilla_firefox_beta_stable.metrics_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 4833 bytes of data.
+running deduplication for org_mozilla_firefox_beta_stable.migration_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 158473 bytes of data.
+running deduplication for org_mozilla_firefox_stable.activation_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 984220 bytes of data.
+running deduplication for org_mozilla_firefox_stable.baseline_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 106375 bytes of data.
+running deduplication for org_mozilla_firefox_stable.bookmarks_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 68552 bytes of data.
+running deduplication for org_mozilla_firefox_stable.deletion_request_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 463 bytes of data.
+running deduplication for org_mozilla_firefox_stable.events_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 106414 bytes of data.
+running deduplication for org_mozilla_firefox_stable.history_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 69869 bytes of data.
+running deduplication for org_mozilla_firefox_stable.installation_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 138 bytes of data.
+running deduplication for org_mozilla_firefox_stable.logins_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 35877 bytes of data.
+running deduplication for org_mozilla_firefox_stable.metrics_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 169213 bytes of data.
+running deduplication for org_mozilla_firefox_stable.migration_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 20313 bytes of data.
+running deduplication for org_mozilla_fogotype_stable.baseline_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_fogotype_stable.deletion_request_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_fogotype_stable.events_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_fogotype_stable.metrics_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_fogotype_stable.prototype_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 47021044 bytes of data.
+running deduplication for org_mozilla_ios_lockbox_stable.baseline_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 2608434 bytes of data.
+running deduplication for org_mozilla_ios_lockbox_stable.deletion_request_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 47780 bytes of data.
+running deduplication for org_mozilla_ios_lockbox_stable.events_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_ios_lockbox_stable.metrics_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_reference_browser_stable.baseline_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 256461 bytes of data.
+running deduplication for org_mozilla_reference_browser_stable.deletion_request_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 12105 bytes of data.
+running deduplication for org_mozilla_reference_browser_stable.events_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_reference_browser_stable.metrics_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 722606 bytes of data.
+running deduplication for org_mozilla_tv_firefox_stable.baseline_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 517513285 bytes of data.
+running deduplication for org_mozilla_tv_firefox_stable.deletion_request_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_tv_firefox_stable.events_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_tv_firefox_stable.metrics_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 2572623 bytes of data.
+running deduplication for org_mozilla_vrbrowser_stable.baseline_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 10871197 bytes of data.
+running deduplication for org_mozilla_vrbrowser_stable.bookmarks_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 691250 bytes of data.
+running deduplication for org_mozilla_vrbrowser_stable.deletion_request_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 906 bytes of data.
+running deduplication for org_mozilla_vrbrowser_stable.events_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 10508355 bytes of data.
+running deduplication for org_mozilla_vrbrowser_stable.history_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 679360 bytes of data.
+running deduplication for org_mozilla_vrbrowser_stable.logins_sync_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for org_mozilla_vrbrowser_stable.metrics_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 7490878 bytes of data.
+running deduplication for org_mozilla_vrbrowser_stable.session_end_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 11590274 bytes of data.
+running deduplication for pocket_stable.fire_tv_events_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 314193452 bytes of data.
+running deduplication for telemetry_stable.addon_install_blocked_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 644 bytes of data.
+running deduplication for telemetry_stable.advancedtelemetry_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.android_anr_report_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.android_anr_report_v10 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.android_anr_report_v2 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.android_anr_report_v3 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.android_anr_report_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.android_anr_report_v5 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.android_anr_report_v6 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.android_anr_report_v7 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.android_anr_report_v8 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.android_anr_report_v9 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.anonymous_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 19056885 bytes of data.
+running deduplication for telemetry_stable.bhr_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1606481630 bytes of data.
+running deduplication for telemetry_stable.block_autoplay_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.block_autoplay_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 10166 bytes of data.
+running deduplication for telemetry_stable.certificate_checker_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.core_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 725361 bytes of data.
+running deduplication for telemetry_stable.core_v10 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 39821618251 bytes of data.
+running deduplication for telemetry_stable.core_v2 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 11351027 bytes of data.
+running deduplication for telemetry_stable.core_v3 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1409890 bytes of data.
+running deduplication for telemetry_stable.core_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 17502128 bytes of data.
+running deduplication for telemetry_stable.core_v5 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 19358519 bytes of data.
+running deduplication for telemetry_stable.core_v6 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 460 bytes of data.
+running deduplication for telemetry_stable.core_v7 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 12454295827 bytes of data.
+running deduplication for telemetry_stable.core_v8 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 102098367 bytes of data.
+running deduplication for telemetry_stable.core_v9 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1149339582 bytes of data.
+running deduplication for telemetry_stable.crash_v2 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.crash_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1627681133 bytes of data.
+running deduplication for telemetry_stable.deletion_request_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 10547142 bytes of data.
+running deduplication for telemetry_stable.deletion_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 35623682 bytes of data.
+running deduplication for telemetry_stable.deployment_checker_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 18698812 bytes of data.
+running deduplication for telemetry_stable.disable_sha1rollout_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 473561 bytes of data.
+running deduplication for telemetry_stable.downgrade_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 44017036 bytes of data.
+running deduplication for telemetry_stable.event_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 25603074487 bytes of data.
+running deduplication for telemetry_stable.first_shutdown_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 2746278046 bytes of data.
+running deduplication for telemetry_stable.flash_shield_study_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 92 bytes of data.
+running deduplication for telemetry_stable.focus_event_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 3209432936 bytes of data.
+running deduplication for telemetry_stable.frecency_update_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.frecency_update_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 7498 bytes of data.
+running deduplication for telemetry_stable.ftu_v3 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.health_v2 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.health_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 26917624436 bytes of data.
+running deduplication for telemetry_stable.health_v9 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.heartbeat_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 566813216 bytes of data.
+running deduplication for telemetry_stable.main_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 450917888610 bytes of data.
+running deduplication for telemetry_stable.malware_addon_states_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 416043 bytes of data.
+running deduplication for telemetry_stable.mobile_event_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 5826401268 bytes of data.
+running deduplication for telemetry_stable.mobile_metrics_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 3147564592 bytes of data.
+running deduplication for telemetry_stable.modules_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 20293569337 bytes of data.
+running deduplication for telemetry_stable.new_profile_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 853310992 bytes of data.
+running deduplication for telemetry_stable.optout_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1550660 bytes of data.
+running deduplication for telemetry_stable.outofdate_notifications_system_addon_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1267837 bytes of data.
+running deduplication for telemetry_stable.pioneer_study_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 95814 bytes of data.
+running deduplication for telemetry_stable.pre_account_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 8266102 bytes of data.
+running deduplication for telemetry_stable.prio_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 3267865 bytes of data.
+running deduplication for telemetry_stable.saved_session_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 9495251155 bytes of data.
+running deduplication for telemetry_stable.searchvol_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 11053 bytes of data.
+running deduplication for telemetry_stable.searchvolextra_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 5369 bytes of data.
+running deduplication for telemetry_stable.shield_icq_v1_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.shield_study_addon_v3 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.shield_study_addon_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 773182 bytes of data.
+running deduplication for telemetry_stable.shield_study_error_v3 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.shield_study_error_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.shield_study_v3 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.shield_study_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 17066922 bytes of data.
+running deduplication for telemetry_stable.sync_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 17306934711 bytes of data.
+running deduplication for telemetry_stable.sync_v5 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 4425084 bytes of data.
+running deduplication for telemetry_stable.system_addon_deployment_diagnostics_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1663309 bytes of data.
+running deduplication for telemetry_stable.testpilot_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 10095 bytes of data.
+running deduplication for telemetry_stable.testpilottest_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 10732 bytes of data.
+running deduplication for telemetry_stable.third_party_modules_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 584406628 bytes of data.
+running deduplication for telemetry_stable.tls13_middlebox_alt_server_hello_1_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.tls13_middlebox_beta_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 184 bytes of data.
+running deduplication for telemetry_stable.tls13_middlebox_draft22_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.tls13_middlebox_ghack_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.tls13_middlebox_repetition_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.tls13_middlebox_testing_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.tls_13_study_v1_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.tls_13_study_v2_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.tls_13_study_v3_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 10442 bytes of data.
+running deduplication for telemetry_stable.tls_13_study_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for telemetry_stable.tls_13_study_v4_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 920 bytes of data.
+running deduplication for telemetry_stable.uitour_tag_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 15134 bytes of data.
+running deduplication for telemetry_stable.untrusted_modules_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 401930 bytes of data.
+running deduplication for telemetry_stable.update_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 15734158729 bytes of data.
+running deduplication for telemetry_stable.voice_feedback_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 15782 bytes of data.
+running deduplication for telemetry_stable.voice_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 618331 bytes of data.
+running deduplication for telemetry_stable.x_contextual_feature_recommendation_v4 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 0 bytes of data.
+running deduplication for webpagetest_stable.webpagetest_run_v1 from moz-fx-data-backfill-30 into moz-fx-data-backfill-31
+Query successfully validated. Assuming the tables are not modified, running this query will process upper bound of 1646526 bytes of data.

@@ -1,0 +1,24 @@
+# gsutil ls "gs://bug-1625560-backfill/*/error/"
+gs://bug-1625560-backfill/structured-decoded_bq-sink/error/:
+gs://bug-1625560-backfill/structured-decoded_bq-sink/error/2020-02-18/
+gs://bug-1625560-backfill/structured-decoded_bq-sink/error/2020-02-19/
+gs://bug-1625560-backfill/structured-decoded_bq-sink/error/2020-02-20/
+gs://bug-1625560-backfill/structured-decoded_bq-sink/error/2020-02-21/
+gs://bug-1625560-backfill/structured-decoded_bq-sink/error/2020-02-22/
+gs://bug-1625560-backfill/structured-decoded_bq-sink/error/2020-02-23/
+gs://bug-1625560-backfill/structured-decoded_bq-sink/error/2020-02-24/
+gs://bug-1625560-backfill/structured-decoded_bq-sink/error/2020-02-25/
+gs://bug-1625560-backfill/structured-decoded_bq-sink/error/2020-02-26/
+gs://bug-1625560-backfill/structured-decoded_bq-sink/error/2020-03-14/
+
+gs://bug-1625560-backfill/telemetry-decoded_bq-sink/error/:
+gs://bug-1625560-backfill/telemetry-decoded_bq-sink/error/2020-02-19/
+gs://bug-1625560-backfill/telemetry-decoded_bq-sink/error/2020-02-20/
+gs://bug-1625560-backfill/telemetry-decoded_bq-sink/error/2020-02-21/
+gs://bug-1625560-backfill/telemetry-decoded_bq-sink/error/2020-02-22/
+gs://bug-1625560-backfill/telemetry-decoded_bq-sink/error/2020-02-23/
+gs://bug-1625560-backfill/telemetry-decoded_bq-sink/error/2020-02-24/
+gs://bug-1625560-backfill/telemetry-decoded_bq-sink/error/2020-02-25/
+gs://bug-1625560-backfill/telemetry-decoded_bq-sink/error/2020-02-26/
+gs://bug-1625560-backfill/telemetry-decoded_bq-sink/error/2020-03-11/
+gs://bug-1625560-backfill/telemetry-decoded_bq-sink/error/2020-03-12/
