@@ -20,6 +20,7 @@ This backfills the structured ingestion tables from 2020-02-18 through
   * Structured succeeds in 26 min 33 sec scaling up to 125 nodes
   * Telemetry succeeds in 39 min 3 sec scaling up to 232 nodes
 * Run modified dataflow job script for 2020-02-18 through 2020-02-20
+  * Max workers set to 150 based on above behavior
 * Run modified dataflow job script for all affected date ranges [4]
 * Manually verify all dates have been run
   * Compare `listing_backfill_input.txt` with `listing_backfill_jobs.txt`
@@ -28,6 +29,7 @@ This backfills the structured ingestion tables from 2020-02-18 through
   * Create mirrored tables
 * Verify dedupe script
   * `DEBUG=true ./stage_deduplicated.sh` and check within bq console
+  * Based on a dry run, the job is expected to scan 1.42362 TB
 
 [1] Running `launch-dataflow-job.sh`:
 

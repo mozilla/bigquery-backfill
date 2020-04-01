@@ -4,8 +4,6 @@ SRC_PROJECT=moz-fx-data-backfill-30
 DST_PROJECT=moz-fx-data-backfill-31
 DEBUG=${DEBUG:=false}
 
-set -x
-
 dates=$(
     gsutil ls "gs://bug-1625560-backfill/*/error/" | \
     xargs basename | \
@@ -72,21 +70,32 @@ EOF
 
 if $DEBUG; then
     make_query "activity_stream_stable" "events_v1"
-    exit
 fi
+
+logs=$(mktemp)
 
 for dataset in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod | grep '_stable'); do
     for table in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod "$dataset" | grep TABLE | awk '{print $1}'); do
         tmp=$(mktemp)
         make_query "$dataset" "$table" > "$tmp"
-        cat $tmp
+        echo "running deduplication for $dataset.$table from $SRC_PROJECT into $DST_PROJECT" | tee -a "$logs"
         bq query \
+            "$(if $DEBUG; then echo "--dry_run"; fi)" \
             --nouse_legacy_sql \
             --project_id "$SRC_PROJECT" \
             --dataset_id "$dataset" \
             --destination_table "${DST_PROJECT}:${dataset}.${table}" \
-            --replace_table \
+            --replace \
             --max_rows 0 \
-            < "$tmp"
+            < "$tmp" >> "$logs"
     done
 done
+
+if $DEBUG; then
+    out="stage_deduplicate.logs"
+    cat "$out" | \
+        grep Query | tr -dc '0-9\n' | \
+        awk '{ sum += $1; } END { print "expect to scan " sum/1e12 " TB" }'
+
+    cp "$logs" "$out"
+fi
