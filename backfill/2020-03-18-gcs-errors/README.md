@@ -1,4 +1,7 @@
-We had our BQ live sinks write a number of records to error output in GCS between
+## Backfilling from error records in GCS
+
+Per bug 1622977,
+we had our BQ live sinks write a number of records to error output in GCS between
 2020-03-16 and 2020-03-18 while we were experiencing pipeline instability.
 There were a couple of bad things that worked together to cause this:
 
