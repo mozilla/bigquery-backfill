@@ -114,3 +114,11 @@ And telemetry:
 
 ## Clean up
 
+```
+# BE CAREFUL! This removes all BQ datasets and GCS buckets from the target project,
+# including their contents; it cannot be undone.
+bq ls --project_id=moz-fx-data-backfill-11 | tail -n+3 | awk '{print $1}' | xargs -I{} -n1 bq rm -r -f "moz-fx-data-backfill-11:{}"
+gsutil ls -p moz-fx-data-backfill-11 | xargs echo gsutil -m rm -r
+```
+
+And we're done!
