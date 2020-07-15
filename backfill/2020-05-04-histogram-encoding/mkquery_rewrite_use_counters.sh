@@ -48,12 +48,12 @@ SELECT
 FROM
   `moz-fx-data-shared-prod.telemetry_stable.main_v4`
 WHERE
-  DATE(submission_timestamp) = @submission_timestamp
-  AND client_id IN (
+  DATE(submission_timestamp) = @submission_date
+  AND client_id NOT IN (
   SELECT
     client_id
   FROM
     `moz-fx-data-shared-prod.telemetry_stable.deletion_request_v4`
   WHERE
-    DATE(submission_timestamp) >= '2020-07-01')
+    DATE(submission_timestamp) BETWEEN '2020-06-01' AND '2020-07-27')
 EOF
