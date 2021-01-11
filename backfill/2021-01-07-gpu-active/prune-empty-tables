@@ -1,0 +1,14 @@
+#!/bin/bash
+
+PROJECT=moz-fx-data-backfill-7
+
+tables=$(bq ls -n 1000 --project_id=$PROJECT --format json telemetry_stable | jq -r '.[] | .id')
+for table in $tables; do
+    rows=$(bq --format json show $table | jq -r '.numRows')
+    if [[ rows -eq 0 ]]; then
+        echo "deleting $table with $rows rows"
+        bq rm -f $table
+    else
+        echo "retaining $table with $rows rows"
+    fi
+done
