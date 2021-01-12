@@ -150,33 +150,41 @@ INFO:root:Scanned 175822424583 and deleted 68203 rows in total
 ```
 
 We will need append these results to each of the shared prod stable tables
-(requires ops-level permissions):
+(requires ops-level permissions). Except, we actually can't run these commands
+because the clustering definition in the stable tables was incorrect. We'll
+appropriate a new backfill project (`moz-fx-data-backfill-8`) with stable tables
+that are defined correctly and proceed from there.
+
+```bash
+./mirror-backfill-stable-tables
+```
+
+Now perform the backfill:
 
 ```bash
 # generate the commands to be run
-bq ls --format json --project_id=moz-fx-data-backfill-7 telemetry_stable | \
+bq ls --format json --project_id=moz-fx-data-backfill-8 telemetry_stable | \
   jq -r '.[] | .tableReference.tableId' | \
   xargs -I{} echo bq cp --append_table \
-    moz-fx-data-backfill-7:telemetry_stable.{} \
+    moz-fx-data-backfill-8:telemetry_stable.{} \
     moz-fx-data-shared-prod:telemetry_stable.{}
 ```
 
 ```bash
-# commands to be run
-bq cp --append_table moz-fx-data-backfill-7:telemetry_stable.crash_v4 moz-fx-data-shared-prod:telemetry_stable.crash_v4
-bq cp --append_table moz-fx-data-backfill-7:telemetry_stable.dnssec_study_v1_v4 moz-fx-data-shared-prod:telemetry_stable.dnssec_study_v1_v4
-bq cp --append_table moz-fx-data-backfill-7:telemetry_stable.event_v4 moz-fx-data-shared-prod:telemetry_stable.event_v4
-bq cp --append_table moz-fx-data-backfill-7:telemetry_stable.first_shutdown_v4 moz-fx-data-shared-prod:telemetry_stable.first_shutdown_v4
-bq cp --append_table moz-fx-data-backfill-7:telemetry_stable.heartbeat_v4 moz-fx-data-shared-prod:telemetry_stable.heartbeat_v4
-bq cp --append_table moz-fx-data-backfill-7:telemetry_stable.main_v4 moz-fx-data-shared-prod:telemetry_stable.main_v4
-bq cp --append_table moz-fx-data-backfill-7:telemetry_stable.modules_v4 moz-fx-data-shared-prod:telemetry_stable.modules_v4
-bq cp --append_table moz-fx-data-backfill-7:telemetry_stable.new_profile_v4 moz-fx-data-shared-prod:telemetry_stable.new_profile_v4
-bq cp --append_table moz-fx-data-backfill-7:telemetry_stable.update_v4 moz-fx-data-shared-prod:telemetry_stable.update_v4
-bq cp --append_table moz-fx-data-backfill-7:telemetry_stable.voice_v4 moz-fx-data-shared-prod:telemetry_stable.voice_v4
+bq cp --append_table moz-fx-data-backfill-8:telemetry_stable.crash_v4 moz-fx-data-shared-prod:telemetry_stable.crash_v4
+bq cp --append_table moz-fx-data-backfill-8:telemetry_stable.dnssec_study_v1_v4 moz-fx-data-shared-prod:telemetry_stable.dnssec_study_v1_v4
+bq cp --append_table moz-fx-data-backfill-8:telemetry_stable.event_v4 moz-fx-data-shared-prod:telemetry_stable.event_v4
+bq cp --append_table moz-fx-data-backfill-8:telemetry_stable.first_shutdown_v4 moz-fx-data-shared-prod:telemetry_stable.first_shutdown_v4
+bq cp --append_table moz-fx-data-backfill-8:telemetry_stable.heartbeat_v4 moz-fx-data-shared-prod:telemetry_stable.heartbeat_v4
+bq cp --append_table moz-fx-data-backfill-8:telemetry_stable.main_v4 moz-fx-data-shared-prod:telemetry_stable.main_v4
+bq cp --append_table moz-fx-data-backfill-8:telemetry_stable.modules_v4 moz-fx-data-shared-prod:telemetry_stable.modules_v4
+bq cp --append_table moz-fx-data-backfill-8:telemetry_stable.new_profile_v4 moz-fx-data-shared-prod:telemetry_stable.new_profile_v4
+bq cp --append_table moz-fx-data-backfill-8:telemetry_stable.update_v4 moz-fx-data-shared-prod:telemetry_stable.update_v4
+bq cp --append_table moz-fx-data-backfill-8:telemetry_stable.voice_v4 moz-fx-data-shared-prod:telemetry_stable.voice_v4
 ```
 
-Now stable tables are backfilled, so we can delete the
-rows in the error table corresponding to the backfilled pings:
+Now stable tables are backfilled, so we can delete the rows in the error table
+corresponding to the backfilled pings from the `backfill-7` project.
 
 ```sql
 DELETE

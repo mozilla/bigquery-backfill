@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -ex
+
+SRC_PROJECT=moz-fx-data-backfill-7
+DST_PROJECT=moz-fx-data-backfill-8
+
+for dataset in $(bq ls -n 1000 --project_id=$SRC_PROJECT | grep 'telemetry_stable'); do
+    bq mk -f $DST_PROJECT:$dataset
+    for table in $(bq ls -n 1000 --project_id=$SRC_PROJECT --format json $dataset | jq -r '.[] | .tableReference.tableId'); do
+        bq rm -f $DST_PROJECT:$dataset.$table
+        bq mk -t \
+           --time_partitioning_field=submission_timestamp \
+           --clustering_fields=normalized_channel,sample_id \
+           --schema <(bq show --format=json $SRC_PROJECT:$dataset.$table | jq '.schema.fields') \
+           $DST_PROJECT:$dataset.$table
+    done
+done
+
+# also copy over the data
+
+bq ls --format json --project_id=$SRC_PROJECT telemetry_stable | \
+  jq -r '.[] | .tableReference.tableId' | \
+  xargs -I{} bq query \
+    --max_rows=0 \
+    --replace \
+    --destination_table $DST_PROJECT:telemetry_stable.{} \
+    --use_legacy_sql=false \
+    "select * from \`$SRC_PROJECT\`.telemetry_stable.{}"
