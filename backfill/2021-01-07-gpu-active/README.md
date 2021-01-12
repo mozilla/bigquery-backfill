@@ -149,7 +149,7 @@ INFO:root:Scanned 286924248 bytes and deleted 10 rows from moz-fx-data-backfill-
 INFO:root:Scanned 175822424583 and deleted 68203 rows in total
 ```
 
-We will need append these results to each of the shared prod live tables
+We will need append these results to each of the shared prod stable tables
 (requires ops-level permissions):
 
 ```bash
@@ -175,7 +175,7 @@ bq cp --append_table moz-fx-data-backfill-7:telemetry_stable.update_v4 moz-fx-da
 bq cp --append_table moz-fx-data-backfill-7:telemetry_stable.voice_v4 moz-fx-data-shared-prod:telemetry_stable.voice_v4
 ```
 
-Now both the prod live and stable tables are backfilled, so we can delete the
+Now stable tables are backfilled, so we can delete the
 rows in the error table corresponding to the backfilled pings:
 
 ```sql
