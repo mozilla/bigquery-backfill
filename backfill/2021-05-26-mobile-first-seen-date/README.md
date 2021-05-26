@@ -365,6 +365,13 @@ diff mozdata:tmp.amiyaguchi_nondesktop_exact_mau moz-fx-data-shared-prod:telemet
 diff mozdata:tmp.amiyaguchi_mobile_usage_with_new_profiles moz-fx-data-shared-prod:telemetry_derived.mobile_usage_v1
 ```
 
+We verify the results of the new profile counts. See
+https://sql.telemetry.mozilla.org/queries/80212/source#199053 for mobile usage
+and https://sql.telemetry.mozilla.org/queries/80214/source#199057 for migration
+pings. The new profile count is stable for new dates. There may be a small
+effect from migrations that occur in the `org.mozilla.firefox` product, but this
+likely to be on the same order of effect as shredder.
+
 We move them into place:
 
 ```bash
@@ -372,11 +379,4 @@ bq cp -f mozdata:tmp.amiyaguchi_core_cd_with_first_seen moz-fx-data-shared-prod:
 bq cp -f mozdata:tmp.amiyaguchi_core_cls_with_first_seen moz-fx-data-shared-prod:telemetry_derived.core_clients_last_seen_v1
 bq cp -f mozdata:tmp.amiyaguchi_nondesktop_exact_mau moz-fx-data-shared-prod:telemetry_derived.firefox_nondesktop_exact_mau28_v1
 bq cp -f mozdata:tmp.amiyaguchi_mobile_usage_with_new_profiles moz-fx-data-shared-prod:telemetry_derived.mobile_usage_v1
-```
-
-And we republish views:
-
-```bash
-./script/publish_views --target-project=moz-fx-data-shared-prod sql/moz-fx-data-shared-prod/telemetry/ --user-facing-only
-./script/publish_views --target-project=mozdata sql/moz-fx-data-shared-prod/telemetry/ --user-facing-only
 ```
