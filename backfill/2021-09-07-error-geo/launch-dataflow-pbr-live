@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -exo pipefail
+
+PROJECT="moz-fx-data-backfill-6"
+JOB_NAME="geo-backfill"
+PIPELINE_FAMILY="telemetry"
+
+## this script assumes it's being run from the ingestion-beam directory
+## of the gcp-ingestion repo.
+
+mvn compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexec.args="\
+    --runner=Dataflow \
+    --jobName=$JOB_NAME \
+    --project=$PROJECT \
+    --geoCityDatabase=gs://moz-fx-data-prod-geoip/GeoIP2-City/20210903/GeoIP2-City.mmdb \
+    --geoIspDatabase=gs://moz-fx-data-prod-geoip/GeoIP2-ISP/20210903/GeoIP2-ISP.mmdb \
+    --geoCityFilter=gs://moz-fx-data-prod-dataflow-templates/cities15000.txt \
+    --schemasLocation=gs://moz-fx-data-prod-dataflow/schemas/202109030341_302c86e7.tar.gz \
+    --inputType=bigquery_table \
+    --input=\"moz-fx-data-shared-prod:payload_bytes_raw.${PIPELINE_FAMILY}\" \
+    --bqReadMethod=storageapi \
+    --outputType=bigquery \
+    --bqRowRestriction=\"submission_timestamp BETWEEN '2021-09-02 01:00:00' AND '2021-09-02 01:10:00'\" \
+    --bqWriteMethod=file_loads \
+    --bqClusteringFields=submission_timestamp \
+    --output=${PROJECT}:\${document_namespace}_live.\${document_type}_v\${document_version} \
+    --errorOutputType=bigquery \
+    --errorOutput=${PROJECT}:payload_bytes_error.${PIPELINE_FAMILY} \
+    --experiments=shuffle_mode=service \
+    --region=us-central1 \
+    --usePublicIps=false \
+    --gcsUploadBufferSizeBytes=16777216 \
+"
