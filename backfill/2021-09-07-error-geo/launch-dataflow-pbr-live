@@ -4,7 +4,7 @@ set -exo pipefail
 
 PROJECT="moz-fx-data-backfill-6"
 JOB_NAME="geo-backfill"
-PIPELINE_FAMILY="telemetry"
+PIPELINE_FAMILY="stub_installer"
 
 ## this script assumes it's being run from the ingestion-beam directory
 ## of the gcp-ingestion repo.

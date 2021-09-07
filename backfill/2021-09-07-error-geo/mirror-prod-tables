@@ -7,7 +7,6 @@ PROJECT=moz-fx-data-backfill-6
 for dataset in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod | grep '_live'); do
     bq mk "$PROJECT:$dataset" || echo "$PROJECT:$dataset already exists"
     for table in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod --format json $dataset | jq -r '.[] | .tableReference.tableId'); do
-        #bq rm -f $PROJECT:$dataset.$table
         bq query --nouse_legacy_sql \
                "CREATE OR REPLACE TABLE \`$PROJECT.$dataset.$table\` LIKE \`moz-fx-data-shared-prod.$dataset.$table\`"
     done
@@ -16,9 +15,7 @@ done
 for dataset in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod | grep 'payload_bytes_error'); do
     bq mk "$PROJECT:$dataset" || echo "$PROJECT:$dataset already exists"
     for table in $(bq ls -n 1000 --project_id=moz-fx-data-shared-prod --format json $dataset | jq -r '.[] | .tableReference.tableId'); do
-        #bq rm -f $PROJECT:$dataset.$table
         bq query --nouse_legacy_sql \
            "CREATE OR REPLACE TABLE \`$PROJECT.$dataset.$table\` LIKE \`moz-fx-data-shared-prod.$dataset.$table\`"
     done
 done
-

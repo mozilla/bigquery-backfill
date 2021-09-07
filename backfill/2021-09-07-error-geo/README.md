@@ -27,5 +27,5 @@ moz-fx-data-shared-prod:contextual_services_live.quicksuggest_click_v1.
 
 My own user can't access the contextual_services tables, or the regrets_reporter table in telemetry.
 
-
+Also, permissions on the destination live tables in the backfill project are going to allow viewing by all data eng, even the ones that should be more locked down. That's another area where we'll need to think critically and improve backfill processes.
 
