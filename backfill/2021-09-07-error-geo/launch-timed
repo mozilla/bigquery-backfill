@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -exo pipefail
+
+#sleep 2000
+
+for dt in 2021-09-01 2021-08-31 2021-08-30; do
+  sleep 8000
+  PIPELINE_FAMILY=telemetry DT=$dt ~/Code/bigquery-backfill/backfill/2021-09-07-error-geo/launch-dataflow-pbr-live
+done
+
+# for dt in 2021-09-02 2021-09-01 2021-08-31 2021-08-30; do
+#   PIPELINE_FAMILY=structured DT=$dt ~/Code/bigquery-backfill/backfill/2021-09-07-error-geo/launch-dataflow-pbr-live
+#   sleep 8000
+# done

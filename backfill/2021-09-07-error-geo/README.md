@@ -110,6 +110,8 @@ mvn clean compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexe
 
 ## Gotchas
 
+### Permissions on live tables
+
 Permissions issues when trying to set up tables in the backfill project:
 
 ```
@@ -122,4 +124,27 @@ moz-fx-data-shared-prod:contextual_services_live.quicksuggest_click_v1.
 My own user can't access the contextual_services tables, or the regrets_reporter table in telemetry.
 
 Also, permissions on the destination live tables in the backfill project are going to allow viewing by all data eng, even the ones that should be more locked down. That's another area where we'll need to think critically and improve backfill processes.
+
+### Number of destination datasets/tables
+
+The `structured` jobs failed due to rate limiting on calls to get dataset info and listing
+tables within datasets. This is likely due to having many more Glean applications than
+in previous backfills. I ended up removing the section of code in `KeyByBigQueryTableDestination`
+that checks for table existence in order to get around this.
+
+### Failed to advance reader
+
+The telemetry job for 2021-08-31 failed with:
+
+```
+
+Workflow failed. Causes: S35:Read.BigQueryInput/BigQueryIO.TypedRead/Read(BigQueryStorageTableSource)+ParseProxy/MapElements/Map+GeoIspLookup/MapElements/Map+GeoCityLookup/MapElements/Map+DecompressPayload/MapElements/Map+ParseUri/MapWithFailures+WriteErrorOutput/LimitPayloadSize/MapWithFailures+WriteErrorOutput/CompressPayload/MapElements/Map+WriteErrorOutput/KeyByBigQueryTableDestination/MapElements.MapWithFailures/MapWithFailures+WriteErrorOutput/BigQueryIO.Write/PrepareWrite/ParDo(Anonymous)+WriteErrorOutput/BigQueryIO.Write/BatchLoads/rewindowIntoGlobal/Window.Assign+WriteErrorOutput/BigQueryIO.Write/BatchLoads/WriteBundlesToFiles+WriteErrorOutput/BigQueryIO.Write/BatchLoads/ReifyResults/View.AsIterable/ParDo(ToIsmRecordForGlobalWindow)+WriteErrorOutput/BigQueryIO.Write/BatchLoads/GroupByDestination/Reify+LimitPayloadSize/MapWithFailures+WriteErrorOutput/LimitPayloadSize/MapWithFailures+WriteErrorOutput/CompressPayload/MapElements/Map+WriteErrorOutput/KeyByBigQueryTableDestination/MapElements.MapWithFailures/MapWithFailures+WriteErrorOutput/BigQueryIO.Write/PrepareWrite/ParDo(Anonymous)+WriteErrorOutput/BigQueryIO.Write/BatchLoads/rewindowIntoGlobal/Window.Assign+WriteErrorOutput/BigQueryIO.Write/BatchLoads/WriteBundlesToFiles+WriteErrorOutput/BigQueryIO.Write/BatchLoads/ReifyResults/View.AsIterable/ParDo(ToIsmRecordForGlobalWindow)+WriteErrorOutput/BigQueryIO.Write/BatchLoads/GroupByDestination/Reify+ParsePayload/FlatMapElements.FlatMapWithFailures/FlatMapWithFailures+WriteErrorOutput/LimitPayloadSize/MapWithFailures+WriteErrorOutput/CompressPayload/MapElements/Map+WriteErrorOutput/KeyByBigQueryTableDestination/MapElements.MapWithFailures/MapWithFailures+WriteErrorOutput/BigQueryIO.Write/PrepareWrite/ParDo(Anonymous)+WriteErrorOutput/BigQueryIO.Write/BatchLoads/rewindowIntoGlobal/Window.Assign+WriteErrorOutput/BigQueryIO.Write/BatchLoads/WriteBundlesToFiles+WriteErrorOutput/BigQueryIO.Write/BatchLoads/ReifyResults/View.AsIterable/ParDo(ToIsmRecordForGlobalWindow)+WriteErrorOutput/BigQueryIO.Write/BatchLoads/GroupByDestination/Reify+ParseUserAgent/MapElements/Map+NormalizeAttributes/MapElements/Map+AddMetadata/MapWithFailures+WriteErrorOutput/LimitPayloadSize/MapWithFailures+WriteErrorOutput/CompressPayload/MapElements/Map+WriteErrorOutput/KeyByBigQueryTableDestination/MapElements.MapWithFailures/MapWithFailures+WriteErrorOutput/BigQueryIO.Write/PrepareWrite/ParDo(Anonymous)+WriteErrorOutput/BigQueryIO.Write/BatchLoads/rewindowIntoGlobal/Window.Assign+WriteErrorOutput/BigQueryIO.Write/BatchLoads/WriteBundlesToFiles+WriteErrorOutput/BigQueryIO.Write/BatchLoads/ReifyResults/View.AsIterable/ParDo(ToIsmRecordForGlobalWindow)+WriteErrorOutput/BigQueryIO.Write/BatchLoads/GroupByDestination/Reify+Write.BigQueryOutput/LimitPayloadSize/MapWithFailures+WriteErrorOutput/LimitPayloadSize/MapWithFailures+WriteErrorOutput/CompressPayload/MapElements/Map+WriteErrorOutput/KeyByBigQueryTableDestination/MapElements.MapWithFailures/MapWithFailures+WriteErrorOutput/BigQueryIO.Write/PrepareWrite/ParDo(Anonymous)+WriteErrorOutput/BigQueryIO.Write/BatchLoads/rewindowIntoGlobal/Window.Assign+WriteErrorOutput/BigQueryIO.Write/BatchLoads/WriteBundlesToFiles+WriteErrorOutput/BigQueryIO.Write/BatchLoads/ReifyResults/View.AsIterable/ParDo(ToIsmRecordForGlobalWindow)+WriteErrorOutput/BigQueryIO.Write/BatchLoads/GroupByDestination/Reify+Write.BigQueryOutput/CompressPayload/MapElements/Map+Write.BigQueryOutput/KeyByBigQueryTableDestination/MapElements.MapWithFailures/MapWithFailures+WriteErrorOutput/LimitPayloadSize/MapWithFailures+WriteErrorOutput/CompressPayload/MapElements/Map+WriteErrorOutput/KeyByBigQueryTableDestination/MapElements.MapWithFailures/MapWithFailures+WriteErrorOutput/BigQueryIO.Write/PrepareWrite/ParDo(Anonymous)+WriteErrorOutput/BigQueryIO.Write/BatchLoads/rewindowIntoGlobal/Window.Assign+WriteErrorOutput/BigQueryIO.Write/BatchLoads/WriteBundlesToFiles+WriteErrorOutput/BigQueryIO.Write/BatchLoads/ReifyResults/View.AsIterable/ParDo(ToIsmRecordForGlobalWindow)+WriteErrorOutput/BigQueryIO.Write/BatchLoads/GroupByDestination/Reify+WriteErrorOutput/BigQueryIO.Write/BatchLoads/GroupByDestination/Session/Flatten+WriteErrorOutput/BigQueryIO.Write/BatchLoads/GroupByDestination/Write+Write.BigQueryOutput/BigQueryIO.Write/PrepareWrite/ParDo(Anonymous)+Write.BigQueryOutput/BigQueryIO.Write/BatchLoads/rewindowIntoGlobal/Window.Assign+Write.BigQueryOutput/BigQueryIO.Write/BatchLoads/WriteBundlesToFiles+Write.BigQueryOutput/BigQueryIO.Write/BatchLoads/ReifyResults/View.AsIterable/ParDo(ToIsmRecordForGlobalWindow)+Write.BigQueryOutput/BigQueryIO.Write/BatchLoads/GroupByDestination/Reify+Write.BigQueryOutput/BigQueryIO.Write/BatchLoads/GroupByDestination/Write failed., The job failed because a work item has failed 4 times.
+```
+
+This was due to many workers having errors like:
+
+```
+Error message from worker: java.io.IOException: Failed to advance reader of source: name: "projects/moz-fx-data-backfill-6/locations/us/sessions/CAISDENad29RcnNNaUJBbBoCanEaAml3/streams/CJcHGgJqcRoCaXcgsPnJ5gIoAg"
+Caused by: com.google.api.gax.rpc.InternalException: io.grpc.StatusRuntimeException: INTERNAL: RST_STREAM closed stream. HTTP/2 error code: INTERNAL_ERROR
+```
 

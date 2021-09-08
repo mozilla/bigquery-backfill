@@ -3,13 +3,14 @@
 set -exo pipefail
 
 PROJECT="moz-fx-data-backfill-6"
-JOB_NAME="geo-backfill"
-PIPELINE_FAMILY="stub_installer"
+: "${PIPELINE_FAMILY:=telemetry}"
+: "${DT:=2021-09-03}"
+JOB_NAME="geo-backfill-${PIPELINE_FAMILY}-${DT}-west1"
 
 ## this script assumes it's being run from the ingestion-beam directory
 ## of the gcp-ingestion repo.
 
-mvn compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexec.args="\
+mvn clean compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexec.args="\
     --runner=Dataflow \
     --jobName=$JOB_NAME \
     --project=$PROJECT \
@@ -21,14 +22,18 @@ mvn compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexec.args
     --input=\"moz-fx-data-shared-prod:payload_bytes_raw.${PIPELINE_FAMILY}\" \
     --bqReadMethod=storageapi \
     --outputType=bigquery \
-    --bqRowRestriction=\"submission_timestamp BETWEEN '2021-09-02 01:00:00' AND '2021-09-02 01:10:00'\" \
+    --bqRowRestriction=\"CAST(submission_timestamp AS DATE) = '${DT}'\"
     --bqWriteMethod=file_loads \
     --bqClusteringFields=submission_timestamp \
     --output=${PROJECT}:\${document_namespace}_live.\${document_type}_v\${document_version} \
     --errorOutputType=bigquery \
     --errorOutput=${PROJECT}:payload_bytes_error.${PIPELINE_FAMILY} \
     --experiments=shuffle_mode=service \
-    --region=us-central1 \
+    --region=us-west1 \
     --usePublicIps=false \
     --gcsUploadBufferSizeBytes=16777216 \
 "
+
+
+#--bqRowRestriction=\"submission_timestamp BETWEEN '2021-09-02 01:00:00' AND '2021-09-02 01:10:00'\" \
+#--bqRowRestriction=\"CAST(submission_timestamp AS DATE) BETWEEN '2020-01-10' AND '2020-01-14'\"
