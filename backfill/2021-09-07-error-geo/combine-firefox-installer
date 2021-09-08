@@ -1,0 +1,39 @@
+#!/bin/bash
+
+#set -exo pipefail
+
+PROJECT=moz-fx-data-backfill-6
+dataset=firefox_installer_live
+table=install_v1
+suffix=_combined
+dest=$PROJECT.$dataset.$table${suffix}
+
+# bq query --nouse_legacy_sql \
+#    "CREATE OR REPLACE TABLE \`${dest}\` LIKE \`moz-fx-data-shared-prod.$dataset.$table\`"
+
+# combine the following data sources (moz-fx-data-backfill-6):
+# 1. install_v1_from_snapshot -- August 17th to 19th          -- installer_type = 'stub' NOTE, actually went to install_v1 instead of from_snapshot
+# 2. install_v1_from_pbr      -- August 20th to September 3rd -- installer_type = 'stub'
+# 3. install_v1               -- August 30th to September 3rd -- installer_type = 'full'
+# also moz-fx-data-shared-prod
+# 4. install_v1               -- August 17th to 29th          -- installer_type = 'full'
+
+# source_table,start,end,installer_type
+# not ready yet
+# $PROJECT.$dataset.${table},2021-08-30,2021-09-03,full
+for data in $PROJECT.$dataset.${table},2021-08-17,2021-08-19,stub \
+                              $PROJECT.$dataset.${table}_from_pbr,2021-08-20,2021-09-03,stub \
+                              moz-fx-data-shared-prod.$dataset.${table},2021-08-17,2021-08-29,full ; do
+  source_table=$(echo $data | cut -d, -f1)
+  start=$(echo $data | cut -d, -f2)
+  end=$(echo $data | cut -d, -f3)
+  installer_type=$(echo $data | cut -d, -f4)
+
+  date_filter="CAST(submission_timestamp AS DATE) BETWEEN '${start}' AND '${end}'"
+  filter="installer_type = '${installer_type}'"
+
+  bq query --nouse_legacy_sql --project_id $PROJECT \
+       --dataset_id $dataset \
+       --destination_table $PROJECT:$dataset.$table${suffix} \
+       --append_table -n 0 "SELECT * FROM ${source_table} WHERE (${date_filter}) AND ${filter}"
+done
