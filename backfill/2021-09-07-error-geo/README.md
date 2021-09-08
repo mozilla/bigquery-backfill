@@ -195,3 +195,10 @@ mvn clean compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexe
 "
 
 ```
+
+
+### CN seems unaffected
+
+When looking at backfilled records vs. prod, it looks like pings from China
+were unaffected by the geo problem. Every other country saw a downturn in
+attribution in the prod data except for CN.
