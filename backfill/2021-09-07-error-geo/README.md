@@ -148,3 +148,50 @@ Error message from worker: java.io.IOException: Failed to advance reader of sour
 Caused by: com.google.api.gax.rpc.InternalException: io.grpc.StatusRuntimeException: INTERNAL: RST_STREAM closed stream. HTTP/2 error code: INTERNAL_ERROR
 ```
 
+The Diagnostics tab on the job shows 542 instances of:
+
+```
+I0908 00:14:14.101206 6905 log_monitor.go:160] New status generated: &{Source:kernel-monitor Events:[{Severity:warn Timestamp:2021-09-08 00:13:58.302819954 +0000 UTC m=-15.099678467 Reason:OOMKilling Message:Out of memory: Killed process 336 (chronyd) total-vm:85904kB, anon-rss:180kB, file-rss:0kB, shmem-rss:0kB, UID:0 pgtables:68kB oom_score_adj:0}] Conditions:[{Type:KernelDeadlock Status:False Transition:2021-09-08 00:14:13.642938255 +0000 UTC m=+0.240439886 Reason:KernelHasNoDeadlock Message:kernel has no deadlock} {Type:ReadonlyFilesystem Status:False Transition:2021-09-08 00:14:13.642938407 +0000 UTC m=+0.240439974 Reason:FilesystemIsNotReadOnly Message:Filesystem is not read-only}]}
+The worker VM had to shut down one or more processes due to lack of memory.
+```
+
+So this could be due to memory pressure, likely due to GCS buffers for the large number of destination tables.
+
+Test of new buffer config:
+
+```
+set -exo pipefail
+
+PROJECT="moz-fx-data-backfill-6"
+: "${PIPELINE_FAMILY:=telemetry}"
+: "${DT:=2021-09-03}"
+JOB_NAME="geo-backfill-${PIPELINE_FAMILY}-${DT}"
+
+## this script assumes it's being run from the ingestion-beam directory
+## of the gcp-ingestion repo.
+
+mvn clean compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexec.args="\
+    --runner=Dataflow \
+    --jobName=$JOB_NAME \
+    --project=$PROJECT \
+    --geoCityDatabase=gs://moz-fx-data-prod-geoip/GeoIP2-City/20210903/GeoIP2-City.mmdb \
+    --geoIspDatabase=gs://moz-fx-data-prod-geoip/GeoIP2-ISP/20210903/GeoIP2-ISP.mmdb \
+    --geoCityFilter=gs://moz-fx-data-prod-dataflow-templates/cities15000.txt \
+    --schemasLocation=gs://moz-fx-data-prod-dataflow/schemas/202109030341_302c86e7.tar.gz \
+    --inputType=bigquery_table \
+    --input=\"moz-fx-data-shared-prod:payload_bytes_raw.${PIPELINE_FAMILY}\" \
+    --bqReadMethod=storageapi \
+    --outputType=bigquery \
+    --bqRowRestriction=\"submission_timestamp BETWEEN '2021-08-25 01:00:00' AND '2021-08-25 01:10:00'\" \
+    --bqWriteMethod=file_loads \
+    --bqClusteringFields=submission_timestamp \
+    --output=${PROJECT}:\${document_namespace}_live.\${document_type}_v\${document_version} \
+    --errorOutputType=bigquery \
+    --errorOutput=${PROJECT}:payload_bytes_error.${PIPELINE_FAMILY} \
+    --experiments=shuffle_mode=service \
+    --region=us-central1 \
+    --usePublicIps=false \
+    --gcsUploadBufferSizeBytes=4194304 \
+"
+
+```
