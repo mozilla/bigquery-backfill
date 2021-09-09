@@ -107,6 +107,82 @@ mvn clean compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexe
 "
 ```
 
+### Attempt 2
+
+```
+CREATE TABLE
+  `moz-fx-data-backfill-6.firefox_installer_live.install_v1_from_snapshot2` 
+  LIKE `moz-fx-data-backfill-6.firefox_installer_live.install_v1`;
+CREATE TABLE
+  `moz-fx-data-backfill-6.firefox_installer_live.install_v1_from_pbr2` 
+  LIKE `moz-fx-data-backfill-6.firefox_installer_live.install_v1`;
+```
+
+```
+PROJECT="moz-fx-data-backfill-6"
+JOB_NAME="geo-backfill-stub-pbr2"
+PIPELINE_FAMILY="stub_installer"
+
+## this script assumes it's being run from the ingestion-beam directory
+## of the gcp-ingestion repo.
+
+mvn clean compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexec.args="\
+    --runner=Dataflow \
+    --jobName=$JOB_NAME \
+    --project=$PROJECT \
+    --geoCityDatabase=gs://moz-fx-data-prod-geoip/GeoIP2-City/20210903/GeoIP2-City.mmdb \
+    --geoIspDatabase=gs://moz-fx-data-prod-geoip/GeoIP2-ISP/20210903/GeoIP2-ISP.mmdb \
+    --geoCityFilter=gs://moz-fx-data-prod-dataflow-templates/cities15000.txt \
+    --schemasLocation=gs://moz-fx-data-prod-dataflow/schemas/202109030341_302c86e7.tar.gz \
+    --inputType=bigquery_table \
+    --input=\"moz-fx-data-shared-prod:payload_bytes_raw.${PIPELINE_FAMILY}\" \
+    --bqReadMethod=storageapi \
+    --outputType=bigquery \
+    --bqRowRestriction=\"CAST(submission_timestamp AS DATE) BETWEEN '2021-08-20' AND '2021-09-03'\"
+    --bqWriteMethod=file_loads \
+    --bqClusteringFields=submission_timestamp \
+    --output=${PROJECT}:\${document_namespace}_live.\${document_type}_v\${document_version}_from_pbr2 \
+    --errorOutputType=bigquery \
+    --errorOutput=${PROJECT}:payload_bytes_error.${PIPELINE_FAMILY} \
+    --experiments=shuffle_mode=service \
+    --region=us-central1 \
+    --usePublicIps=false \
+    --gcsUploadBufferSizeBytes=16777216 \
+"
+```
+
+```
+PROJECT="moz-fx-data-backfill-6"
+JOB_NAME="geo-backfill-stub-snapshot2"
+PIPELINE_FAMILY="stub_installer"
+
+## this script assumes it's being run from the ingestion-beam directory
+## of the gcp-ingestion repo.
+
+mvn clean compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexec.args="\
+    --runner=Dataflow \
+    --jobName=$JOB_NAME \
+    --project=$PROJECT \
+    --geoCityDatabase=gs://moz-fx-data-prod-geoip/GeoIP2-City/20210903/GeoIP2-City.mmdb \
+    --geoIspDatabase=gs://moz-fx-data-prod-geoip/GeoIP2-ISP/20210903/GeoIP2-ISP.mmdb \
+    --geoCityFilter=gs://moz-fx-data-prod-dataflow-templates/cities15000.txt \
+    --schemasLocation=gs://moz-fx-data-prod-dataflow/schemas/202109030341_302c86e7.tar.gz \
+    --inputType=bigquery_table \
+    --input=\"moz-fx-data-shared-prod:payload_bytes_raw.stub_installer_snapshot_bug1729069\" \
+    --bqReadMethod=storageapi \
+    --outputType=bigquery \
+    --bqRowRestriction=\"CAST(submission_timestamp AS DATE) BETWEEN '2021-08-10' AND '2021-08-19'\"
+    --bqWriteMethod=file_loads \
+    --bqClusteringFields=submission_timestamp \
+    --output=${PROJECT}:\${document_namespace}_live.\${document_type}_v\${document_version}_from_snapshot2 \
+    --errorOutputType=bigquery \
+    --errorOutput=${PROJECT}:payload_bytes_error.${PIPELINE_FAMILY} \
+    --experiments=shuffle_mode=service \
+    --region=us-central1 \
+    --usePublicIps=false \
+    --gcsUploadBufferSizeBytes=16777216 \
+"
+```
 
 ## Gotchas
 
@@ -202,3 +278,9 @@ mvn clean compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexe
 When looking at backfilled records vs. prod, it looks like pings from China
 were unaffected by the geo problem. Every other country saw a downturn in
 attribution in the prod data except for CN.
+
+### Lack of document_id for stub_installer
+
+We had null document_id for install pings backfilled from stub_installer.
+This is because [we rely on pubsub message ID in this case](https://github.com/mozilla/gcp-ingestion/blob/5fb9075d6db7fb1927bee1afce1943f39fa22187/ingestion-beam/src/main/java/com/mozilla/telemetry/decoder/ParseUri.java#L107-L108).
+

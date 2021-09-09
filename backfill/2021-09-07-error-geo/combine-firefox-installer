@@ -20,8 +20,8 @@ dest=$PROJECT.$dataset.$table${suffix}
 
 # source_table,start,end,installer_type
 for data in $PROJECT.$dataset.${table},2021-08-30,2021-09-03,full \
-                              $PROJECT.$dataset.${table},2021-08-17,2021-08-19,stub \
-                              $PROJECT.$dataset.${table}_from_pbr,2021-08-20,2021-09-03,stub \
+                              $PROJECT.$dataset.${table}_from_snapshot2,2021-08-17,2021-08-19,stub \
+                              $PROJECT.$dataset.${table}_from_pbr2,2021-08-20,2021-09-03,stub \
                               moz-fx-data-shared-prod.$dataset.${table},2021-08-17,2021-08-29,full ; do
   source_table=$(echo $data | cut -d, -f1)
   start=$(echo $data | cut -d, -f2)
