@@ -19,9 +19,8 @@ dest=$PROJECT.$dataset.$table${suffix}
 # 4. install_v1               -- August 17th to 29th          -- installer_type = 'full'
 
 # source_table,start,end,installer_type
-# not ready yet
-# $PROJECT.$dataset.${table},2021-08-30,2021-09-03,full
-for data in $PROJECT.$dataset.${table},2021-08-17,2021-08-19,stub \
+for data in $PROJECT.$dataset.${table},2021-08-30,2021-09-03,full \
+                              $PROJECT.$dataset.${table},2021-08-17,2021-08-19,stub \
                               $PROJECT.$dataset.${table}_from_pbr,2021-08-20,2021-09-03,stub \
                               moz-fx-data-shared-prod.$dataset.${table},2021-08-17,2021-08-29,full ; do
   source_table=$(echo $data | cut -d, -f1)
