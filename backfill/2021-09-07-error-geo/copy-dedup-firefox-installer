@@ -1,0 +1,10 @@
+#!/bin/bash
+# run from bqetl repo after cp-firefox-installer is done for all days (after
+# both structured and stub installer jobs are complete), then clear dags at
+# https://workflow.telemetry.mozilla.org/tree?dag_id=bqetl_desktop_funnel for
+# the affected days
+
+# also see https://github.com/mozilla/looker-spoke-default/pull/135 to clear
+# the looker cache so that the numbers that matter dashboard is updated
+
+./script/copy_deduplicate -o 'firefox_installer_live.install_v1' --project-id moz-fx-data-shared-prod --billing-project moz-fx-data-backfill-6 --dates 2021-08-17 2021-08-18 2021-08-19 2021-08-20 2021-08-21 2021-08-22 2021-08-23 2021-08-24 2021-08-25 2021-08-26 2021-08-27 2021-08-28 2021-08-29
