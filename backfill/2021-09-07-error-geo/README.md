@@ -109,6 +109,12 @@ mvn clean compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexe
 
 ### Attempt 2
 
+There were some errors in attempt 1; the primary problem was that we ended up with
+null document_id for backfilled records. We had to make a code update so that stub
+installer documents get a random UUID in the case of non-Pubsub input.
+We threw away the first results. Below is what we did to actually populate the prod
+live table for firefox_installer.
+
 ```
 CREATE TABLE
   `moz-fx-data-backfill-6.firefox_installer_live.install_v1_from_snapshot2` 
@@ -183,6 +189,10 @@ mvn clean compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexe
     --gcsUploadBufferSizeBytes=16777216 \
 "
 ```
+
+## Telemetry and structured
+
+See the various scripts in this directory.
 
 ## Gotchas
 
@@ -272,6 +282,7 @@ mvn clean compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexe
 
 ```
 
+Using smaller buffer sizes for structured jobs seemed to work.
 
 ### CN seems unaffected
 
@@ -284,3 +295,4 @@ attribution in the prod data except for CN.
 We had null document_id for install pings backfilled from stub_installer.
 This is because [we rely on pubsub message ID in this case](https://github.com/mozilla/gcp-ingestion/blob/5fb9075d6db7fb1927bee1afce1943f39fa22187/ingestion-beam/src/main/java/com/mozilla/telemetry/decoder/ParseUri.java#L107-L108).
 
+We updated the gcp-ingestion code to assign a random UUID in the non-Pubsub case.
