@@ -194,6 +194,17 @@ mvn clean compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dexe
 
 See the various scripts in this directory.
 
+## Cleanup
+
+```
+# BE CAREFUL! This removes all BQ datasets and GCS buckets from the target project,
+# including their contents; it cannot be undone.
+bq ls --project_id=moz-fx-data-backfill-6 | tail -n+3 | awk '{print $1}' | xargs -I{} -n1 echo bq rm -r -f "moz-fx-data-backfill-6:{}"
+gsutil ls -p moz-fx-data-backfill-6 | xargs echo gsutil -m rm -r
+```
+
+And we're done!
+
 ## Gotchas
 
 ### Permissions on live tables
