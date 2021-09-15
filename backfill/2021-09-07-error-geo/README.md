@@ -203,6 +203,17 @@ bq ls --project_id=moz-fx-data-backfill-6 | tail -n+3 | awk '{print $1}' | xargs
 gsutil ls -p moz-fx-data-backfill-6 | xargs echo gsutil -m rm -r
 ```
 
+We also did some additional cleanup for other backfill projects:
+```
+# BE CAREFUL! This removes all BQ datasets and GCS buckets from the target project,
+# including their contents; it cannot be undone.
+bq ls --project_id=moz-fx-data-backfill-7 | tail -n+3 | awk '{print $1}' | xargs -I{} -n1 echo bq rm -r -f "moz-fx-data-backfill-7:{}"
+gsutil ls -p moz-fx-data-backfill-7 | xargs echo gsutil -m rm -r
+bq ls --project_id=moz-fx-data-backfill-8 | tail -n+3 | awk '{print $1}' | xargs -I{} -n1 echo bq rm -r -f "moz-fx-data-backfill-8:{}"
+gsutil ls -p moz-fx-data-backfill-8 | xargs echo gsutil -m rm -r
+bq ls --project_id=moz-fx-data-backfill-17 | tail -n+3 | awk '{print $1}' | xargs -I{} -n1 echo bq rm -r -f "moz-fx-data-backfill-17:{}"
+```
+
 And we're done!
 
 ## Gotchas
