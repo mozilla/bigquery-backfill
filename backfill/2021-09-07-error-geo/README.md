@@ -214,6 +214,11 @@ gsutil ls -p moz-fx-data-backfill-8 | xargs echo gsutil -m rm -r
 bq ls --project_id=moz-fx-data-backfill-17 | tail -n+3 | awk '{print $1}' | xargs -I{} -n1 echo bq rm -r -f "moz-fx-data-backfill-17:{}"
 ```
 
+An admin needs to run:
+```
+bq rm moz-fx-data-shared-prod:payload_bytes_raw.stub_installer_snapshot_bug1729069
+```
+
 And we're done!
 
 ## Gotchas
