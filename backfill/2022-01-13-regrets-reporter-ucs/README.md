@@ -99,3 +99,13 @@ Any GCS buckets created by Dataflow jobs can be removed like so:
 
 gsutil ls -p moz-fx-data-backfill-10 | xargs gsutil -m rm -r
 ```
+
+Finally, Data SRE will delete the errors for the RegretsReporter payloads that have now been successfully ingested:
+
+```sql
+DELETE FROM `moz-fx-data-shared-prod.payload_bytes_error.structured`
+WHERE
+  DATE(submission_timestamp) BETWEEN '2021-11-01' AND '2022-01-09'
+  AND document_namespace = 'regrets-reporter-ucs'
+  AND error_message LIKE 'org.everit.json.schema.ValidationException%Double'
+```
