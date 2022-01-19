@@ -72,12 +72,18 @@ Output:
 To insert the previously rejected RegretsReporter events into production tables, someone with appropriate access can run the following `bq` commands either in Google Cloud Shell or using the Google Cloud SDK:
 
 ```bash
+bq cp --append_table moz-fx-data-backfill-10:regrets_reporter_ucs_live.main_events_v1 moz-fx-data-shared-prod:regrets_reporter_ucs_live.main_events_v1
+
+bq cp --append_table moz-fx-data-backfill-10:regrets_reporter_ucs_live.video_index_v1 moz-fx-data-shared-prod:regrets_reporter_ucs_live.video_index_v1
+
 bq cp --append_table moz-fx-data-backfill-10:regrets_reporter_ucs_stable.main_events_v1 moz-fx-data-shared-prod:regrets_reporter_ucs_stable.main_events_v1
 
 bq cp --append_table moz-fx-data-backfill-10:regrets_reporter_ucs_stable.video_index_v1 moz-fx-data-shared-prod:regrets_reporter_ucs_stable.video_index_v1
 ```
 
 Output:
+  - 822,830 `moz-fx-data-shared-prod.regrets_reporter_ucs_live.main_events_v1` rows.
+  - 2 `moz-fx-data-shared-prod.regrets_reporter_ucs_live.video_index_v1` rows.
   - 822,368 `moz-fx-data-shared-prod.regrets_reporter_ucs_stable.main_events_v1` rows.
   - 2 `moz-fx-data-shared-prod.regrets_reporter_ucs_stable.video_index_v1` rows.
 
