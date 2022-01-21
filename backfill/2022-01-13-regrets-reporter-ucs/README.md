@@ -37,12 +37,12 @@ Some gotchas we ran into:
 The payload parsing code needed to be temporarily modified for the backfill to deal with the floating point timestamps.
 The modified code was published to [gcp-ingestion/bug-1748284-backfill](https://github.com/mozilla/gcp-ingestion/compare/c67c21a7f919b86fb1b764909f3d96380fb68745...bug-1748284-backfill), but in case that branch gets pruned the code modification is also saved in [`02-gcp-ingestion.diff`](02-gcp-ingestion.diff).
 
-With a local working copy of `gcp-ingestion` thus modified, run the [`02-gcp-ingestion-beam-decoder.bash` script](02-gcp-ingestion-beam-decoder.bash) to start the decoder as a Dataflow job:
+With a local working copy of `gcp-ingestion` thus modified, run the [`02-gcp-ingestion-beam-decoder.sh` script](02-gcp-ingestion-beam-decoder.sh) to start the decoder as a Dataflow job:
 
 ```bash
 cd path/to/gcp-ingestion
 
-path/to/bigquery-backfill/backfill/2022-01-13-regrets-reporter-ucs/02-gcp-ingestion-beam-decoder.bash
+path/to/bigquery-backfill/backfill/2022-01-13-regrets-reporter-ucs/02-gcp-ingestion-beam-decoder.sh
 ```
 
 That decoder job is configured to populate the tables in the `moz-fx-data-backfill-10.regrets_reporter_ucs_live` dataset and write any errors to the `moz-fx-data-backfill-10.payload_bytes_error.backfill` table.
@@ -54,12 +54,12 @@ Output:
 
 ## Step 3:  Copy & deduplicate decoded RegretsReporter events
 
-To copy and deduplicate the rows from the "live" tables in the `moz-fx-data-backfill-10.regrets_reporter_ucs_live` dataset into the "stable" tables in the `moz-fx-data-backfill-10.regrets_reporter_ucs_stable` dataset, run the [`03-bigquery-etl-copy-deduplicate.bash` script](03-bigquery-etl-copy-deduplicate.bash):
+To copy and deduplicate the rows from the "live" tables in the `moz-fx-data-backfill-10.regrets_reporter_ucs_live` dataset into the "stable" tables in the `moz-fx-data-backfill-10.regrets_reporter_ucs_stable` dataset, run the [`03-bigquery-etl-copy-deduplicate.sh` script](03-bigquery-etl-copy-deduplicate.sh):
 
 ```bash
 cd path/to/bigquery-etl
 
-path/to/bigquery-backfill/backfill/2022-01-13-regrets-reporter-ucs/03-bigquery-etl-copy-deduplicate.bash
+path/to/bigquery-backfill/backfill/2022-01-13-regrets-reporter-ucs/03-bigquery-etl-copy-deduplicate.sh
 ```
 
 Output:
