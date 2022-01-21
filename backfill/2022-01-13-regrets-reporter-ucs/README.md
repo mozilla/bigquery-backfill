@@ -17,7 +17,7 @@
   - As of 2022-01-14 there continue to be hundreds of such RegretsReporter event payloads being rejected per day, but that volume is low enough to not be a serious concern.
 
 
-## Step 1:  Set up `moz-fx-data-backfill-10` GCP project
+## Step 1:  Set up backfill GCP project
 
 The rejected RegretsReporter event payloads to be used as the source of the backfill were in `moz-fx-data-shared-prod:payload_bytes_error.structured`, which has restricted access, and the destination tables in `moz-fx-data-shared-prod:regrets_reporter_ucs_stable` also have restricted access.
 
@@ -90,22 +90,22 @@ Output:
 
 ## Step 5:  Clean up
 
-Data SRE will remove the [resources that were created for this backfill with Terraform](https://github.com/mozilla-services/cloudops-infra/pull/3694) using Terraform.
+1.  DE will remove any GCS buckets created by Dataflow jobs:
 
-Any GCS buckets created by Dataflow jobs can be removed like so:
+    ```bash
+    # BE CAREFUL!  This removes all GCS buckets from the target project.  It cannot be undone.
 
-```bash
-# BE CAREFUL!  This removes all GCS buckets from the target project.  It cannot be undone.
+    gsutil ls -p moz-fx-data-backfill-10 | xargs gsutil -m rm -r
+    ```
 
-gsutil ls -p moz-fx-data-backfill-10 | xargs gsutil -m rm -r
-```
+2.  Data SRE will remove the [resources that were created for this backfill with Terraform](https://github.com/mozilla-services/cloudops-infra/pull/3694) using Terraform (note that this also removes DE editor access to the backfill GCP project).
 
-Finally, Data SRE will delete the errors for the RegretsReporter payloads that have now been successfully ingested:
+3.  Data SRE will delete the errors for the RegretsReporter payloads that have now been successfully ingested:
 
-```sql
-DELETE FROM `moz-fx-data-shared-prod.payload_bytes_error.structured`
-WHERE
-  DATE(submission_timestamp) BETWEEN '2021-11-01' AND '2022-01-09'
-  AND document_namespace = 'regrets-reporter-ucs'
-  AND error_message LIKE 'org.everit.json.schema.ValidationException%Double'
-```
+    ```sql
+    DELETE FROM `moz-fx-data-shared-prod.payload_bytes_error.structured`
+    WHERE
+      DATE(submission_timestamp) BETWEEN '2021-11-01' AND '2022-01-09'
+      AND document_namespace = 'regrets-reporter-ucs'
+      AND error_message LIKE 'org.everit.json.schema.ValidationException%Double'
+    ```
