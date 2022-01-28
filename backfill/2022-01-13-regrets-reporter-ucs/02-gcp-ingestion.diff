@@ -1,0 +1,22 @@
+diff --git a/ingestion-beam/src/main/java/com/mozilla/telemetry/decoder/ParsePayload.java b/ingestion-beam/src/main/java/com/mozilla/telemetry/decoder/ParsePayload.java
+index b90311a7..1230e49f 100644
+--- a/ingestion-beam/src/main/java/com/mozilla/telemetry/decoder/ParsePayload.java
++++ b/ingestion-beam/src/main/java/com/mozilla/telemetry/decoder/ParsePayload.java
+@@ -160,6 +160,17 @@ public class ParsePayload extends
+         throw e;
+       }
+ 
++      // Round any floating point event timestamps, which would otherwise cause a schema validation error.
++      JsonNode jsonEvents = json.get("events");
++      if (jsonEvents != null && jsonEvents.isArray()) {
++        for (JsonNode jsonEvent: jsonEvents) {
++          JsonNode jsonEventTimestamp = jsonEvent.get("timestamp");
++          if (jsonEventTimestamp != null && jsonEventTimestamp.isFloatingPointNumber()) {
++            ((ObjectNode)jsonEvent).put("timestamp", Math.round(jsonEventTimestamp.asDouble()));
++          }
++        }
++      }
++
+       try {
+         validateTimed(schema, json);
+       } catch (ValidationException e) {
