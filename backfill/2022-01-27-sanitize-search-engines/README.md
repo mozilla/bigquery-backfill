@@ -43,3 +43,19 @@ WHEN NOT MATCHED BY SOURCE AND DATE(submission_timestamp) = '2022-01-10' THEN
 I used a constant for the value in the `UPDATE` because I was otherwise receiving an error
 about correlated subqueries not being allowed in `UPDATE` statements, which I believe has
 to do with the UDF logic. It's probably possible to unroll that a bit.
+
+The following is allowed:
+
+```
+MERGE ...
+  UPDATE SET payload.keyed_histograms.search_counts = payload.keyed_histograms.search_counts
+```
+
+But we get the `Correlated Subquery is unsupported in UPDATE clause` error if we change
+the target value to involve a minimal UNNEST subquery:
+
+```
+MERGE ...
+  UPDATE SET payload.keyed_histograms.search_counts =
+    ARRAY(SELECT AS STRUCT * FROM UNNEST(payload.keyed_histograms.search_counts))
+```
