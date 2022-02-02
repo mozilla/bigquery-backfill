@@ -211,3 +211,130 @@ WHEN NOT MATCHED BY SOURCE AND DATE(submission_timestamp) = '2022-01-10' THEN
 
 This fails with `Resources exceeded during query execution: Not enough resources for query planning - too many subqueries`.
 The most we can include is `search_counts` along with two of the keyed scalars before hitting this.
+
+### Merging with a pre-computed sanitization source
+
+To avoid query complexity, I wanted to see if I could push computation into the target table we're merging
+from. So, instead of merging with a source of just deletion requests, we prepare a table with one row per
+row in the stable table, but only the fields we're going to be updating.
+
+Then, the merge doesn't have to do any computation, it just does the join and selects the precomputed
+fields from the merge target table.
+
+First, we prep a single partition for the target table with deletion request status
+and sanitized fields pre-computed:
+
+```
+CREATE TEMP FUNCTION sanitize_search_counts(input ANY TYPE) AS ((
+  WITH base AS (
+    SELECT
+      key,
+      value,
+      REGEXP_EXTRACT(key, "([^.]+\\.in-content[:.][^:]+:).*") AS prefix,
+      REGEXP_EXTRACT(key, "[^.]+\\.in-content[:.][^:]+:(.*)") AS code,
+      FROM UNNEST(input)
+  )
+  SELECT ARRAY_AGG(STRUCT(
+    IF(prefix IS NULL OR code IN ("none", "other", "hz", "h_", "MOZ2", "MOZ4", "MOZ5", "MOZA", "MOZB", "MOZD", "MOZE", "MOZI", "MOZM", "MOZO", "MOZT", "MOZW", "MOZSL01", "MOZSL02", "MOZSL03", "firefox-a", "firefox-b", "firefox-b-1", "firefox-b-ab", "firefox-b-1-ab", "firefox-b-d", "firefox-b-1-d", "firefox-b-e", "firefox-b-1-e", "firefox-b-m", "firefox-b-1-m", "firefox-b-o", "firefox-b-1-o", "firefox-b-lm", "firefox-b-1-lm", "firefox-b-lg", "firefox-b-huawei-h1611", "firefox-b-is-oem1", "firefox-b-oem1", "firefox-b-oem2", "firefox-b-tinno", "firefox-b-pn-wt", "firefox-b-pn-wt-us", "ubuntu", "ffab", "ffcm", "ffhp", "ffip", "ffit", "ffnt", "ffocus", "ffos", "ffsb", "fpas", "fpsa", "ftas", "ftsa", "newext", "monline_dg", "monline_3_dg", "monline_4_dg", "monline_7_dg"),
+      key,
+      CONCAT(prefix, "other.scrubbed")) AS key,
+      --key AS old_key,
+      value))
+  FROM base
+));
+
+CREATE TEMP FUNCTION sanitize_scalar(input ANY TYPE) AS ((
+  WITH base AS (
+    SELECT
+      key,
+      value,
+      REGEXP_EXTRACT(key, "([^:]+:[^:]+:).*") AS prefix,
+      REGEXP_EXTRACT(key, "[^:]+:[^:]+:(.*)") AS code,
+      FROM UNNEST(input)
+  )
+  SELECT ARRAY_AGG(STRUCT(
+    IF(prefix IS NULL OR code IN ("none", "other", "hz", "h_", "MOZ2", "MOZ4", "MOZ5", "MOZA", "MOZB", "MOZD", "MOZE", "MOZI", "MOZM", "MOZO", "MOZT", "MOZW", "MOZSL01", "MOZSL02", "MOZSL03", "firefox-a", "firefox-b", "firefox-b-1", "firefox-b-ab", "firefox-b-1-ab", "firefox-b-d", "firefox-b-1-d", "firefox-b-e", "firefox-b-1-e", "firefox-b-m", "firefox-b-1-m", "firefox-b-o", "firefox-b-1-o", "firefox-b-lm", "firefox-b-1-lm", "firefox-b-lg", "firefox-b-huawei-h1611", "firefox-b-is-oem1", "firefox-b-oem1", "firefox-b-oem2", "firefox-b-tinno", "firefox-b-pn-wt", "firefox-b-pn-wt-us", "ubuntu", "ffab", "ffcm", "ffhp", "ffip", "ffit", "ffnt", "ffocus", "ffos", "ffsb", "fpas", "fpsa", "ftas", "ftsa", "newext", "monline_dg", "monline_3_dg", "monline_4_dg", "monline_7_dg"),
+      key,
+      CONCAT(prefix, "other.scrubbed")) AS key,
+      --key AS old_key,
+      value))
+  FROM base
+));
+
+
+create table mozdata.analysis.klukas_sanisrc1
+AS
+WITH
+unioned AS (
+ SELECT
+  *
+ FROM
+  `moz-fx-data-shared-prod.telemetry_stable.main_v4`
+  --`moz-fx-data-shared-prod.telemetry.main_1pct`
+ WHERE
+  --submission_timestamp BETWEEN "2022-01-10 12:00:00 UTC" AND "2022-01-10 12:10:00 UTC"
+  DATE(submission_timestamp) = "2022-01-10"
+),
+base AS (
+ SELECT
+ submission_timestamp,
+ document_id,
+ client_id,
+ sanitize_search_counts(payload.keyed_histograms.search_counts) AS search_counts,
+sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_urlbar) AS browser_search_content_urlbar,
+sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_urlbar_handoff) AS browser_search_content_urlbar_handoff,
+sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_urlbar_searchmode) AS browser_search_content_urlbar_searchmode,
+sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_searchbar) AS browser_search_content_searchbar,
+sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_about_home) AS browser_search_content_about_home,
+sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_about_newtab) AS browser_search_content_about_newtab,
+sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_contextmenu) AS browser_search_content_contextmenu,
+sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_webextension) AS browser_search_content_webextension,
+sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_system) AS browser_search_content_system,
+sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_tabhistory) AS browser_search_content_tabhistory,
+sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_reload) AS browser_search_content_reload,
+sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_unknown) AS browser_search_content_unknown,
+FROM
+  unioned
+--WHERE normalized_channel = 'nightly'
+),
+deletion_requests AS (
+    SELECT
+  DISTINCT client_id
+FROM
+  `moz-fx-data-shared-prod.telemetry_stable.deletion_request_v4`
+  WHERE DATE(submission_timestamp) >= '2021-10-01'
+)
+SELECT base.*, 
+  deletion_requests.client_id IS NOT NULL AS should_delete 
+FROM base
+LEFT JOIN deletion_requests USING (client_id)
+```
+
+Then, we try running the MERGE:
+
+```
+MERGE mozdata.analysis.klukas_merge_src2 AS src
+USING (SELECT * FROM `mozdata.analysis.klukas_sanisrc1` WHERE DATE(submission_timestamp) = '2022-01-10') AS d
+ON src.client_id = d.client_id
+WHEN MATCHED AND should_delete AND DATE(src.submission_timestamp) = '2022-01-10' THEN
+  DELETE
+WHEN MATCHED AND NOT should_delete AND DATE(src.submission_timestamp) = '2022-01-10' THEN
+  UPDATE SET
+    payload.keyed_histograms.search_counts = d.search_counts,
+    payload.processes.parent.keyed_scalars.browser_search_content_urlbar = d.browser_search_content_urlbar,
+    payload.processes.parent.keyed_scalars.browser_search_content_urlbar_handoff = d.browser_search_content_urlbar_handoff,
+    payload.processes.parent.keyed_scalars.browser_search_content_urlbar_searchmode = d.browser_search_content_urlbar_searchmode,
+    payload.processes.parent.keyed_scalars.browser_search_content_searchbar = d.browser_search_content_searchbar,
+    payload.processes.parent.keyed_scalars.browser_search_content_about_home = d.browser_search_content_about_home,
+    payload.processes.parent.keyed_scalars.browser_search_content_about_newtab = d.browser_search_content_about_newtab,
+    payload.processes.parent.keyed_scalars.browser_search_content_contextmenu = d.browser_search_content_contextmenu,
+    payload.processes.parent.keyed_scalars.browser_search_content_webextension = d.browser_search_content_webextension,
+    payload.processes.parent.keyed_scalars.browser_search_content_system = d.browser_search_content_system,
+    payload.processes.parent.keyed_scalars.browser_search_content_tabhistory = d.browser_search_content_tabhistory,
+    payload.processes.parent.keyed_scalars.browser_search_content_reload = d.browser_search_content_reload,
+    payload.processes.parent.keyed_scalars.browser_search_content_unknown = d.browser_search_content_unknown
+```
+
+Unfortunately, this still give the same error `Resources exceeded during query execution: Not enough resources for query planning - too many fields accessed or query is too complex.`.
+So I'm guessing now that giving paths to nested fields in an UPDATE still means that under the hood,
+this is getting unrolled to something that is accessing the nested fields through subqueries.
