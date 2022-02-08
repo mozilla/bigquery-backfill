@@ -617,7 +617,14 @@ AND client_id NOT IN (
 )
 ```
 
-It has been running for more than an hour, but should be logically equivalent
-to the earlier query that took 48 minutes. This execution
-plan goes up to `S19` whereas the `LEFT JOIN` version goes up to only `S14`
+Job ID `moz-fx-data-shared-prod:US.bquxjob_26a03a84_17edafced63` ran for 89 minutes,
+took 179 days of slot time and shuffled 124 TB.
+But this should be logically equivalent to the earlier query that took 48 minutes. This execution
+plan goes up to `S1D` whereas the `LEFT JOIN` version goes up to only `S14`
 so there may indeed be more data movement involved here.
+
+On another tack, I tried the LEFT JOIN query in the `shredder` project. It ran for 1 hour, then I got:
+
+> Resources exceeded during query execution: Your project or organization exceeded the maximum disk and memory limit available for shuffle operations. Consider provisioning more slots, reducing query concurrency, or using more efficient logic in this job.
+
+I wouldn't be surprised if we've increased these limits for shared-prod.
