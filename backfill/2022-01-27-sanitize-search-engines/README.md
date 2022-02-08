@@ -464,6 +464,115 @@ WHERE DATE(submission_timestamp) = '2022-01-10'
 
 The job ID was `moz-fx-data-shared-prod:US.bquxjob_76d31125_17eda758969` and it completed in 33 min,
 scanning 15.3 TB, consuming 71 days of slot time, and shuffling 58 TB.
-This may be consistent with recent findings by relud about performance improvement by copying
-partitions out to a separate table, modifying, and then using a `COPY` operation to move the
-data back into place in the source table.
+Relud suggests that previous investigations using query-populate that timed out were
+limited by the sorting necessary for writing a clustered result. This case is also using
+a clustered destination table, but the `Sort+` stage appears to be taking only minimal resources,
+so perhaps it's able to process the data without changing sort order?
+
+I extended this to include the final field and also do deletions:
+```
+create or replace table mozdata.analysis.klukas_query_populate_2
+LIKE `moz-fx-data-shared-prod.telemetry_stable.main_v4`
+ AS
+ WITH deletion_requests AS (
+    SELECT
+  DISTINCT client_id
+FROM
+  `moz-fx-data-shared-prod.telemetry_stable.deletion_request_v4`
+  WHERE DATE(submission_timestamp) >= '2021-10-01'
+)
+SELECT main.* REPLACE (
+    (SELECT AS STRUCT payload.* REPLACE (
+     (SELECT AS STRUCT payload.keyed_histograms.* REPLACE (
+       sanitize_search_counts(payload.keyed_histograms.search_counts) AS search_counts)) AS keyed_histograms,
+     (SELECT AS STRUCT payload.processes.* REPLACE (
+      (SELECT AS STRUCT payload.processes.parent.* REPLACE(
+        (SELECT AS STRUCT payload.processes.parent.keyed_scalars.* REPLACE(
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_urlbar) AS browser_search_content_urlbar,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_urlbar_handoff) AS browser_search_content_urlbar_handoff,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_urlbar_searchmode) AS browser_search_content_urlbar_searchmode,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_searchbar) AS browser_search_content_searchbar,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_about_home) AS browser_search_content_about_home,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_about_newtab) AS browser_search_content_about_newtab,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_contextmenu) AS browser_search_content_contextmenu,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_webextension) AS browser_search_content_webextension,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_system) AS browser_search_content_system,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_tabhistory) AS browser_search_content_tabhistory,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_reload) AS browser_search_content_reload,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_unknown) AS browser_search_content_unknown
+        )) AS keyed_scalars
+      )) AS parent
+    )) AS processes)) AS payload)
+FROM `moz-fx-data-shared-prod.telemetry_stable.main_v4` AS main
+LEFT JOIN deletion_requests USING (client_id)
+WHERE DATE(submission_timestamp) = '2022-01-10'
+AND deletion_requests.client_id IS NULL
+```
+
+This took 48 minutes to complete, consumed 68 days of slot time, and shuffled 79 TB. Somewhat
+more expensive, but still much better than the current performance we're seeing from Shredder.
+
+
+#### Side Quest: Understand performance of previous Shredder experiments
+
+Here is one of the queries that timed out at 6 hours in relud's experiments:
+
+```
+SELECT
+  *
+FROM
+  `moz-fx-data-shared-prod.telemetry_stable.main_v4`
+WHERE
+  (
+    client_id IN (
+      SELECT
+        client_id
+      FROM
+        `moz-fx-data-shared-prod.telemetry_stable.deletion_request_v4`
+      WHERE
+        DATE(submission_timestamp) >= '2021-09-20'
+        AND DATE(submission_timestamp) < '2022-01-10'
+    )
+  ) IS NOT TRUE
+  AND CAST(submission_timestamp AS DATE) = '2021-11-22'
+```
+
+Job ID is `moz-fx-data-shredder:US.fe6c1df7-103d-4170-b1cf-1b82eb18a468`, so note that it is
+running in the `moz-fx-data-shredder` project. Also note that it's using `client_id IN` with
+a subquery rather than using a join. I don't know whether that's handled differently
+for performance or not. The problematic stage in the execution plan is `S0A: Join+` with detail
+`LEFT OUTER HASH JOIN EACH WITH EACH ON $11 = $11520`. It shows max compute at 2095092290 ms and
+is the only step not marked as complete in the plan.
+
+Here is a DELETE that completed successfully in 2 hours:
+
+```
+DELETE
+  `moz-fx-data-shared-prod.telemetry_stable.main_v4`
+WHERE
+  (
+    client_id IN (
+      SELECT
+        client_id
+      FROM
+        `moz-fx-data-shared-prod.telemetry_stable.deletion_request_v4`
+      WHERE
+        DATE(submission_timestamp) >= '2021-09-20'
+        AND DATE(submission_timestamp) < '2022-01-10'
+    )
+  )
+  AND CAST(submission_timestamp AS DATE) = '2021-03-02'
+```
+
+The job ID is `moz-fx-data-shredder:US.dc5057c1-1127-4485-8fd2-8c34d74817b4` and the
+execution plan shows 8 stages, the most expensive of which appear to be `Sort+` and
+`Repartition`.
+
+I'm left with more questions: 
+
+- Is the `IN` construction more expensive than a join?
+- Is there some sort of contention or metadata overhead involved when making changes
+  directly to `main_v4` vs. populating a separate table for tests with identical structure?
+- Is there something different in configuration for the `shredder` project compared to `shared-prod`?
+
+I'm issuing some more test queries to probe these ideas.
