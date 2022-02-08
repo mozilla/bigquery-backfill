@@ -576,3 +576,48 @@ I'm left with more questions:
 - Is there something different in configuration for the `shredder` project compared to `shared-prod`?
 
 I'm issuing some more test queries to probe these ideas.
+
+It does appear that `IN` might be a bottleneck compared to `LEFT JOIN`. I ran the
+following in `shared-prod`:
+
+```
+create or replace table mozdata.analysis.klukas_query_populate_3
+LIKE `moz-fx-data-shared-prod.telemetry_stable.main_v4`
+ AS
+SELECT main.* REPLACE (
+    (SELECT AS STRUCT payload.* REPLACE (
+     (SELECT AS STRUCT payload.keyed_histograms.* REPLACE (
+       sanitize_search_counts(payload.keyed_histograms.search_counts) AS search_counts)) AS keyed_histograms,
+     (SELECT AS STRUCT payload.processes.* REPLACE (
+      (SELECT AS STRUCT payload.processes.parent.* REPLACE(
+        (SELECT AS STRUCT payload.processes.parent.keyed_scalars.* REPLACE(
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_urlbar) AS browser_search_content_urlbar,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_urlbar_handoff) AS browser_search_content_urlbar_handoff,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_urlbar_searchmode) AS browser_search_content_urlbar_searchmode,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_searchbar) AS browser_search_content_searchbar,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_about_home) AS browser_search_content_about_home,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_about_newtab) AS browser_search_content_about_newtab,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_contextmenu) AS browser_search_content_contextmenu,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_webextension) AS browser_search_content_webextension,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_system) AS browser_search_content_system,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_tabhistory) AS browser_search_content_tabhistory,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_reload) AS browser_search_content_reload,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_unknown) AS browser_search_content_unknown
+        )) AS keyed_scalars
+      )) AS parent
+    )) AS processes)) AS payload)
+FROM `moz-fx-data-shared-prod.telemetry_stable.main_v4` AS main
+WHERE DATE(submission_timestamp) = '2022-01-10'
+AND client_id NOT IN (
+    SELECT
+      DISTINCT client_id
+    FROM
+      `moz-fx-data-shared-prod.telemetry_stable.deletion_request_v4`
+    WHERE DATE(submission_timestamp) >= '2021-10-01'
+)
+```
+
+It has been running for more than an hour, but should be logically equivalent
+to the earlier query that took 48 minutes. This execution
+plan goes up to `S19` whereas the `LEFT JOIN` version goes up to only `S14`
+so there may indeed be more data movement involved here.
