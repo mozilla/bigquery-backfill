@@ -395,3 +395,75 @@ WHEN MATCHED AND NOT should_delete AND DATE(src.submission_timestamp) = '2022-01
 Unfortunately, this still give the same error `Resources exceeded during query execution: Not enough resources for query planning - too many fields accessed or query is too complex.`.
 So I'm guessing now that giving paths to nested fields in an UPDATE still means that under the hood,
 this is getting unrolled to something that is accessing the nested fields through subqueries.
+
+### Overwriting partitions via SELECT
+
+The following ran successfully:
+
+```
+CREATE TEMP FUNCTION sanitize_search_counts(input ANY TYPE) AS ((
+  WITH base AS (
+    SELECT
+      key,
+      value,
+      REGEXP_EXTRACT(key, "([^.]+\\.in-content[:.][^:]+:).*") AS prefix,
+      REGEXP_EXTRACT(key, "[^.]+\\.in-content[:.][^:]+:(.*)") AS code,
+      FROM UNNEST(input)
+  )
+  SELECT ARRAY_AGG(STRUCT(
+    IF(prefix IS NULL OR code IN ("none", "other", "hz", "h_", "MOZ2", "MOZ4", "MOZ5", "MOZA", "MOZB", "MOZD", "MOZE", "MOZI", "MOZM", "MOZO", "MOZT", "MOZW", "MOZSL01", "MOZSL02", "MOZSL03", "firefox-a", "firefox-b", "firefox-b-1", "firefox-b-ab", "firefox-b-1-ab", "firefox-b-d", "firefox-b-1-d", "firefox-b-e", "firefox-b-1-e", "firefox-b-m", "firefox-b-1-m", "firefox-b-o", "firefox-b-1-o", "firefox-b-lm", "firefox-b-1-lm", "firefox-b-lg", "firefox-b-huawei-h1611", "firefox-b-is-oem1", "firefox-b-oem1", "firefox-b-oem2", "firefox-b-tinno", "firefox-b-pn-wt", "firefox-b-pn-wt-us", "ubuntu", "ffab", "ffcm", "ffhp", "ffip", "ffit", "ffnt", "ffocus", "ffos", "ffsb", "fpas", "fpsa", "ftas", "ftsa", "newext", "monline_dg", "monline_3_dg", "monline_4_dg", "monline_7_dg"),
+      key,
+      CONCAT(prefix, "other.scrubbed")) AS key,
+      value))
+  FROM base
+));
+
+CREATE TEMP FUNCTION sanitize_scalar(input ANY TYPE) AS ((
+  WITH base AS (
+    SELECT
+      key,
+      value,
+      REGEXP_EXTRACT(key, "([^:]+:[^:]+:).*") AS prefix,
+      REGEXP_EXTRACT(key, "[^:]+:[^:]+:(.*)") AS code,
+      FROM UNNEST(input)
+  )
+  SELECT ARRAY_AGG(STRUCT(
+    IF(prefix IS NULL OR code IN ("none", "other", "hz", "h_", "MOZ2", "MOZ4", "MOZ5", "MOZA", "MOZB", "MOZD", "MOZE", "MOZI", "MOZM", "MOZO", "MOZT", "MOZW", "MOZSL01", "MOZSL02", "MOZSL03", "firefox-a", "firefox-b", "firefox-b-1", "firefox-b-ab", "firefox-b-1-ab", "firefox-b-d", "firefox-b-1-d", "firefox-b-e", "firefox-b-1-e", "firefox-b-m", "firefox-b-1-m", "firefox-b-o", "firefox-b-1-o", "firefox-b-lm", "firefox-b-1-lm", "firefox-b-lg", "firefox-b-huawei-h1611", "firefox-b-is-oem1", "firefox-b-oem1", "firefox-b-oem2", "firefox-b-tinno", "firefox-b-pn-wt", "firefox-b-pn-wt-us", "ubuntu", "ffab", "ffcm", "ffhp", "ffip", "ffit", "ffnt", "ffocus", "ffos", "ffsb", "fpas", "fpsa", "ftas", "ftsa", "newext", "monline_dg", "monline_3_dg", "monline_4_dg", "monline_7_dg"),
+      key,
+      CONCAT(prefix, "other.scrubbed")) AS key,
+      value))
+  FROM base
+));
+
+create or replace table mozdata.analysis.klukas_query_populate_1
+LIKE `moz-fx-data-shared-prod.telemetry_stable.main_v4`
+ AS
+SELECT *  REPLACE (
+    --payload.keyed_histograms.search_counts = d.search_counts,
+    (SELECT AS STRUCT payload.* REPLACE ((SELECT AS STRUCT payload.processes.* REPLACE (
+      (SELECT AS STRUCT payload.processes.parent.* REPLACE(
+        (SELECT AS STRUCT payload.processes.parent.keyed_scalars.* REPLACE(
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_urlbar) AS browser_search_content_urlbar,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_urlbar_handoff) AS browser_search_content_urlbar_handoff,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_urlbar_searchmode) AS browser_search_content_urlbar_searchmode,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_searchbar) AS browser_search_content_searchbar,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_about_home) AS browser_search_content_about_home,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_about_newtab) AS browser_search_content_about_newtab,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_contextmenu) AS browser_search_content_contextmenu,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_webextension) AS browser_search_content_webextension,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_system) AS browser_search_content_system,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_tabhistory) AS browser_search_content_tabhistory,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_reload) AS browser_search_content_reload,
+    sanitize_scalar(payload.processes.parent.keyed_scalars.browser_search_content_unknown) AS browser_search_content_unknown
+        )) AS keyed_scalars
+      )) AS parent
+    )) AS processes)) AS payload)
+FROM `moz-fx-data-shared-prod.telemetry_stable.main_v4`
+WHERE DATE(submission_timestamp) = '2022-01-10'
+```
+
+The job ID was `moz-fx-data-shared-prod:US.bquxjob_76d31125_17eda758969` and it completed in 33 min,
+scanning 15.3 TB, consuming 71 days of slot time, and shuffling 58 TB.
+This may be consistent with recent findings by relud about performance improvement by copying
+partitions out to a separate table, modifying, and then using a `COPY` operation to move the
+data back into place in the source table.
