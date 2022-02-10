@@ -1,6 +1,6 @@
 # Sanitize search engine values in historical data
 
-Implementation for https://bugzilla.mozilla.org/show_bug.cgi?id=1751979
+Investigation log for https://bugzilla.mozilla.org/show_bug.cgi?id=1751979
 
 It must match the pipeline sanitization logic in [MessageScrubber](https://github.com/mozilla/gcp-ingestion/blob/main/ingestion-beam/src/main/java/com/mozilla/telemetry/decoder/MessageScrubber.java),
 particularly the `processForBug1751955` and `processForBug1751753` methods there.
@@ -8,7 +8,7 @@ particularly the `processForBug1751955` and `processForBug1751753` methods there
 
 ## Plan for running backfill
 
-EVOLVING plan
+Basic plan:
 
 - Prep query for desktop backfill, get thorough review on the logic
 - Evaluate how we might incorporate this backfill logic into Shredder
@@ -19,6 +19,16 @@ Mobile:
 
 - The datasets are much smaller, so it may be feasible to run the queries more manually
   rather than hooking into the shredder machinery
+
+## What actually happened
+
+After much testing, we found a configuration where we can run a `SELECT` statement
+with destination set to a partition of the table. In that query, we can both drop
+rows with `client_id` for which we've received a deletion request AND do the field
+rewrites. We incorporated that logic into Shredder and let it run.
+
+What follows is a long stream of consciousness of the different approaches we
+tried and the issues we found along the way.
 
 
 ## Query approaches
