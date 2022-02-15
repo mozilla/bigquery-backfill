@@ -30,8 +30,75 @@ rewrites. We incorporated that logic into Shredder and let it run.
 What follows is a long stream of consciousness of the different approaches we
 tried and the issues we found along the way.
 
+## Backfill derived desktop tables
 
-## Query approaches
+We set up a GCE instance in the `moz-fx-data-backfill-20` project using an Ubuntu image
+that includes `bq` and `tmux`. We start a `tmux` session so that commands continue
+to run if we get disconnected.
+
+The instance does not have a public IP and can't communicate with the outside world.
+So we scp the bigquery-etl tarball to the instance and untar.
+
+### clients_daily
+
+```
+CREATE TABLE
+  telemetry_derived.clients_daily_v6 
+  LIKE `moz-fx-data-shared-prod.telemetry_derived.clients_daily_v6
+```
+
+Modify query to be able to run in an arbitrary project:
+
+```
+cat sql/moz-fx-data-shared-prod/telemetry_derived/clients_daily_v6/query.sql | sed -e 's/telemetry_stable/moz-fx-data-shared-prod.telemetry_stable/g' -e 's/udf\./mozdata.udf./g' -e 's/udf_js/mozdata.udf_js/g' > cd.sql
+```
+
+Try running on reserved slots:
+
+```
+seq 0 1 | xargs -I@ date -d '2022-02-13 - @ day' +%F | xargs -P5 -n1 bash -c 'set -ex; echo Processing $1;  bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-slots --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:telemetry_derived.clients_daily_v6\$${1//-} < cd.sql' -s
+```
+
+Processed 12 partitions overnight. 2022-02-13 back through 2022-02-02.
+
+Started on shared-prod, parallelism 5 at 7:40 AM. Starting from 2022-02-01:
+```
+seq 12 400 | xargs -I@ date -d '2022-02-13 - @ day' +%F | xargs -P5 -n1 bash -c 'set -ex; echo Processing $1;  bq query --nouse_legacy_sql --project_id=moz-fx-data-shared-prod --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:telemetry_derived.clients_daily_v6\$${1//-} < cd.sql' -s
+```
+
+We processed ~150 partitions in 8 hours at parallelism of 5 in a single project.
+
+Then increased parallelism to 10:
+
+```
+seq 0 648 | xargs -I@ date -d '2021-08-31 - @ day' +%F | xargs -P10 -n1 bash -c 'set -ex; echo Processing $1;  bq query --nouse_legacy_sql --project_id=moz-fx-data-shared-prod --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:telemetry_derived.clients_daily_v6\$${1//-} < cd.sql' -s
+```
+
+### clients_last_seen
+
+```
+CREATE TABLE
+  `moz-fx-data-backfill-20.telemetry_derived.clients_last_seen_v1`
+  LIKE `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v1`
+```
+
+Populate a first partition:
+
+```
+bq cp moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v1'$20210904' moz-fx-data-backfill-20:telemetry_derived.clients_last_seen_v1'$20210904'
+```
+
+```
+cat sql/moz-fx-data-shared-prod/telemetry_derived/clients_last_seen_v1/query.sql | sed -e 's/clients_daily_v6/moz-fx-data-shared-prod.telemetry_derived.clients_daily_v6/g' -e 's/clients_last_seen_v1/moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v1/g' -e 's/clients_first_seen_v1/moz-fx-data-shared-prod.telemetry_derived.clients_first_seen_v1/g' -e 's/udf\./mozdata.udf./g' -e 's/udf_js/mozdata.udf_js/g' > cls.sql
+```
+
+We start `clients_last_seen`:
+```
+seq 0 166 | xargs -I@ date -d '2021-09-01 + @ day' +%F | xargs -P1 -n1 bash -c 'set -ex; echo Processing $1;  bq query --nouse_legacy_sql --project_id=moz-fx-data-shared-prod --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:telemetry_derived.clients_last_seen_v1\$${1//-} < cls.sql' -s
+```
+
+
+## Query approaches for sanitizing main_v4
 
 Doing a query populate via `SELECT` is appearing to be untenable, as Shredder is
 seeing jobs time out at 6 hours when running over a full partition. `DELETE` statements
