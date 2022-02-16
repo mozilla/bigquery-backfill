@@ -5,6 +5,15 @@ Investigation log for https://bugzilla.mozilla.org/show_bug.cgi?id=1751979
 It must match the pipeline sanitization logic in [MessageScrubber](https://github.com/mozilla/gcp-ingestion/blob/main/ingestion-beam/src/main/java/com/mozilla/telemetry/decoder/MessageScrubber.java),
 particularly the `processForBug1751955` and `processForBug1751753` methods there.
 
+## Status
+
+As of 2022-02-16.
+
+`main_v4` has now been fully sanitized via Shredder.
+
+`main_summary_v4` is currently being sanitized via Shredder.
+
+No other data has been altered in prod yet, but various backfills are being staged into backfill-20.
 
 ## Plan for running backfill
 
@@ -132,6 +141,8 @@ cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_focus_beta/g" |
 cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_focus_nightly/g" | bq query --nouse_legacy_sql
 cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_klar/g" | bq query --nouse_legacy_sql
 ```
+
+These were all run successfully on 2022-02-16.
 
 ## Query approaches for sanitizing main_v4
 
