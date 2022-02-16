@@ -15,6 +15,21 @@ As of 2022-02-16.
 
 No other data has been altered in prod yet, but various backfills are being staged into backfill-20.
 
+The following are ready to be copied into place by Data SRE, pending final validation:
+
+```bash
+bq cp -f moz-fx-data-backfill-20:org_mozilla_fenix_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_fenix_stable.metrics_v1
+bq cp -f moz-fx-data-backfill-20:org_mozilla_firefox_beta_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_firefox_beta_stable.metrics_v1
+bq cp -f moz-fx-data-backfill-20:org_mozilla_fenix_nightly_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_fenix_nightly_stable.metrics_v1
+bq cp -f moz-fx-data-backfill-20:org_mozilla_fennec_aurora_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_fennec_aurora_stable.metrics_v1
+bq cp -f moz-fx-data-backfill-20:org_mozilla_focus_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_focus_stable.metrics_v1
+bq cp -f moz-fx-data-backfill-20:org_mozilla_focus_beta_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_focus_beta_stable.metrics_v1
+bq cp -f moz-fx-data-backfill-20:org_mozilla_focus_nightly_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_focus_nightly_stable.metrics_v1
+bq cp -f moz-fx-data-backfill-20:org_mozilla_klar_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_klar_stable.metrics_v1
+# Not ready yet; requires incremental processing
+# bq cp -f moz-fx-data-backfill-20:org_mozilla_firefox_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_firefox_stable.metrics_v1
+```
+
 ## Plan for running backfill
 
 Basic plan:
@@ -110,6 +125,8 @@ seq 0 166 | xargs -I@ date -d '2021-09-01 + @ day' +%F | xargs -P1 -n1 bash -c '
 
 ## Backfill mobile tables
 
+### Mobile stable tables
+
 Make datasets:
 
 ```
@@ -143,6 +160,11 @@ cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_klar/g" | bq qu
 ```
 
 These were all run successfully on 2022-02-16.
+
+### Mobile derived tables
+
+We should only need to reprocess `mobile_search_clients_daily_v1`, `mobile_search_clients_last_seen_v1`,
+and `mobile_search_aggregates_v1`.
 
 ## Query approaches for sanitizing main_v4
 
