@@ -74,6 +74,8 @@ Then increased parallelism to 10:
 seq 0 648 | xargs -I@ date -d '2021-08-31 - @ day' +%F | xargs -P10 -n1 bash -c 'set -ex; echo Processing $1;  bq query --nouse_legacy_sql --project_id=moz-fx-data-shared-prod --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:telemetry_derived.clients_daily_v6\$${1//-} < cd.sql' -s
 ```
 
+We processed ~200 partitions in 12 hours at parallelism 10, so no real change in speed. This is limited by contention for on-demand slots within a single project.
+
 ### clients_last_seen
 
 ```
@@ -97,6 +99,39 @@ We start `clients_last_seen`:
 seq 0 166 | xargs -I@ date -d '2021-09-01 + @ day' +%F | xargs -P1 -n1 bash -c 'set -ex; echo Processing $1;  bq query --nouse_legacy_sql --project_id=moz-fx-data-shared-prod --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:telemetry_derived.clients_last_seen_v1\$${1//-} < cls.sql' -s
 ```
 
+## Backfill mobile tables
+
+Make datasets:
+
+```
+bq mk --project_id moz-fx-data-backfill-20 org_mozilla_firefox_stable
+bq mk --project_id moz-fx-data-backfill-20 org_mozilla_fenix_stable
+bq mk --project_id moz-fx-data-backfill-20 org_mozilla_firefox_beta_stable
+bq mk --project_id moz-fx-data-backfill-20 org_mozilla_fenix_nightly_stable
+bq mk --project_id moz-fx-data-backfill-20 org_mozilla_fennec_aurora_stable
+bq mk --project_id moz-fx-data-backfill-20 org_mozilla_focus_stable
+bq mk --project_id moz-fx-data-backfill-20 org_mozilla_focus_beta_stable
+bq mk --project_id moz-fx-data-backfill-20 org_mozilla_focus_nightly_stable
+bq mk --project_id moz-fx-data-backfill-20 org_mozilla_klar_stable
+```
+
+Most of these are small enough to rewrite in a single query. For Fenix nightly:
+
+```
+cat org_mozilla_fenix.sql | bq query --nouse_legacy_sql
+```
+
+And the rest:
+
+```
+cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_firefox_beta/g" | bq query --nouse_legacy_sql
+cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_fenix_nightly/g" | bq query --nouse_legacy_sql
+cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_fennec_aurora/g" | bq query --nouse_legacy_sql
+cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_focus/g" | bq query --nouse_legacy_sql
+cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_focus_beta/g" | bq query --nouse_legacy_sql
+cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_focus_nightly/g" | bq query --nouse_legacy_sql
+cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_klar/g" | bq query --nouse_legacy_sql
+```
 
 ## Query approaches for sanitizing main_v4
 
