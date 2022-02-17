@@ -83,6 +83,7 @@ CREATE TEMP FUNCTION sanitize_labeled_counter(input ARRAY<STRUCT<key STRING, val
       FROM
         base
     ),
+    -- This logic should match https://github.com/mozilla/gcp-ingestion/blob/b88da84c017ee6251947b5223019bee90d20ea3b/ingestion-beam/src/main/java/com/mozilla/telemetry/decoder/MessageScrubber.java#L456-L489
     scrubbed AS (
       SELECT
         * REPLACE (
@@ -99,9 +100,9 @@ CREATE TEMP FUNCTION sanitize_labeled_counter(input ARRAY<STRUCT<key STRING, val
             key
           WHEN
             code_is_valid
-            AND channel = "ts"
+            AND NOT channel_is_valid
           THEN
-            FORMAT("%s%s.%s", prefix, code, channel)
+            FORMAT("%s%s", prefix, code)
           ELSE
             FORMAT("%s%s", prefix, "other-scrubbed")
           END
