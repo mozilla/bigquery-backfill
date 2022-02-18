@@ -15,7 +15,7 @@ As of 2022-02-16.
 
 No other data has been altered in prod yet, but various backfills are being staged into backfill-20.
 
-The following are ready to be copied into place by Data SRE, pending final validation:
+The following are ready to be copied into place by Data SRE:
 
 ```bash
 bq cp -f moz-fx-data-backfill-20:org_mozilla_fenix_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_fenix_stable.metrics_v1
@@ -26,8 +26,8 @@ bq cp -f moz-fx-data-backfill-20:org_mozilla_focus_stable.metrics_v1 moz-fx-data
 bq cp -f moz-fx-data-backfill-20:org_mozilla_focus_beta_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_focus_beta_stable.metrics_v1
 bq cp -f moz-fx-data-backfill-20:org_mozilla_focus_nightly_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_focus_nightly_stable.metrics_v1
 bq cp -f moz-fx-data-backfill-20:org_mozilla_klar_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_klar_stable.metrics_v1
-# Not ready yet; requires incremental processing
-# bq cp -f moz-fx-data-backfill-20:org_mozilla_firefox_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_firefox_stable.metrics_v1
+# This one is ~100 TB, but will still probably only take a minute or two
+bq cp -f moz-fx-data-backfill-20:org_mozilla_firefox_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_firefox_stable.metrics_v1
 ```
 
 ## Plan for running backfill
@@ -145,15 +145,10 @@ bq mk --project_id moz-fx-data-backfill-20 org_mozilla_focus_nightly_stable
 bq mk --project_id moz-fx-data-backfill-20 org_mozilla_klar_stable
 ```
 
-Most of these are small enough to rewrite in a single query. For Fenix nightly:
+Most of these are small enough to rewrite in a single query:
 
 ```
 cat org_mozilla_fenix.sql | bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-20
-```
-
-And the rest:
-
-```
 cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_firefox_beta/g" | bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-20
 cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_fenix_nightly/g" | bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-20
 cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_fennec_aurora/g" | bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-20
@@ -163,7 +158,7 @@ cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_focus_nightly/g
 cat org_mozilla_fenix.sql | sed "s/org_mozilla_fenix/org_mozilla_klar/g" | bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-20
 ```
 
-These were all run successfully on 2022-02-16.
+These were all run successfully on 2022-02-17.
 
 For Fenix release, we run an incremental query. First, create the table:
 
@@ -178,6 +173,20 @@ And then run incremental queries distributed over the backfill projects:
 
 ```
 seq 0 0 | xargs -I@ date -d '2020-01-20 + @ day' +%F | xargs -P10 -n1 bash -c 'set -ex; echo Processing $1; bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-2${1: -1} --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:org_mozilla_firefox_stable.metrics_v1\$${1//-} < org_mozilla_firefox_incremental.sql' -s
+```
+
+Validate:
+
+```
+cat compare_metrics_prod.sql | sed 's/org_mozilla_firefox/org_mozilla_firefox/g' | bq query --nouse_legacy_sql
+cat compare_metrics_prod.sql | sed 's/org_mozilla_firefox/org_mozilla_fenix/g' | bq query --nouse_legacy_sql
+cat compare_metrics_prod.sql | sed 's/org_mozilla_firefox/org_mozilla_firefox_beta/g' | bq query --nouse_legacy_sql
+cat compare_metrics_prod.sql | sed 's/org_mozilla_firefox/org_mozilla_fenix_nightly/g' | bq query --nouse_legacy_sql
+cat compare_metrics_prod.sql | sed 's/org_mozilla_firefox/org_mozilla_fennec_aurora/g' | bq query --nouse_legacy_sql
+cat compare_metrics_prod.sql | sed 's/org_mozilla_firefox/org_mozilla_focus/g' | bq query --nouse_legacy_sql
+cat compare_metrics_prod.sql | sed 's/org_mozilla_firefox/org_mozilla_focus_beta/g' | bq query --nouse_legacy_sql
+cat compare_metrics_prod.sql | sed 's/org_mozilla_firefox/org_mozilla_focus_nightly/g' | bq query --nouse_legacy_sql
+cat compare_metrics_prod.sql | sed 's/org_mozilla_firefox/org_mozilla_klar/g' | bq query --nouse_legacy_sql
 ```
 
 ### Mobile derived tables

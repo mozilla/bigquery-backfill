@@ -121,7 +121,7 @@ CREATE TEMP FUNCTION sanitize_labeled_counter(input ARRAY<STRUCT<key STRING, val
   )
 );
 
-CREATE TABLE
+CREATE OR REPLACE TABLE
   `moz-fx-data-backfill-20.org_mozilla_fenix_stable.metrics_v1` LIKE `moz-fx-data-shared-prod.org_mozilla_fenix_stable.metrics_v1`
 AS
 SELECT
