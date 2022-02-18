@@ -13,9 +13,7 @@ As of 2022-02-16.
 
 `main_summary_v4` is currently being sanitized via Shredder.
 
-No other data has been altered in prod yet, but various backfills are being staged into backfill-20.
-
-The following are ready to be copied into place by Data SRE:
+All mobile stable tables have been sanitized; whd ran the following on 2022-02-18:
 
 ```bash
 bq cp -f moz-fx-data-backfill-20:org_mozilla_fenix_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_fenix_stable.metrics_v1
@@ -29,6 +27,9 @@ bq cp -f moz-fx-data-backfill-20:org_mozilla_klar_stable.metrics_v1 moz-fx-data-
 # This one is ~100 TB, but will still probably only take a minute or two
 bq cp -f moz-fx-data-backfill-20:org_mozilla_firefox_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_firefox_stable.metrics_v1
 ```
+
+Various backfills continue to be staged into backfill-20.
+
 
 ## Plan for running backfill
 
