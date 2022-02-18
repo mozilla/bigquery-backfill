@@ -13,7 +13,7 @@ As of 2022-02-16.
 
 `main_summary_v4` is currently being sanitized via Shredder.
 
-All mobile stable tables have been sanitized; whd ran the following on 2022-02-18:
+All mobile stable tables have been sanitized; whd ran the following on 2022-02-18 (took ~5 minutes):
 
 ```bash
 bq cp -f moz-fx-data-backfill-20:org_mozilla_fenix_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_fenix_stable.metrics_v1
@@ -24,9 +24,13 @@ bq cp -f moz-fx-data-backfill-20:org_mozilla_focus_stable.metrics_v1 moz-fx-data
 bq cp -f moz-fx-data-backfill-20:org_mozilla_focus_beta_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_focus_beta_stable.metrics_v1
 bq cp -f moz-fx-data-backfill-20:org_mozilla_focus_nightly_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_focus_nightly_stable.metrics_v1
 bq cp -f moz-fx-data-backfill-20:org_mozilla_klar_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_klar_stable.metrics_v1
-# This one is ~100 TB, but will still probably only take a minute or two
 bq cp -f moz-fx-data-backfill-20:org_mozilla_firefox_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_firefox_stable.metrics_v1
 ```
+
+`clients_daily_v6` is backfilled and validated, ready for partitions 2019-11-22 through 2022-02-17
+to be copied into place.
+
+`clients_last_seen_v1` is currently processing.
 
 Various backfills continue to be staged into backfill-20.
 
@@ -101,6 +105,8 @@ seq 0 648 | xargs -I@ date -d '2021-08-31 - @ day' +%F | xargs -P10 -n1 bash -c 
 
 We processed ~200 partitions in 12 hours at parallelism 10, so no real change in speed. This is limited by contention for on-demand slots within a single project.
 
+Processing finished on 2022-02-18. Partitions from 2019-11-21 to 2022-02-13.
+
 ### clients_last_seen
 
 ```
@@ -126,6 +132,7 @@ seq 0 166 | xargs -I@ date -d '2021-09-01 + @ day' +%F | xargs -P1 -n1 bash -c '
 
 Next round of `clients_last_seen`:
 ```
+seq 0 166 | xargs -I@ date -d '2021-09-01 + @ day' +%F | xargs -P1 -n1 bash -c 'set -ex; echo Processing $1;  bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-slots --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:telemetry_derived.clients_last_seen_v1\$${1//-} < cls.sql' -s
 ```
 
 ## Backfill mobile tables
@@ -194,6 +201,21 @@ cat compare_metrics_prod.sql | sed 's/org_mozilla_firefox/org_mozilla_klar/g' | 
 
 We should only need to reprocess `mobile_search_clients_daily_v1`, `mobile_search_clients_last_seen_v1`,
 and `mobile_search_aggregates_v1`.
+
+```
+bq mk moz-fx-data-backfill-20:search_derived
+```
+
+```
+CREATE TABLE
+  `moz-fx-data-backfill-20.search_derived.mobile_search_clients_daily_v1`
+LIKE
+  `moz-fx-data-shared-prod.search_derived.mobile_search_clients_daily_v1`
+```
+
+```
+cat sql/moz-fx-data-shared-prod/search_derived/mobile_search_clients_daily_v1/query.sql | sed -e 's/telemetry[.]core/moz-fx-data-shared-prod.telemetry.core/' -e 's/\(org_mozilla_[_a-z]*\)\./moz-fx-data-shared-prod.\1./' > mobile_search_clients_daily.sql
+```
 
 ## Query approaches for sanitizing main_v4
 
