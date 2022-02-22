@@ -7,11 +7,56 @@ particularly the `processForBug1751955` and `processForBug1751753` methods there
 
 ## Status
 
-As of 2022-02-16.
+As of 2022-02-22.
+
+### Desktop Status
 
 `main_v4` has now been fully sanitized via Shredder.
 
 `main_summary_v4` is currently being sanitized via Shredder.
+
+`clients_daily_v6` is backfilled, validated, and copied into place
+for partitions 2019-11-22 through 2022-02-17:
+
+```
+# DONE 2022-02-18
+dategen 20191122 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:telemetry_derived.clients_daily_v6${}' 'moz-fx-data-shared-prod:telemetry_derived.clients_daily_v6${}'
+```
+
+`clients_last_seen_v1` is backfilled, validated, and ready to copy into place
+for partitions 2019-12-20 (28 days after 2019-11-22) through 2022-02-17:
+
+```
+dategen 20191220 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:telemetry_derived.clients_last_seen_v1${}' 'moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v1${}'
+```
+
+`clients_daily_joined_v1` is backfilled, validated, and copied into place on 2022-02-18,
+for partitions 2019-12-20 (28 days after 2019-11-22) through 2022-02-17:
+
+```
+dategen 20191220 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:telemetry_derived.clients_daily_joined_v1${}' 'moz-fx-data-shared-prod:telemetry_derived.clients_daily_joined_v1${}'
+```
+
+`clients_last_seen_joined_v1` is backfilled, validated, and ready to copy into place
+for partitions 2021-02-21 (upstream table `clients_last_seen_event` only starts here) through 2022-02-17:
+
+```
+dategen 20210221 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:telemetry_derived.clients_last_seen_joined_v1${}' 'moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_joined_v1${}'
+```
+
+`search_clients_daily_v8` is backfilled, validated, and ready to copy into place
+for partitions 2019-11-22 through 2022-02-17:
+
+```
+dategen 20191122 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:search_derived.search_clients_daily_v8${}' 'moz-fx-data-shared-prod:search_derived.search_clients_daily_v8${}'
+```
+
+`search_clients_last_seen_v1` is processing.
+
+`search_aggregates` needs to be done.
+
+
+### Mobile Status
 
 All mobile stable tables have been sanitized; whd ran the following on 2022-02-18 (took ~5 minutes):
 
@@ -27,12 +72,21 @@ bq cp -f moz-fx-data-backfill-20:org_mozilla_klar_stable.metrics_v1 moz-fx-data-
 bq cp -f moz-fx-data-backfill-20:org_mozilla_firefox_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_firefox_stable.metrics_v1
 ```
 
-`clients_daily_v6` is backfilled and validated, ready for partitions 2019-11-22 through 2022-02-17
-to be copied into place.
+`mobile_search_clients_daily_v1` is ready to copy,
+from 2020-01-01 (Glean apps only appeared in early 2020, so no need to go back farther) through 2022-02-17:
 
-`clients_last_seen_v1` is currently processing.
+```
+dategen 20200101 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:telemetry_derived.mobile_search_clients_daily_v1${}' 'moz-fx-data-shared-prod:telemetry_derived.mobile_search_clients_daily_v1${}'
+```
 
-Various backfills continue to be staged into backfill-20.
+`mobile_search_clients_last_seen_v1` needs more validation,
+from 2020-01-28 through 2022-02-17
+
+```
+# More validation needed
+? dategen 20191122 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:telemetry_derived.clients_daily_v6${}' 'moz-fx-data-shared-prod:telemetry_derived.clients_daily_v6${}'
+```
+
 
 
 ## Plan for running backfill
@@ -122,17 +176,100 @@ bq cp moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v1'$20210904' 
 ```
 
 ```
-cat sql/moz-fx-data-shared-prod/telemetry_derived/clients_last_seen_v1/query.sql | sed -e 's/clients_daily_v6/moz-fx-data-shared-prod.telemetry_derived.clients_daily_v6/g' -e 's/clients_last_seen_v1/moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v1/g' -e 's/clients_first_seen_v1/moz-fx-data-shared-prod.telemetry_derived.clients_first_seen_v1/g' -e 's/udf\./mozdata.udf./g' -e 's/udf_js/mozdata.udf_js/g' > cls.sql
+cat sql/moz-fx-data-shared-prod/telemetry_derived/clients_last_seen_v1/query.sql | sed -e 's/clients_daily_v6/moz-fx-data-backfill-20.telemetry_derived.clients_daily_v6/g' -e 's/clients_last_seen_v1/moz-fx-data-backfill-20.telemetry_derived.clients_last_seen_v1/g' -e 's/clients_first_seen_v1/moz-fx-data-shared-prod.telemetry_derived.clients_first_seen_v1/g' -e 's/udf\./mozdata.udf./g' -e 's/udf_js/mozdata.udf_js/g' > cls.sql
 ```
 
 We start `clients_last_seen`:
 ```
-seq 0 166 | xargs -I@ date -d '2021-09-01 + @ day' +%F | xargs -P1 -n1 bash -c 'set -ex; echo Processing $1;  bq query --nouse_legacy_sql --project_id=moz-fx-data-shared-prod --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:telemetry_derived.clients_last_seen_v1\$${1//-} < cls.sql' -s
+seq 0 820 | xargs -I@ date -d '2019-11-22 + @ day' +%F | xargs -P1 -n1 bash -c 'set -ex; echo Processing $1;  bq query --nouse_legacy_sql --replace --project_id=moz-fx-data-backfill-20 --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:telemetry_derived.clients_last_seen_v1\$${1//-} < cls.sql' -s
 ```
 
-Next round of `clients_last_seen`:
+### clients_daily_joined_v1
+
+Needs to wait on `clients_last_seen` being done, then should be parallelizable.
+
 ```
-seq 0 166 | xargs -I@ date -d '2021-09-01 + @ day' +%F | xargs -P1 -n1 bash -c 'set -ex; echo Processing $1;  bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-slots --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:telemetry_derived.clients_last_seen_v1\$${1//-} < cls.sql' -s
+CREATE TABLE
+  `moz-fx-data-backfill-20.telemetry_derived.clients_daily_joined_v1`
+LIKE
+  `moz-fx-data-shared-prod.telemetry_derived.clients_daily_joined_v1`
+```
+
+Prep SQL:
+
+```
+cat sql/moz-fx-data-shared-prod/telemetry_derived/clients_daily_joined_v1/query.sql | sed -e 's/telemetry.clients_last_seen/moz-fx-data-backfill-20.telemetry_derived.clients_last_seen_v1/g' -e 's/telemetry_derived.clients_daily_event_v1/moz-fx-data-shared-prod.telemetry_derived.clients_daily_event_v1/' -e 's/telemetry_derived.clients_daily_v6/moz-fx-data-backfill-20.telemetry_derived.clients_daily_v6/' > cdj.sql
+```
+
+And then run incremental queries distributed over the backfill projects:
+
+```
+seq 28 818 | xargs -I@ date -d '2019-11-22 + @ day' +%F | xargs -P10 -n1 bash -c 'set -ex; echo Processing $1; bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-2${1: -1} --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:telemetry_derived.clients_daily_joined_v1\$${1//-} < cdj.sql' -s
+```
+
+
+### clients_last_seen_joined_v1
+
+Needs to wait on `clients_last_seen` being done, then should be parallelizable.
+
+```
+CREATE TABLE
+  `moz-fx-data-backfill-20.telemetry_derived.clients_last_seen_joined_v1`
+LIKE 
+  `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_joined_v1`
+```
+
+Prep SQL:
+
+```
+cat sql/moz-fx-data-shared-prod/telemetry_derived/clients_last_seen_joined_v1/query.sql | sed -e 's/telemetry_derived.clients_last_seen_v1/moz-fx-data-backfill-20.telemetry_derived.clients_last_seen_v1/g' -e 's/telemetry_derived.clients_last_seen_event_v1/moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_event_v1/' > clsj.sql
+```
+
+And then run incremental queries distributed over the backfill projects:
+
+```
+seq 0 0 | xargs -I@ date -d '2019-11-22 + @ day' +%F | xargs -P10 -n1 bash -c 'set -ex; echo Processing $1; bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-2${1: -1} --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:telemetry_derived.clients_last_seen_joined_v1\$${1//-} < clsj.sql' -s
+```
+
+### search_clients_daily_v8
+
+```
+CREATE TABLE
+  `moz-fx-data-backfill-20.search_derived.search_clients_daily_v8`
+LIKE 
+  `moz-fx-data-shared-prod.search_derived.search_clients_daily_v8`
+```
+
+Prep SQL:
+
+```
+cat sql/moz-fx-data-shared-prod/search_derived/search_clients_daily_v8/query.sql | sed -e 's/telemetry.clients_daily/moz-fx-data-backfill-20.telemetry_derived.clients_daily_v6/g' > scd.sql
+```
+
+And then run incremental queries distributed over the backfill projects:
+
+```
+seq 0 818 | xargs -I@ date -d '2019-11-22 + @ day' +%F | xargs -P10 -n1 bash -c 'set -ex; echo Processing $1; bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-2${1: -1} --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:search_derived.search_clients_daily_v8\$${1//-} < scd.sql' -s
+```
+
+### search_clients_last_seen_v1
+
+```
+CREATE TABLE `moz-fx-data-backfill-20.search_derived.search_clients_last_seen_v1`
+LIKE 
+  `moz-fx-data-shared-prod.search_derived.search_clients_last_seen_v1`
+```
+
+Prep SQL:
+
+```
+cat sql/moz-fx-data-shared-prod/search_derived/search_clients_last_seen_v1/query.sql | sed -e 's/search_clients_daily_v8/moz-fx-data-backfill-20.search_derived.search_clients_daily_v8/g' -e 's/search_clients_last_seen_v1/moz-fx-data-backfill-20.search_derived.search_clients_last_seen_v1/g' -e 's/udf[.]/`moz-fx-data-shared-prod`.udf./' > scls.sql
+```
+
+And then run incremental queries sequentially:
+
+```
+seq 0 818 | xargs -I@ date -d '2019-11-22 + @ day' +%F | xargs -P1 -n1 bash -c 'set -ex; echo Processing $1; bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-slots --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:search_derived.search_clients_last_seen_v1\$${1//-} < scls.sql' -s
 ```
 
 ## Backfill mobile tables
@@ -199,8 +336,11 @@ cat compare_metrics_prod.sql | sed 's/org_mozilla_firefox/org_mozilla_klar/g' | 
 
 ### Mobile derived tables
 
-We should only need to reprocess `mobile_search_clients_daily_v1`, `mobile_search_clients_last_seen_v1`,
-and `mobile_search_aggregates_v1`.
+We should only need to reprocess:
+
+- `mobile_search_clients_daily_v1`: parallelizable incremental query
+- `mobile_search_clients_last_seen_v1`: non-parallelizable incremental query
+- `mobile_search_aggregates_v1`: single query for the whole table
 
 ```
 bq mk moz-fx-data-backfill-20:search_derived
@@ -215,6 +355,32 @@ LIKE
 
 ```
 cat sql/moz-fx-data-shared-prod/search_derived/mobile_search_clients_daily_v1/query.sql | sed -e 's/telemetry[.]core/moz-fx-data-shared-prod.telemetry.core/' -e 's/\(org_mozilla_[_a-z]*\)\./moz-fx-data-shared-prod.\1./' > mobile_search_clients_daily.sql
+```
+
+Now run the queries:
+
+```
+
+```
+
+Next up:
+
+```
+CREATE TABLE
+  `moz-fx-data-backfill-20.search_derived.mobile_search_clients_last_seen_v1`
+LIKE
+  `moz-fx-data-shared-prod.search_derived.mobile_search_clients_last_seen_v1`
+```
+
+```
+cat sql/moz-fx-data-shared-prod/search_derived/mobile_search_clients_last_seen_v1/query.sql | sed -e 's/mobile_search_clients_daily/moz-fx-data-backfill-20.search_derived.mobile_search_clients_daily/' -e 's/mobile_search_clients_last_seen/moz-fx-data-backfill-20.search_derived.mobile_search_clients_last_seen/' -e 's/udf\./mozdata.udf./g' > mobile_search_clients_last_seen.sql
+```
+
+Now run it:
+
+```
+bq cp moz-fx-data-shared-prod:search_derived.mobile_search_clients_last_seen_v1'$20191231' moz-fx-data-backfill-20:search_derived.mobile_search_clients_last_seen_v1'$20191231'
+seq 0 0 | xargs -I@ date -d '2020-01-01 - @ day' +%F | xargs -P1 -n1 bash -c 'set -ex; echo Processing $1;  bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-21 --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:search_derived.mobile_search_clients_last_seen_v1\$${1//-} < mobile_search_clients_last_seen.sql' -s
 ```
 
 ## Query approaches for sanitizing main_v4
