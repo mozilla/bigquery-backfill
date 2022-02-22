@@ -82,16 +82,17 @@ bq cp -f moz-fx-data-backfill-20:org_mozilla_firefox_stable.metrics_v1 moz-fx-da
 from 2020-01-01 (Glean apps only appeared in early 2020, so no need to go back farther) through 2022-02-17:
 
 ```
-dategen 20200101 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:telemetry_derived.mobile_search_clients_daily_v1${}' 'moz-fx-data-shared-prod:telemetry_derived.mobile_search_clients_daily_v1${}'
+dategen 20200101 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:search_derived.mobile_search_clients_daily_v1${}' 'moz-fx-data-shared-prod:search_derived.mobile_search_clients_daily_v1${}'
 ```
 
-`mobile_search_clients_last_seen_v1` needs more validation,
-from 2020-01-28 through 2022-02-17
+`mobile_search_aggregates_v1` is processing:
 
 ```
-# More validation needed
-? dategen 20191122 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:telemetry_derived.clients_daily_v6${}' 'moz-fx-data-shared-prod:telemetry_derived.clients_daily_v6${}'
+# Not ready yet
+? dategen 20200101 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:search_derived.mobile_search_aggregates_v1${}' 'moz-fx-data-shared-prod:search_derived.mobile_search_aggregates_v1${}'
 ```
+
+`mobile_search_clients_last_seen_v1` needs more attention; this table looks over 1 year of history.
 
 
 
