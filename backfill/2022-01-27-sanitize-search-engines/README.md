@@ -23,39 +23,52 @@ for partitions 2019-11-22 through 2022-02-17:
 dategen 20191122 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:telemetry_derived.clients_daily_v6${}' 'moz-fx-data-shared-prod:telemetry_derived.clients_daily_v6${}'
 ```
 
-`clients_last_seen_v1` is backfilled, validated, and ready to copy into place
+`clients_last_seen_v1` is backfilled, validated, and copied into place
 for partitions 2019-12-20 (28 days after 2019-11-22) through 2022-02-17:
 
 ```
+# DONE 2022-02-22
 dategen 20191220 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:telemetry_derived.clients_last_seen_v1${}' 'moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v1${}'
 ```
 
-`clients_daily_joined_v1` is backfilled, validated, and copied into place on 2022-02-18,
+`clients_daily_joined_v1` is backfilled, validated, and copied into place,
 for partitions 2019-12-20 (28 days after 2019-11-22) through 2022-02-17:
 
 ```
+# DONE 2022-02-22
 dategen 20191220 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:telemetry_derived.clients_daily_joined_v1${}' 'moz-fx-data-shared-prod:telemetry_derived.clients_daily_joined_v1${}'
 ```
 
-`clients_last_seen_joined_v1` is backfilled, validated, and ready to copy into place
+`clients_last_seen_joined_v1` is backfilled, validated, and copied into place
 for partitions 2021-02-21 (upstream table `clients_last_seen_event` only starts here) through 2022-02-17:
 
 ```
+# DONE 2022-02-22
 dategen 20210221 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:telemetry_derived.clients_last_seen_joined_v1${}' 'moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_joined_v1${}'
 ```
 
-`search_clients_daily_v8` is backfilled, validated, and ready to copy into place
+`search_clients_daily_v8` is backfilled, validated, and copied into place
 for partitions 2019-11-22 through 2022-02-17:
 
 ```
+# DONE 2022-02-22
 dategen 20191122 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:search_derived.search_clients_daily_v8${}' 'moz-fx-data-shared-prod:search_derived.search_clients_daily_v8${}'
 ```
 
-`search_aggregates` is backfilled, validated, and ready to copy into place
+`search_aggregates` is backfilled, validated, and copied into place
 for partitions 2019-11-22 through 2022-02-17:
 
 ```
+#DONE 2022-02-22
 dategen 20191122 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:search_derived.search_aggregates_v8${}' 'moz-fx-data-shared-prod:search_derived.search_aggregates_v8${}'
+```
+
+`desktop_search_aggregates_for_searchreport_v1` is backfilled, validated, and ready to copy into place
+for partitions 2019-11-22 through 2022-02-17. Note that dates 2021-08-11 and earlier show a lower than expected
+count in the source data.
+
+```
+dategen 20191122 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:search_derived.desktop_search_aggregates_for_searchreport_v1${}' 'moz-fx-data-shared-prod:search_derived.desktop_search_aggregates_for_searchreport_v1${}'
 ```
 
 `search_clients_last_seen_v1` is processing.
@@ -78,17 +91,19 @@ bq cp -f moz-fx-data-backfill-20:org_mozilla_klar_stable.metrics_v1 moz-fx-data-
 bq cp -f moz-fx-data-backfill-20:org_mozilla_firefox_stable.metrics_v1 moz-fx-data-shared-prod:org_mozilla_firefox_stable.metrics_v1
 ```
 
-`mobile_search_clients_daily_v1` is ready to copy,
+`mobile_search_clients_daily_v1` is copied into place
 from 2020-01-01 (Glean apps only appeared in early 2020, so no need to go back farther) through 2022-02-17:
 
 ```
+#DONE 2022-02-22
 dategen 20200101 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:search_derived.mobile_search_clients_daily_v1${}' 'moz-fx-data-shared-prod:search_derived.mobile_search_clients_daily_v1${}'
 ```
 
-`mobile_search_aggregates_v1` is ready to copy,
+`mobile_search_aggregates_v1` is copied into place
 from 2020-01-01 (Glean apps only appeared in early 2020, so no need to go back farther) through 2022-02-17:
 
 ```
+#DONE 2022-02-22
 dategen 20200101 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:search_derived.mobile_search_aggregates_v1${}' 'moz-fx-data-shared-prod:search_derived.mobile_search_aggregates_v1${}'
 ```
 
