@@ -71,7 +71,8 @@ count in the source data.
 dategen 20191122 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:search_derived.desktop_search_aggregates_for_searchreport_v1${}' 'moz-fx-data-shared-prod:search_derived.desktop_search_aggregates_for_searchreport_v1${}'
 ```
 
-`search_clients_last_seen_v1` is processing.
+`search_clients_last_seen_v1` does not need to be reprocessed because the engine values are already
+normalized in that query in a way that avoids spilling user input.
 
 
 
