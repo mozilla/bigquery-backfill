@@ -51,9 +51,15 @@ for partitions 2019-11-22 through 2022-02-17:
 dategen 20191122 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:search_derived.search_clients_daily_v8${}' 'moz-fx-data-shared-prod:search_derived.search_clients_daily_v8${}'
 ```
 
+`search_aggregates` is backfilled, validated, and ready to copy into place
+for partitions 2019-11-22 through 2022-02-17:
+
+```
+dategen 20191122 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:search_derived.search_aggregates_v8${}' 'moz-fx-data-shared-prod:search_derived.search_aggregates_v8${}'
+```
+
 `search_clients_last_seen_v1` is processing.
 
-`search_aggregates` needs to be done.
 
 
 ### Mobile Status
