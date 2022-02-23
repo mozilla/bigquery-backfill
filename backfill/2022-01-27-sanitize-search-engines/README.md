@@ -63,13 +63,8 @@ for partitions 2019-11-22 through 2022-02-17:
 dategen 20191122 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:search_derived.search_aggregates_v8${}' 'moz-fx-data-shared-prod:search_derived.search_aggregates_v8${}'
 ```
 
-`desktop_search_aggregates_for_searchreport_v1` is backfilled, validated, and ready to copy into place
-for partitions 2019-11-22 through 2022-02-17. Note that dates 2021-08-11 and earlier show a lower than expected
-count in the source data.
-
-```
-dategen 20191122 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:search_derived.desktop_search_aggregates_for_searchreport_v1${}' 'moz-fx-data-shared-prod:search_derived.desktop_search_aggregates_for_searchreport_v1${}'
-```
+`desktop_search_aggregates_for_searchreport_v1` is backfilled, validated, and copied into place
+for partitions 2019-11-22 through 2022-02-17.
 
 `search_clients_last_seen_v1` does not need to be reprocessed because the engine values are already
 normalized in that query in a way that avoids spilling user input.
