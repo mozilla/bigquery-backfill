@@ -5,15 +5,24 @@ Investigation log for https://bugzilla.mozilla.org/show_bug.cgi?id=1751979
 It must match the pipeline sanitization logic in [MessageScrubber](https://github.com/mozilla/gcp-ingestion/blob/main/ingestion-beam/src/main/java/com/mozilla/telemetry/decoder/MessageScrubber.java),
 particularly the `processForBug1751955` and `processForBug1751753` methods there.
 
+## Lessons for next time
+
+The GCE instance we provisioned did not have internet access, so I ended up scp'ing the relevant SQL queries
+to the instance rather than pulling bigquery-etl down via git. It also was not possible to install dependencies
+for `bqetl` and I ended up using `bq` commands instead.
+
+If this doesn't open up significant issues, it would definitely be helpful next time to have
+network access.
+
 ## Status
 
-As of 2022-02-22.
+As of 2022-03-09.
 
 ### Desktop Status
 
 `main_v4` has now been fully sanitized via Shredder.
 
-`main_summary_v4` is currently being sanitized via Shredder.
+`main_summary_v4` is now fully sanitized via Shredder.
 
 `clients_daily_v6` is backfilled, validated, and copied into place
 for partitions 2019-11-22 through 2022-02-17:
@@ -103,8 +112,33 @@ from 2020-01-01 (Glean apps only appeared in early 2020, so no need to go back f
 dategen 20200101 20220217 | xargs -I{} -P 16 bq --project_id moz-fx-data-shared-prod cp -f 'moz-fx-data-backfill-20:search_derived.mobile_search_aggregates_v1${}' 'moz-fx-data-shared-prod:search_derived.mobile_search_aggregates_v1${}'
 ```
 
-`mobile_search_clients_last_seen_v1` needs more attention; this table looks over 1 year of history.
+`mobile_search_clients_last_seen_v1` is copied into place and verified for 2019-01-01 through present:
 
+```
+#DONE 2022-02-28
+bq cp moz-fx-data-backfill-20:search_derived.mobile_search_clients_daily_v1 moz-fx-data-shared-prod:search_derived.mobile_search_clients_daily_v1
+```
+
+### Cleanup
+
+Using the GCE console, I deleted the instance I was using to run the `bq` invocations.
+
+As all sanitization is complete, we now delete all the staging data:
+
+```
+$ bq ls --project_id=moz-fx-data-backfill-20 | tail -n+3 | awk '{print $1}' | xargs -I{} -n1 echo bq rm -r -f "moz-fx-data-backfill-20:{}"
+bq rm -r -f moz-fx-data-backfill-20:org_mozilla_fenix_nightly_stable
+bq rm -r -f moz-fx-data-backfill-20:org_mozilla_fenix_stable
+bq rm -r -f moz-fx-data-backfill-20:org_mozilla_fennec_aurora_stable
+bq rm -r -f moz-fx-data-backfill-20:org_mozilla_firefox_beta_stable
+bq rm -r -f moz-fx-data-backfill-20:org_mozilla_firefox_stable
+bq rm -r -f moz-fx-data-backfill-20:org_mozilla_focus_beta_stable
+bq rm -r -f moz-fx-data-backfill-20:org_mozilla_focus_nightly_stable
+bq rm -r -f moz-fx-data-backfill-20:org_mozilla_focus_stable
+bq rm -r -f moz-fx-data-backfill-20:org_mozilla_klar_stable
+bq rm -r -f moz-fx-data-backfill-20:search_derived
+bq rm -r -f moz-fx-data-backfill-20:telemetry_derived
+```
 
 
 ## Plan for running backfill
@@ -287,7 +321,7 @@ cat sql/moz-fx-data-shared-prod/search_derived/search_clients_last_seen_v1/query
 And then run incremental queries sequentially:
 
 ```
-seq 0 818 | xargs -I@ date -d '2019-11-22 + @ day' +%F | xargs -P1 -n1 bash -c 'set -ex; echo Processing $1; bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-slots --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:search_derived.search_clients_last_seen_v1\$${1//-} < scls.sql' -s
+seq 0 818 | xargs -I@ date -d '2019-01-01 + @ day' +%F | xargs -P1 -n1 bash -c 'set -ex; echo Processing $1; bq query --nouse_legacy_sql --project_id=moz-fx-data-backfill-slots --parameter submission_date:DATE:$1 --destination_table=moz-fx-data-backfill-20:search_derived.search_clients_last_seen_v1\$${1//-} < scls.sql' -s
 ```
 
 ## Backfill mobile tables
