@@ -6,6 +6,8 @@ set -exo pipefail
 
 PROJECT="moz-fx-data-backfill-10"
 JOB_NAME="firefox-desktop-backfill"
+: "${START_DATE:=2022-04-12}"
+: "${END_DATE:=2022-04-27}"
 
 mvn \
   clean \
@@ -22,6 +24,7 @@ mvn \
       --input=\"$PROJECT:payload_bytes_error.backfill\" \
       --bqReadMethod=storageapi \
       --outputType=bigquery \
+      --bqRowRestriction=\"DATE(submission_timestamp) BETWEEN '$START_DATE' AND '$END_DATE'\" \
       --bqWriteMethod=file_loads \
       --bqClusteringFields=submission_timestamp \
       --output=$PROJECT:\${document_namespace}_live.\${document_type}_v\${document_version} \
