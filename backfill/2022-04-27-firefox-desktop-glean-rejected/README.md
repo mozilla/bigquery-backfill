@@ -45,6 +45,18 @@ cd path/to/gcp-ingestion
 path/to/02-gcp-ingestion-beam-decoder.sh
 ```
 
+This ran successfully in 12 minutes with following output:
+
+- Errors: 611425
+- baseline: 4652551
+- deletion_request: 8188
+- events: 2553799
+- fog_validation: 0
+- metrics: 431974
+
+Adding those together: `431974 + 2553799 + 8188 + 4652551 + 611425 = 8257937` so
+all pings are accounted for; the number in the source table matches the outputs.
+
 ## Step 3: Copy & deduplicate decoded pings
 
 Run the script in this directory for the invocation of relevant `copy_deduplicate` queries:
