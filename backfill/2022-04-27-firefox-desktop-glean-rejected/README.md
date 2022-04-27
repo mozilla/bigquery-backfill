@@ -15,6 +15,9 @@ correctly flowing.
 The purpose of this backfill is to get the rejected pings from the affected period
 integrated into stable tables and downstream derived tables.
 
+NOTE: We ended up with a bit of extra complexity here because we ran the backfill
+including the current (incomplete) day. That's called out in steps 3 and 4.
+
 ## Step 1: Set up backfill project
 
 Data SRE prepared terraform for staging source and output tables to project
@@ -110,3 +113,27 @@ WHERE
   AND document_namespace = 'firefox-desktop'
   AND error_message LIKE 'com.mozilla.telemetry.decoder.MessageScrubber$UnwantedDataException: 1684980'
 ```
+
+This in practice produced an error message:
+
+> UPDATE or DELETE statement over table moz-fx-data-shared-prod.payload_bytes_error.structured would affect rows in the streaming buffer, which is not supported
+
+We modified this to not affect the current day (made the end date 2022-04-26) to get around the problem. This deleted 8,023,263 rows.
+
+We'll need to circle back to this after 2022-04-27 is complete to delete the final day:
+
+```sql
+DELETE FROM `moz-fx-data-shared-prod.payload_bytes_error.structured`
+WHERE
+  DATE(submission_timestamp) = '2022-04-27'
+  AND document_namespace = 'firefox-desktop'
+  AND error_message LIKE 'com.mozilla.telemetry.decoder.MessageScrubber$UnwantedDataException: 1684980'
+```
+
+4.  And finally Data SRE will copy errors from the backfill back into the prod error table:
+
+```bash
+bq cp --append_table moz-fx-data-backfill-10:payload_bytes_error moz-fx-data-shared-prod:firefox_desktop_live.metrics_v1
+```
+
+Note that we are delaying running this until we run the final DELETE for 2022-04-27 data.
