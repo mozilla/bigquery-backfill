@@ -12,8 +12,11 @@ TABLES=(
   "firefox_desktop_live.fog_validation_v1"
   "firefox_desktop_live.metrics_v1"
 )
+
+# Note that we skip 2022-04-27 because it's the current day; we'll have to copy
+# that into live table instead so it's hit by tonight's production copy_dedupe.
 DATES=(
-    2022-04-12 2022-04-13 2022-04-14 2022-04-15 2022-04-16 2022-04-17 2022-04-18 2022-04-19 2022-04-20 2022-04-21 2022-04-22 2022-04-23 2022-04-24 2022-04-25 2022-04-26 2022-04-27
+    2022-04-12 2022-04-13 2022-04-14 2022-04-15 2022-04-16 2022-04-17 2022-04-18 2022-04-19 2022-04-20 2022-04-21 2022-04-22 2022-04-23 2022-04-24 2022-04-25 2022-04-26
 )
 
 ./script/copy_deduplicate \

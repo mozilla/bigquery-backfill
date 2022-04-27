@@ -72,11 +72,21 @@ cd path/to/bigquery-etl
 To insert the previously rejected pings into production stable tables, someone with appropriate access can run the following `bq` commands either in Google Cloud Shell or using the Google Cloud SDK:
 
 ```bash
-bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.baseline_v1 moz-fx-data-shared-prod:firefox_desktop_live.baseline_v1
-bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.deletion_request_v1 moz-fx-data-shared-prod:firefox_desktop_live.deletion_request_v1
-bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.events_v1 moz-fx-data-shared-prod:firefox_desktop_live.events_v1
-bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.fog_validation_v1 moz-fx-data-shared-prod:firefox_desktop_live.fog_validation_v1
-bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.metrics_v1 moz-fx-data-shared-prod:firefox_desktop_live.metrics_v1
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_stable.baseline_v1 moz-fx-data-shared-prod:firefox_desktop_stable.baseline_v1
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_stable.deletion_request_v1 moz-fx-data-shared-prod:firefox_desktop_stable.deletion_request_v1
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_stable.events_v1 moz-fx-data-shared-prod:firefox_desktop_stable.events_v1
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_stable.fog_validation_v1 moz-fx-data-shared-prod:firefox_desktop_stable.fog_validation_v1
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_stable.metrics_v1 moz-fx-data-shared-prod:firefox_desktop_stable.metrics_v1
+```
+
+For the current day, we have to append into live tables instead:
+
+```bash
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.baseline_v1'$20220427' moz-fx-data-shared-prod:firefox_desktop_live.baseline_v1
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.deletion_request_v1'$20220427' moz-fx-data-shared-prod:firefox_desktop_live.deletion_request_v1
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.events_v1'$20220427' moz-fx-data-shared-prod:firefox_desktop_live.events_v1
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.fog_validation_v1'$20220427' moz-fx-data-shared-prod:firefox_desktop_live.fog_validation_v1
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.metrics_v1'$20220427' moz-fx-data-shared-prod:firefox_desktop_live.metrics_v1
 ```
 
 ## Step 5:  Clean up
