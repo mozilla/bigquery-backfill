@@ -14,3 +14,77 @@ correctly flowing.
 
 The purpose of this backfill is to get the rejected pings from the affected period
 integrated into stable tables and downstream derived tables.
+
+## Step 1: Set up backfill project
+
+Data SRE prepared terraform for staging source and output tables to project
+`moz-fx-data-shared-prod` ([cloudops-infra PR](https://github.com/mozilla-services/cloudops-infra/pull/4019))
+including the following query logic for populating the staging source:
+
+```
+SELECT
+  *
+FROM
+  `moz-fx-data-shared-prod.payload_bytes_error.structured`
+WHERE
+  DATE(submission_timestamp) BETWEEN '2022-04-12' AND '2022-04-27'
+  AND document_namespace = 'firefox-desktop'
+  AND error_message LIKE 'com.mozilla.telemetry.decoder.MessageScrubber$UnwantedDataException: 1684980'
+```
+
+## Step 2: Run Dataflow job to populate live staging tables
+
+See the script in this directory for the invocation to run the Decoder backfill
+job to populate the staging live tables.
+
+With a local working copy of `gcp-ingestion` in sync with `main`, run the [`02-gcp-ingestion-beam-decoder.sh` script](02-gcp-ingestion-beam-decoder.sh) to start the decoder as a Dataflow job:
+
+```bash
+cd path/to/gcp-ingestion
+
+path/to/02-gcp-ingestion-beam-decoder.sh
+```
+
+## Step 3: Copy & deduplicate decoded pings
+
+Run the script in this directory for the invocation of relevant `copy_deduplicate` queries:
+
+```bash
+cd path/to/bigquery-etl
+
+./path/to/03-bigquery-etl-copy-deduplicate.sh
+```
+
+## Step 4: Insert previously rejected pings into production tables
+
+To insert the previously rejected pings into production stable tables, someone with appropriate access can run the following `bq` commands either in Google Cloud Shell or using the Google Cloud SDK:
+
+```bash
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.baseline_v1 moz-fx-data-shared-prod:firefox_desktop_live.baseline_v1
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.deletion_request_v1 moz-fx-data-shared-prod:firefox_desktop_live.deletion_request_v1
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.events_v1 moz-fx-data-shared-prod:firefox_desktop_live.events_v1
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.fog_validation_v1 moz-fx-data-shared-prod:firefox_desktop_live.fog_validation_v1
+bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.metrics_v1 moz-fx-data-shared-prod:firefox_desktop_live.metrics_v1
+```
+
+## Step 5:  Clean up
+
+1.  DE will remove any GCS buckets created by Dataflow jobs:
+
+    ```bash
+    # BE CAREFUL!  This removes all GCS buckets from the target project.  It cannot be undone.
+
+    gsutil ls -p moz-fx-data-backfill-10 | xargs gsutil -m rm -r
+    ```
+
+2.  Data SRE will remove the resources that were created for this backfill with Terraform using Terraform (note that this also removes DE editor access to the backfill GCP project).
+
+3.  Data SRE will delete the errors for the payloads that have now been successfully ingested:
+
+```sql
+DELETE FROM `moz-fx-data-shared-prod.payload_bytes_error.structured`
+WHERE
+  DATE(submission_timestamp) BETWEEN '2022-04-12' AND '2022-04-27'
+  AND document_namespace = 'firefox-desktop'
+  AND error_message LIKE 'com.mozilla.telemetry.decoder.MessageScrubber$UnwantedDataException: 1684980'
+```
