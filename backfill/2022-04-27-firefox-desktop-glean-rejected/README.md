@@ -102,9 +102,15 @@ bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.metrics_v1'$20
     gsutil ls -p moz-fx-data-backfill-10 | xargs gsutil -m rm -r
     ```
 
-2.  Data SRE will remove the resources that were created for this backfill with Terraform using Terraform (note that this also removes DE editor access to the backfill GCP project).
+    Log:
 
-3.  Data SRE will delete the errors for the payloads that have now been successfully ingested:
+    ```
+    ...
+    Operation completed over 250 objects.
+    Removing gs://dataflow-staging-us-central1-339436751542/...
+    ```
+
+2.  Data SRE will delete the errors for the payloads that have now been successfully ingested:
 
 ```sql
 DELETE FROM `moz-fx-data-shared-prod.payload_bytes_error.structured`
@@ -135,8 +141,11 @@ This statement removed 246,571 rows from structured.
 Per https://cloud.google.com/bigquery/streaming-data-into-bigquery it can take up to 90 minutes
 for the streaming buffer to be fully flushed after new records stop flowing in.
 
-4.  And finally Data SRE will copy errors from the backfill back into the prod error table:
+3.  Data SRE will copy errors from the backfill back into the prod error table:
 
 ```bash
 bq cp --append_table moz-fx-data-backfill-10:payload_bytes_error.structured moz-fx-data-shared-prod:payload_bytes_error.structured
 ```
+
+4.  Finally, Data SRE will remove the resources that were created for this backfill with Terraform using Terraform (note that this also removes DE editor access to the backfill GCP project).
+
