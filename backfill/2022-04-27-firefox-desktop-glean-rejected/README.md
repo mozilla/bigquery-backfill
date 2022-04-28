@@ -133,7 +133,7 @@ WHERE
 4.  And finally Data SRE will copy errors from the backfill back into the prod error table:
 
 ```bash
-bq cp --append_table moz-fx-data-backfill-10:payload_bytes_error moz-fx-data-shared-prod:firefox_desktop_live.metrics_v1
+bq cp --append_table moz-fx-data-backfill-10:payload_bytes_error.structured moz-fx-data-shared-prod:payload_bytes_error.structured
 ```
 
 Note that we are delaying running this until we run the final DELETE for 2022-04-27 data.
