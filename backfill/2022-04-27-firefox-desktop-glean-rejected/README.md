@@ -147,5 +147,31 @@ for the streaming buffer to be fully flushed after new records stop flowing in.
 bq cp --append_table moz-fx-data-backfill-10:payload_bytes_error.structured moz-fx-data-shared-prod:payload_bytes_error.structured
 ```
 
+BUT: after we ran this we realized we missed some nuance.
+Because the initial copy step into ``moz-fx-data-backfill-10.payload_bytes_error.backfill`` was run before the end of the 2022-04-27 UTC day, this should have had an additional filter to avoid deleting all `UnwantedDataException: 1684980` errors that happened after that point.
+
+To fix that up, we use time travel:
+
+```
+CREATE TABLE `moz-fx-data-backfill-10.payload_bytes_error.backfill_fix`
+ PARTITION BY DATE(submission_timestamp)
+ CLUSTER BY
+   submission_timestamp
+ AS SELECT * FROM `moz-fx-data-backfill-10:payload_bytes_error.backfill` LIMIT 0;
+
+SELECT *
+FROM `payload_bytes_error.structured`
+  FOR SYSTEM_TIME AS OF "2022-04-28 01:00:00.000000 UTC"
+where date(submission_timestamp) = "2022-04-27" and submission_timestamp > (SELECT MAX(submission_timestamp) FROM `moz-fx-data-backfill-10.payload_bytes_error.backfill` where date(submission_timestamp) = "2022-04-27")
+  AND document_namespace = 'firefox-desktop'
+  AND error_message LIKE 'com.mozilla.telemetry.decoder.MessageScrubber$UnwantedDataException: 1684980'
+```
+
+This may still miss a few pings, but will be very nearly complete. We append this content (11897 records) to the prod errors table:
+
+```
+bq cp -a 'moz-fx-data-backfill-10:payload_bytes_error.backfill_fix' 'moz-fx-data-shared-prod:payload_bytes_error.structured'
+```
+
 4.  Finally, Data SRE will remove the resources that were created for this backfill with Terraform using Terraform (note that this also removes DE editor access to the backfill GCP project).
 
