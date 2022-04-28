@@ -112,66 +112,65 @@ bq cp --append_table moz-fx-data-backfill-10:firefox_desktop_live.metrics_v1'$20
 
 2.  Data SRE will delete the errors for the payloads that have now been successfully ingested:
 
-```sql
-DELETE FROM `moz-fx-data-shared-prod.payload_bytes_error.structured`
-WHERE
-  DATE(submission_timestamp) BETWEEN '2022-04-12' AND '2022-04-27'
-  AND document_namespace = 'firefox-desktop'
-  AND error_message LIKE 'com.mozilla.telemetry.decoder.MessageScrubber$UnwantedDataException: 1684980'
-```
+    ```sql
+    DELETE FROM `moz-fx-data-shared-prod.payload_bytes_error.structured`
+    WHERE
+      DATE(submission_timestamp) BETWEEN '2022-04-12' AND '2022-04-27'
+      AND document_namespace = 'firefox-desktop'
+      AND error_message LIKE 'com.mozilla.telemetry.decoder.MessageScrubber$UnwantedDataException: 1684980'
+    ```
 
-This in practice produced an error message:
+    This in practice produced an error message:
 
-> UPDATE or DELETE statement over table moz-fx-data-shared-prod.payload_bytes_error.structured would affect rows in the streaming buffer, which is not supported
+    > UPDATE or DELETE statement over table moz-fx-data-shared-prod.payload_bytes_error.structured would affect rows in the streaming buffer, which is not supported
 
-We modified this to not affect the current day (made the end date 2022-04-26) to get around the problem. This deleted 8,023,263 rows.
+    We modified this to not affect the current day (made the end date 2022-04-26) to get around the problem. This deleted 8,023,263 rows.
 
-We'll need to circle back to this after 2022-04-27 is complete to delete the final day:
+    We'll need to circle back to this after 2022-04-27 is complete to delete the final day:
 
-```sql
-DELETE FROM `moz-fx-data-shared-prod.payload_bytes_error.structured`
-WHERE
-  DATE(submission_timestamp) = '2022-04-27'
-  AND document_namespace = 'firefox-desktop'
-  AND error_message LIKE 'com.mozilla.telemetry.decoder.MessageScrubber$UnwantedDataException: 1684980'
-```
+    ```sql
+    DELETE FROM `moz-fx-data-shared-prod.payload_bytes_error.structured`
+    WHERE
+      DATE(submission_timestamp) = '2022-04-27'
+      AND document_namespace = 'firefox-desktop'
+      AND error_message LIKE 'com.mozilla.telemetry.decoder.MessageScrubber$UnwantedDataException: 1684980'
+    ```
 
-This statement removed 246,571 rows from structured.
+    This statement removed 246,571 rows from structured.
 
-Per https://cloud.google.com/bigquery/streaming-data-into-bigquery it can take up to 90 minutes
-for the streaming buffer to be fully flushed after new records stop flowing in.
+    Per https://cloud.google.com/bigquery/streaming-data-into-bigquery it can take up to 90 minutes
+    for the streaming buffer to be fully flushed after new records stop flowing in.
 
 3.  Data SRE will copy errors from the backfill back into the prod error table:
 
-```bash
-bq cp --append_table moz-fx-data-backfill-10:payload_bytes_error.structured moz-fx-data-shared-prod:payload_bytes_error.structured
-```
+    ```bash
+    bq cp --append_table moz-fx-data-backfill-10:payload_bytes_error.structured moz-fx-data-shared-prod:payload_bytes_error.structured
+    ```
 
-BUT: after we ran this we realized we missed some nuance.
-Because the initial copy step into ``moz-fx-data-backfill-10.payload_bytes_error.backfill`` was run before the end of the 2022-04-27 UTC day, this should have had an additional filter to avoid deleting all `UnwantedDataException: 1684980` errors that happened after that point.
+    BUT: after we ran this we realized we missed some nuance.
+    Because the initial copy step into ``moz-fx-data-backfill-10.payload_bytes_error.backfill`` was run before the end of the 2022-04-27 UTC day, this should have had an additional filter to avoid deleting all `UnwantedDataException: 1684980` errors that happened after that point.
 
-To fix that up, we use time travel:
+    To fix that up, we use time travel:
 
-```
-CREATE TABLE `moz-fx-data-backfill-10.payload_bytes_error.backfill_fix`
- PARTITION BY DATE(submission_timestamp)
- CLUSTER BY
-   submission_timestamp
- AS SELECT * FROM `moz-fx-data-backfill-10:payload_bytes_error.backfill` LIMIT 0;
+    ```
+    CREATE TABLE `moz-fx-data-backfill-10.payload_bytes_error.backfill_fix`
+     PARTITION BY DATE(submission_timestamp)
+     CLUSTER BY
+       submission_timestamp
+     AS SELECT * FROM `moz-fx-data-backfill-10:payload_bytes_error.backfill` LIMIT 0;
 
-SELECT *
-FROM `payload_bytes_error.structured`
-  FOR SYSTEM_TIME AS OF "2022-04-28 01:00:00.000000 UTC"
-where date(submission_timestamp) = "2022-04-27" and submission_timestamp > (SELECT MAX(submission_timestamp) FROM `moz-fx-data-backfill-10.payload_bytes_error.backfill` where date(submission_timestamp) = "2022-04-27")
-  AND document_namespace = 'firefox-desktop'
-  AND error_message LIKE 'com.mozilla.telemetry.decoder.MessageScrubber$UnwantedDataException: 1684980'
-```
+    SELECT *
+    FROM `payload_bytes_error.structured`
+      FOR SYSTEM_TIME AS OF "2022-04-28 01:00:00.000000 UTC"
+    where date(submission_timestamp) = "2022-04-27" and submission_timestamp > (SELECT MAX(submission_timestamp) FROM `moz-fx-data-backfill-10.payload_bytes_error.backfill` where date(submission_timestamp) = "2022-04-27")
+      AND document_namespace = 'firefox-desktop'
+      AND error_message LIKE 'com.mozilla.telemetry.decoder.MessageScrubber$UnwantedDataException: 1684980'
+    ```
 
-This may still miss a few pings, but will be very nearly complete. We append this content (11897 records) to the prod errors table:
+    This may still miss a few pings, but will be very nearly complete. We append this content (11897 records) to the prod errors table:
 
-```
-bq cp -a 'moz-fx-data-backfill-10:payload_bytes_error.backfill_fix' 'moz-fx-data-shared-prod:payload_bytes_error.structured'
-```
+    ```
+    bq cp -a 'moz-fx-data-backfill-10:payload_bytes_error.backfill_fix' 'moz-fx-data-shared-prod:payload_bytes_error.structured'
+    ```
 
 4.  Finally, Data SRE will remove the resources that were created for this backfill with Terraform using Terraform (note that this also removes DE editor access to the backfill GCP project).
-
