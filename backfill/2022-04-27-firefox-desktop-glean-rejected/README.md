@@ -130,10 +130,13 @@ WHERE
   AND error_message LIKE 'com.mozilla.telemetry.decoder.MessageScrubber$UnwantedDataException: 1684980'
 ```
 
+This statement removed 246,571 rows from structured.
+
+Per https://cloud.google.com/bigquery/streaming-data-into-bigquery it can take up to 90 minutes
+for the streaming buffer to be fully flushed after new records stop flowing in.
+
 4.  And finally Data SRE will copy errors from the backfill back into the prod error table:
 
 ```bash
 bq cp --append_table moz-fx-data-backfill-10:payload_bytes_error.structured moz-fx-data-shared-prod:payload_bytes_error.structured
 ```
-
-Note that we are delaying running this until we run the final DELETE for 2022-04-27 data.
