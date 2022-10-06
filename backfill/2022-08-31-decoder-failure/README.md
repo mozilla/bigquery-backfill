@@ -61,9 +61,9 @@ path/to/02-gcp-ingestion-beam-decoder.sh
 
 **⚠** While attempting to run this we ran into a bunch of Java build
 issues. Various DE were unable to build and run the ingestion code, but one
-eventually succeeded. We made a note to switch to using the pre-built flex
-templates for future backfills, and to improve gcp-ingestion documentation
-where applicable to make bootstrapping easier.
+eventually succeeded. We made a note to [switch to using the pre-built flex templates for future backfills](https://github.com/mozilla/bigquery-backfill/issues/21),
+and to improve gcp-ingestion documentation
+[where applicable to make bootstrapping easier](https://github.com/mozilla/gcp-ingestion/issues/2176).
 
 ## OPTIONAL: Set up a GCP instance in the backfill project to run API calls from
 
@@ -127,7 +127,7 @@ cd path/to/bigquery-etl
 **⚠** While running this step we ran into an allowlist issue similar to
 https://github.com/mozilla/bigquery-etl/pull/3208 where backfill projects are
 rejected by bigquery-etl code as invalid. We hard-coded a workaround with the
-intent to add backfill projects to the allowlist in the future.
+intent to [add backfill projects to the allowlist in the future](https://github.com/mozilla/bigquery-etl/issues/3255).
 
 ## Step 4: Insert previously missing pings into production tables
 
