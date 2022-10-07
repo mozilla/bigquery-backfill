@@ -74,8 +74,9 @@ DATES=(
     2022-08-31
 )
 
-# may fail, see https://github.com/mozilla/bigquery-etl/issues/3255
-./bqetl copy_deduplicate \
-  --project-id $PROJECT --billing-project $PROJECT \
-  -o "${TABLES[@]}" \
-  --dates "${DATES[@]}"
+for table in "${TABLES[@]}"; do
+	./bqetl copy_deduplicate \
+  	--project-id $PROJECT --billing-project $PROJECT \
+	-o "${table}" \
+	--dates "${DATES[@]}"
+done
