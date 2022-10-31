@@ -45,6 +45,8 @@ WHERE
 This query can only be executed by Data SRE since users do not have write permissions on confidential data sets.
 Open a ticket [here](https://mozilla-hub.atlassian.net/jira/software/c/projects/DSRE/issues/) and provide the query inside the ticket description that SRE is supposed to run.
 
+It is recommended to open a ticket in [Bugzilla](https://bugzilla.mozilla.org/buglist.cgi?product=Data%20Platform%20and%20Tools&component=General&resolution=---&list_id=16270083) for this step and have someone else review the query.
+
 ## 3. Data validation
 
 Check that all of the missing data is available in `moz-fx-data-shared-prod.contextual_services_derived.event_aggregates_v1`
