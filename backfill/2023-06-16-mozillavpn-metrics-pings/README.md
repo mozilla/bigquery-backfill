@@ -35,8 +35,13 @@ path/to/bigquery-backfill/backfill/2023-06-16-mozillavpn-metrics-pings/02-gcp-in
 
 That decoder job is configured to populate the tables in the `moz-fx-data-backfill-3.mozillavpn_live` dataset and write any errors to the `moz-fx-data-backfill-3.payload_bytes_error.structured` table.
 
-### Output:
-  - TODO
+### Output (2023-06-16):
+  - 422,921 `moz-fx-data-backfill-3.mozillavpn_live.metrics_v1` rows between 2022-12-20 and 2023-06-09.
+    - 3,203 rows were before the 180-day partition expiration cutoff of 2022-12-18 and weren't saved.
+  - 5,115 errors in `moz-fx-data-backfill-3.payload_bytes_error.structured`.
+    - 5,111 `org.everit.json.schema.ValidationException: #/client_info: required key [app_build] not found`
+    - 3 `org.everit.json.schema.ValidationException: #/client_info: required key [architecture] not found`
+    - 1 `org.everit.json.schema.ValidationException: #/client_info: required key [app_display_version] not found`
 
 
 ## Step 3:  Copy & deduplicate decoded `mozillavpn.metrics` pings
@@ -49,8 +54,8 @@ cd path/to/bigquery-etl
 path/to/bigquery-backfill/backfill/2023-06-16-mozillavpn-metrics-pings/03-bigquery-etl-copy-deduplicate.sh
 ```
 
-### Output:
-  - TODO
+### Output (2023-06-16):
+  - 422,726 `moz-fx-data-backfill-3.mozillavpn_stable.metrics_v1` rows between 2022-12-20 and 2023-06-09.
 
 
 ## Step 4:  Insert new `mozillavpn.metrics` pings and errors into production tables
