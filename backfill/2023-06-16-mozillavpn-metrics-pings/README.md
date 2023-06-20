@@ -72,8 +72,10 @@ bq cp --append_table moz-fx-data-backfill-3:mozillavpn_stable.metrics_v1 moz-fx-
 bq cp --append_table moz-fx-data-backfill-3:payload_bytes_error.structured moz-fx-data-shared-prod:payload_bytes_error.structured
 ```
 
-### Output:
-  - TODO
+### Output (2023-06-20):
+  - 422,868 `moz-fx-data-shared-prod.mozillavpn_live.metrics_v1` rows between 2022-12-22 and 2023-06-09.
+  - 422,673 `moz-fx-data-shared-prod.mozillavpn_stable.metrics_v1` rows between 2022-12-22 and 2023-06-09.
+  - 5,115 `moz-fx-data-shared-prod.payload_bytes_error.structured` rows.
 
 
 ## Step 5:  Clean up
