@@ -73,9 +73,9 @@ bq cp --append_table moz-fx-data-backfill-3:payload_bytes_error.structured moz-f
 ```
 
 ### Output (2023-06-20):
-  - 422,868 `moz-fx-data-shared-prod.mozillavpn_live.metrics_v1` rows between 2022-12-22 and 2023-06-09.
-  - 422,673 `moz-fx-data-shared-prod.mozillavpn_stable.metrics_v1` rows between 2022-12-22 and 2023-06-09.
-  - 5,115 `moz-fx-data-shared-prod.payload_bytes_error.structured` rows.
+  - 422,868 `moz-fx-data-shared-prod.mozillavpn_live.metrics_v1` rows added between 2022-12-22 and 2023-06-09.
+  - 422,673 `moz-fx-data-shared-prod.mozillavpn_stable.metrics_v1` rows added between 2022-12-22 and 2023-06-09.
+  - 5,115 `moz-fx-data-shared-prod.payload_bytes_error.structured` rows added.
 
 
 ## Step 5:  Clean up
@@ -99,3 +99,6 @@ bq cp --append_table moz-fx-data-backfill-3:payload_bytes_error.structured moz-f
       AND document_type = 'metrics'
       AND exception_class = 'com.mozilla.telemetry.ingestion.core.schema.SchemaNotFoundException'
     ```
+
+### Output (2023-06-21):
+  - 431,239 `moz-fx-data-shared-prod.payload_bytes_error.structured` rows deleted.
