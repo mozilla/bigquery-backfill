@@ -36,7 +36,7 @@ WITH baseline_attribution_data AS (
   LEFT JOIN
     fenix.firefox_android_clients AS att
   ON
-    um.client_id = att.client_id
+    um.client_id = att.client_id 
   WHERE
     um.submission_date BETWEEN '2021-01-01' AND '2023-08-02' and normalized_app_name = 'Fenix'
 ),
