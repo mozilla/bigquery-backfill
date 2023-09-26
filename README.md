@@ -7,7 +7,7 @@ There is a `script` directory containing relatively pristine reference scripts
 that you can copy and paste into a new backfill scenario and modify for your
 particular needs.
 
-There is a `backfills` directory where each subdirectory should be a dated
+There is a `backfill` directory where each subdirectory should be a dated
 backfill event, containing all the scripts used and a description of the
 overall scenario.
 
