@@ -1,4 +1,4 @@
-WITH baseline_attribution_data AS (
+WITH baseline AS (
   SELECT
     activity_segment AS segment,
     attribution_medium,
@@ -10,9 +10,9 @@ WITH baseline_attribution_data AS (
     distribution_id,
     EXTRACT(YEAR FROM um.first_seen_date) AS first_seen_year,
     is_default_browser,
-    channel,
+    normalized_channel AS channel,
     normalized_os AS os,
-    os_version,
+    normalized_os_version AS os_version,
     os_version_major,
     os_version_minor,
     um.submission_date,
@@ -45,7 +45,7 @@ WITH baseline_attribution_data AS (
 enriched_with_language AS
 (
    SELECT
-    baseline_attribution_data.* EXCEPT (locale),
+    baseline.* EXCEPT (locale),
     CASE
       WHEN locale IS NOT NULL
         AND languages.language_name IS NULL
@@ -53,11 +53,11 @@ enriched_with_language AS
       ELSE languages.language_name
     END AS language_name,
   FROM
-    baseline_attribution_data
+    baseline
   LEFT JOIN
     `mozdata.static.csa_gblmkt_languages` AS languages
   ON
-    baseline_attribution_data.locale = languages.code
+    baseline.locale = languages.code
 )
 SELECT
   segment,

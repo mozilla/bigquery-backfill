@@ -10,9 +10,9 @@ WITH baseline AS (
     distribution_id,
     EXTRACT(YEAR FROM um.first_seen_date) AS first_seen_year,
     is_default_browser,
-    channel,
+    normalized_channel AS channel,
     normalized_os AS os,
-    os_version,
+    normalized_os_version AS os_version,
     os_version_major,
     os_version_minor,
     um.submission_date,
@@ -41,7 +41,7 @@ WITH baseline AS (
 enriched_with_language AS
 (
    SELECT
-    baseline_attribution_data.* EXCEPT (locale),
+    baseline.* EXCEPT (locale),
     CASE
       WHEN locale IS NOT NULL
         AND languages.language_name IS NULL
