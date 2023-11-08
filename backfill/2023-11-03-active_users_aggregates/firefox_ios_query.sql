@@ -33,13 +33,13 @@ WITH baseline AS (
     um.client_id,
     durations
   FROM
-    `moz-fx-data-shared-prod.telemetry.unified_metrics` AS um
+    `moz-fx-data-shared-prod.telemetry_derived.unified_metrics_v1` AS um
   LEFT JOIN
     firefox_ios.firefox_ios_clients AS att
   ON
     um.client_id = att.client_id
   WHERE
-    um.submission_date >= '2021-01-01'
+    um.submission_date >= '2021-01-01' AND um.submission_date <= CURRENT_DATE
     AND normalized_app_name IN ('Firefox iOS', 'Firefox iOS BrowserStack')
 ),
 enriched_with_language AS
@@ -80,8 +80,8 @@ SELECT
   adjust_network,
   install_source,
   language_name,
-  COUNT(DISTINCT IF(days_since_seen = 0 AND durations > 0, client_id, NULL)) AS qdau,
-  COUNT(DISTINCT IF(days_since_seen = 0, client_id, NULL)) AS dau,
+  COUNT(DISTINCT IF(days_since_seen = 0 AND durations > 0, client_id, NULL)) AS dau,
+  COUNT(DISTINCT IF(days_since_seen = 0, client_id, NULL)) AS all_dau,
   COUNT(DISTINCT IF(days_since_seen < 7, client_id, NULL)) AS wau,
   COUNT(DISTINCT client_id) AS mau,
   COUNT(DISTINCT IF(submission_date = first_seen_date, client_id, NULL)) AS new_profiles,
