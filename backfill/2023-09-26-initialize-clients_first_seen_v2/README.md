@@ -5,9 +5,9 @@
 
 ## Context
 
-  - The table telemetry_derived.clients_first_seen_v2 redefines the first_seen_Date for Desktop clients by querying 3 pings: main, new_profile ans first_shutdown.
-  - Give the size of the data, it's required to initialize in parallel and this runs using bigquery-etl and a query that are suceptible to change due to ongoing updates to the _run_query function.
-  - Therefore, the decision is to initialize the table with the current state of bigquery-etl and the script.
+  - The table telemetry_derived.clients_first_seen_v2 redefines the first_seen_date for Desktop clients by querying 3 pings: main, new_profile and first_shutdown.
+  - Given the size of the data, it's required to initialize in parallel using a bigquery-etl function and a query that are both suceptible to change due to ongoing updates to the code.
+  - Therefore, the decision is to initialize the table with the current state of bigquery-etl and the query in this PR.
 
 
 ## Step 1: Run from repository [bigquery-etl](https://github.com/mozilla/bigquery-etl)
