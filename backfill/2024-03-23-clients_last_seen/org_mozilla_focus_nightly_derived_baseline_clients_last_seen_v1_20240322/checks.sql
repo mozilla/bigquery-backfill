@@ -27,7 +27,7 @@ SELECT
     NULL
   )
 FROM
-  `moz-fx-data-shared-prod.backfills_staging_derived.org_mozilla_ios_fennec_derived_baseline_clients_last_seen_v1_20240322`
+  `moz-fx-data-shared-prod.backfills_staging_derived.org_mozilla_focus_nightly_derived_baseline_clients_last_seen_v1_20240322`
 WHERE
   submission_date = @submission_date;
 
@@ -45,7 +45,7 @@ WITH production_version AS
      COUNT(DISTINCT client_id) AS client_count,
      COUNT(DISTINCT is_new_profile) AS new_profile_count
  FROM
-    `moz-fx-data-shared-prod.org_mozilla_ios_fennec_derived.baseline_clients_daily_v1`
+    `moz-fx-data-shared-prod.org_mozilla_focus_nightly_derived.baseline_clients_daily_v1`
  WHERE
     submission_date = @submission_date
     AND sample_id IS NOT NULL
@@ -58,7 +58,7 @@ WITH production_version AS
   COUNT(DISTINCT client_id) AS client_count,
   COUNT(DISTINCT is_new_profile) AS new_profile_count
  FROM
-  `moz-fx-data-shared-prod.backfills_staging_derived.org_mozilla_ios_fennec_derived_baseline_clients_last_seen_v1_20240322`
+  `moz-fx-data-shared-prod.backfills_staging_derived.org_mozilla_focus_nightly_derived_baseline_clients_last_seen_v1_20240322`
  WHERE
   submission_date = @submission_date
   AND mozfun.bits28.days_since_seen(days_seen_bits) = 0

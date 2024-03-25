@@ -27,7 +27,7 @@ SELECT
     NULL
   )
 FROM
-  `{{ project_id }}.{{ dataset_id }}.{{ table_name }}`
+  `moz-fx-data-shared-prod.backfills_staging_derived.org_mozilla_firefox_beta_derived_baseline_clients_last_seen_v1_20240322`
 WHERE
   submission_date = @submission_date;
 
@@ -37,7 +37,6 @@ WHERE
 #warn
 {{ value_length(column="client_id", expected_length=36, where="submission_date = @submission_date") }}
 
-
 #fail
 WITH production_version AS
 (
@@ -46,9 +45,10 @@ WITH production_version AS
      COUNT(DISTINCT client_id) AS client_count,
      COUNT(DISTINCT is_new_profile) AS new_profile_count
  FROM
-    `moz-fx-data-shared-prod.telemetry_derived.clients_daily_v6`
+    `moz-fx-data-shared-prod.org_mozilla_firefox_beta_derived.baseline_clients_daily_v1`
  WHERE
     submission_date = @submission_date
+    AND sample_id IS NOT NULL
  GROUP BY submission_date
 )
 , backfilled_version AS
@@ -58,7 +58,7 @@ WITH production_version AS
   COUNT(DISTINCT client_id) AS client_count,
   COUNT(DISTINCT is_new_profile) AS new_profile_count
  FROM
-  `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322`
+  `moz-fx-data-shared-prod.backfills_staging_derived.org_mozilla_firefox_beta_derived_baseline_clients_last_seen_v1_20240322`
  WHERE
   submission_date = @submission_date
   AND mozfun.bits28.days_since_seen(days_seen_bits) = 0

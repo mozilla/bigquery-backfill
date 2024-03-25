@@ -9,6 +9,7 @@ WITH production_version AS
     `moz-fx-data-shared-prod.org_mozilla_ios_firefox_derived.baseline_clients_daily_v1`
  WHERE
     submission_date = @submission_date
+    AND sample_id IS NOT NULL
  GROUP BY submission_date
 )
 , backfilled_version AS
