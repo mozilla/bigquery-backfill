@@ -1,4 +1,4 @@
-# Backfill clients_last_seen tables for Mobile and Desktop from the start date of each.
+# Backfill clients_last_seen tables for Mobile and Desktop from the start date.
 
 - [DENG-2975](https://mozilla-hub.atlassian.net/browse/DENG-2975)
 ## Context
