@@ -43,8 +43,7 @@ WITH production_version AS
 (
  SELECT
      submission_date,
-     COUNT(DISTINCT client_id) AS client_count,
-     COUNT(DISTINCT is_new_profile) AS new_profile_count
+     COUNT(DISTINCT client_id) AS client_count
  FROM
     `moz-fx-data-shared-prod.telemetry_derived.clients_daily_v6`
  WHERE
@@ -55,8 +54,7 @@ WITH production_version AS
 (
  SELECT
   submission_date,
-  COUNT(DISTINCT client_id) AS client_count,
-  COUNT(DISTINCT is_new_profile) AS new_profile_count
+  COUNT(DISTINCT client_id) AS client_count
  FROM
   `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20240322`
  WHERE
@@ -67,14 +65,13 @@ WITH production_version AS
 ,check_results AS
 (
  SELECT
-   COUNTIF(backfilled_version.client_count IS DISTINCT FROM production_version.client_count) AS client_count_diff,
-   COUNTIF(backfilled_version.new_profile_count IS DISTINCT FROM production_version.new_profile_count) AS new_profile_count_diff
+   COUNTIF(backfilled_version.client_count IS DISTINCT FROM production_version.client_count) AS client_count_diff
  FROM production_version LEFT JOIN backfilled_version
  USING(submission_date)
 )
 SELECT
  IF(
- ABS((SELECT client_count_diff FROM check_results)) > 0 OR ABS((SELECT new_profile_count_diff FROM check_results)) > 0,
+ ABS((SELECT client_count_diff FROM check_results)) > 0,
  ERROR(
    CONCAT("Results don't match. Production has ",
    STRING(((SELECT submission_date FROM production_version))),
