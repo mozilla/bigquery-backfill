@@ -69,6 +69,8 @@ WITH _current AS (
     `moz-fx-data-shared-prod.telemetry_derived.clients_daily_v6`
   WHERE
     submission_date = @submission_date
+    AND sample_id = 0
+  LIMIT 5
 ),
 --
 _previous AS (
@@ -106,6 +108,7 @@ _previous AS (
     `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20240322`
   WHERE
     submission_date = DATE_SUB(@submission_date, INTERVAL 1 DAY)
+    AND sample_id = 0
     -- Filter out rows from yesterday that have now fallen outside the 28-day window.
     AND udf.shift_28_bits_one_day(days_seen_bits) > 0
 )
@@ -170,5 +173,5 @@ FULL JOIN
   _previous
   USING (client_id)
 LEFT JOIN
-  clients_first_seen_v2 AS cfs
+  `moz-fx-data-shared-prod.telemetry_derived.clients_first_seen_v2` AS cfs
   USING (client_id)
