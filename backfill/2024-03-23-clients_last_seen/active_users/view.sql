@@ -31,14 +31,14 @@ SELECT
   END AS app_name,
   days_seen_bits,
   days_active_bits,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) = 0 AS BOOLEAN) AS is_dau,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) < 7 AS BOOLEAN) AS is_wau,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) < 28 AS BOOLEAN) AS is_mau,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) = 0 AS BOOLEAN) AS is_daily_user,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) < 7 AS BOOLEAN) AS is_weekly_user,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) < 28 AS BOOLEAN) AS is_monthly_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) = 0, FALSE) AS is_dau,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) < 7, FALSE) AS is_wau,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits), FALSE) AS is_mau,
+  IFNULL(mozfun.bits28.days_since_seen(days_seen_bits) = 0, FALSE) AS is_daily_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) < 7, FALSE) AS is_weekly_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_seen_bits), FALSE) AS is_monthly_user,
   IF(
-    LOWER(isp) <> "browserstack"
+    LOWER(IFNULL(isp, '')) <> "browserstack"
     AND LOWER(distribution_id) <> "mozillaonline",
     TRUE,
     FALSE
@@ -46,6 +46,39 @@ SELECT
   FALSE AS is_mobile
 FROM
   `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20240322`
+UNION ALL
+UNION ALL
+  -- Fenix
+SELECT
+  submission_date,
+  client_id,
+  CASE
+    WHEN isp = 'BrowserStack'
+      THEN CONCAT('Fenix ', isp)
+    WHEN distribution_id = 'MozillaOnline'
+      THEN CONCAT('Fenix', ' ', distribution_id)
+    ELSE 'Fenix'
+  END AS app_name,
+  days_seen_bits,
+  days_active_bits,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) = 0, FALSE) AS is_dau,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) < 7, FALSE) AS is_wau,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits), FALSE) AS is_mau,
+  IFNULL(mozfun.bits28.days_since_seen(days_seen_bits) = 0, FALSE) AS is_daily_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) < 7, FALSE) AS is_weekly_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_seen_bits), FALSE) AS is_monthly_user,
+  FALSE AS is_desktop,
+  IF(
+    LOWER(IFNULL(isp, '')) <> "browserstack"
+    AND LOWER(distribution_id) <> "mozillaonline",
+    TRUE,
+    FALSE
+  ) AS is_mobile
+FROM
+  `moz-fx-data-shared-prod.fenix.baseline_clients_last_seen`
+LEFT JOIN
+  fenix_distribution_id
+  USING (client_id, sample_id, submission_date)
 UNION ALL
 -- Firefox iOS
 SELECT
@@ -58,14 +91,14 @@ SELECT
   END AS app_name,
   days_seen_bits,
   days_active_bits,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) = 0 AS BOOLEAN) AS is_dau,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) < 7 AS BOOLEAN) AS is_wau,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) AS BOOLEAN) AS is_mau,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) = 0 AS BOOLEAN) AS is_daily_user,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) < 7 AS BOOLEAN) AS is_weekly_user,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) AS BOOLEAN) AS is_monthly_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) = 0, FALSE) AS is_dau,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) < 7, FALSE) AS is_wau,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits), FALSE) AS is_mau,
+  IFNULL(mozfun.bits28.days_since_seen(days_seen_bits) = 0, FALSE) AS is_daily_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) < 7, FALSE) AS is_weekly_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_seen_bits), FALSE) AS is_monthly_user,
   FALSE AS is_desktop,
-  IF(LOWER(isp) <> "browserstack", TRUE, FALSE) AS is_mobile
+  IF(LOWER(IFNULL(isp, '')) <> "browserstack", TRUE, FALSE) AS is_mobile
 FROM
   `moz-fx-data-shared-prod.backfills_staging_derived.firefox_ios_baseline_clients_last_seen_20240325`
 UNION ALL
@@ -80,13 +113,13 @@ SELECT
   END AS app_name,
   days_seen_bits,
   days_active_bits,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) = 0 AS BOOLEAN) AS is_dau,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) < 7 AS BOOLEAN) AS is_wau,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) AS BOOLEAN) AS is_mau,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) = 0 AS BOOLEAN) AS is_daily_user,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) < 7 AS BOOLEAN) AS is_weekly_user,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) AS BOOLEAN) AS is_monthly_user,
-  TRUE AS is_desktop,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) = 0, FALSE) AS is_dau,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) < 7, FALSE) AS is_wau,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits), FALSE) AS is_mau,
+  IFNULL(mozfun.bits28.days_since_seen(days_seen_bits) = 0, FALSE) AS is_daily_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) < 7, FALSE) AS is_weekly_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_seen_bits), FALSE) AS is_monthly_user,
+  FALSE AS is_desktop,
   FALSE AS is_mobile
 FROM
   `moz-fx-data-shared-prod.backfills_staging_derived.klar_android_baseline_clients_last_seen_20240325`
@@ -102,14 +135,14 @@ SELECT
   END AS app_name,
   days_seen_bits,
   days_active_bits,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) = 0 AS BOOLEAN) AS is_dau,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) < 7 AS BOOLEAN) AS is_wau,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) AS BOOLEAN) AS is_mau,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) = 0 AS BOOLEAN) AS is_daily_user,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) < 7 AS BOOLEAN) AS is_weekly_user,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) AS BOOLEAN) AS is_monthly_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) = 0, FALSE) AS is_dau,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) < 7, FALSE) AS is_wau,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits), FALSE) AS is_mau,
+  IFNULL(mozfun.bits28.days_since_seen(days_seen_bits) = 0, FALSE) AS is_daily_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) < 7, FALSE) AS is_weekly_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_seen_bits), FALSE) AS is_monthly_user,
   FALSE AS is_desktop,
-  IF(LOWER(isp) <> "browserstack", TRUE, FALSE) AS is_mobile
+  FALSE AS is_mobile
 FROM
   `moz-fx-data-shared-prod.backfills_staging_derived.klar_ios_baseline_clients_last_seen_20240325`
 UNION ALL
@@ -124,14 +157,14 @@ SELECT
   END AS app_name,
   days_seen_bits,
   days_active_bits,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) = 0 AS BOOLEAN) AS is_dau,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) < 7 AS BOOLEAN) AS is_wau,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) AS BOOLEAN) AS is_mau,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) = 0 AS BOOLEAN) AS is_daily_user,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) < 7 AS BOOLEAN) AS is_weekly_user,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) AS BOOLEAN) AS is_monthly_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) = 0, FALSE) AS is_dau,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) < 7, FALSE) AS is_wau,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits), FALSE) AS is_mau,
+  IFNULL(mozfun.bits28.days_since_seen(days_seen_bits) = 0, FALSE) AS is_daily_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) < 7, FALSE) AS is_weekly_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_seen_bits), FALSE) AS is_monthly_user,
   FALSE AS is_desktop,
-  IF(LOWER(isp) <> "browserstack", TRUE, FALSE) AS is_mobile
+  IF(LOWER(IFNULL(isp, '')) <> "browserstack", TRUE, FALSE) AS is_mobile
 FROM
   `moz-fx-data-shared-prod.backfills_staging_derived.focus_android_baseline_clients_last_seen_20240325`
 UNION ALL
@@ -168,13 +201,13 @@ SELECT
   END AS app_name,
   days_seen_bits,
   days_active_bits,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) = 0 AS BOOLEAN) AS is_dau,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) < 7 AS BOOLEAN) AS is_wau,
-  CAST(mozfun.bits28.days_since_seen(days_active_bits) AS BOOLEAN) AS is_mau,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) = 0 AS BOOLEAN) AS is_daily_user,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) < 7 AS BOOLEAN) AS is_weekly_user,
-  CAST(mozfun.bits28.days_since_seen(days_seen_bits) AS BOOLEAN) AS is_monthly_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) = 0, FALSE) AS is_dau,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) < 7, FALSE) AS is_wau,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits), FALSE) AS is_mau,
+  IFNULL(mozfun.bits28.days_since_seen(days_seen_bits) = 0, FALSE) AS is_daily_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_active_bits) < 7, FALSE) AS is_weekly_user,
+  IFNULL(mozfun.bits28.days_since_seen(days_seen_bits), FALSE) AS is_monthly_user,
   FALSE AS is_desktop,
-  IF(LOWER(isp) <> "browserstack", TRUE, FALSE) AS is_mobile
+  IF(LOWER(IFNULL(isp, '')) <> "browserstack", TRUE, FALSE) AS is_mobile
 FROM
   `moz-fx-data-shared-prod.backfills_staging_derived.fenix_baseline_clients_last_seen_20240325`
