@@ -1,15 +1,17 @@
 # Based on https://github.com/mozilla/bigquery-etl/blob/main/sql/moz-fx-data-shared-prod/telemetry_derived/clients_last_seen_v2/query.sql
 import os
+import subprocess
 from argparse import ArgumentParser
 from multiprocessing.pool import ThreadPool
 from functools import partial
 
 import click
+import tempfile
 import yaml
 from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 
-from bigquery_etl.backfill.date_range import BackfillDateRange
+from bigquery_etl.backfill.date_range import BackfillDateRange, get_backfill_partition
 from bigquery_etl.metadata.parse_metadata import PartitionType
 
 this_path = os.path.abspath(__file__)
@@ -79,7 +81,7 @@ PARTITION_QUERY = """
     FROM
         `moz-fx-data-shared-prod.telemetry_derived.clients_daily_v6`
     WHERE
-        submission_date = '{submission_date}'
+        submission_date = DATE('{submission_date}')
         AND sample_id = {sample_id}
     ),
     _previous AS (
@@ -116,16 +118,16 @@ PARTITION_QUERY = """
       FROM
         `{full_table_id}`
       WHERE
-        submission_date = DATE_SUB('{submission_date}', INTERVAL 1 DAY)
+        submission_date = DATE_SUB(DATE('{submission_date}'), INTERVAL 1 DAY)
         AND sample_id = {sample_id}
         -- Filter out rows from yesterday that have now fallen outside the 28-day window.
         AND udf.shift_28_bits_one_day(days_seen_bits) > 0
     )
     --
     SELECT
-      '{submission_date}' AS submission_date,
-      IF(cfs.first_seen_date > '{submission_date}', NULL, cfs.first_seen_date) AS first_seen_date,
-      IF(cfs.second_seen_date > '{submission_date}', NULL, cfs.second_seen_date) AS second_seen_date,
+      DATE('{submission_date}') AS submission_date,
+      IF(cfs.first_seen_date > DATE('{submission_date}'), NULL, cfs.first_seen_date) AS first_seen_date,
+      IF(cfs.second_seen_date > DATE('{submission_date}'), NULL, cfs.second_seen_date) AS second_seen_date,
       IF(_current.client_id IS NOT NULL, _current, _previous).* REPLACE (
         udf.combine_adjacent_days_28_bits(
           _previous.days_seen_bits,
@@ -237,7 +239,7 @@ parser.add_argument(
     "-s",
     help="First date to be backfilled",
     type=click.DateTime(formats=["%Y-%m-%d"]),
-    default='2023-03-23'
+    default='2016-03-12'
 )
 parser.add_argument(
     "--end_date",
@@ -245,30 +247,9 @@ parser.add_argument(
     "-e",
     help="Last date to be backfilled",
     type=click.DateTime(formats=["%Y-%m-%d"]),
-    # default=str(date.today()),
-    default='2023-03-23',
+    default='2024-03-28',
 )
 
-
-def _backfill_staging_table(client, job_config, project_id, dataset, table, bigquery_schema, submission_date, sample_id):
-    """Backfill for a submission_date, sample_id combination."""
-    full_table_id = f"{project_id}.{dataset}.{table}_{sample_id}"
-    try:
-        table = client.get_table(full_table_id)
-    except NotFound:
-        table = bigquery.Table(full_table_id)
-        table.schema = bigquery_schema
-
-    if not table.created:
-        client.create_table(table)
-        click.echo(f"Destination table {full_table_id} created.")
-
-    print(f"Running a backfill for sample_id={sample_id} to {full_table_id}")
-    print(PARTITION_QUERY.format(submission_date=submission_date, sample_id=sample_id, full_table_id=full_table_id))
-    client.query(
-        PARTITION_QUERY.format(submission_date=submission_date, sample_id=sample_id, full_table_id=full_table_id),
-        job_config=job_config
-    ).result()
 
 def get_bigquery_schema(schema_yaml):
     bigquery_schema = []
@@ -296,6 +277,53 @@ def get_bigquery_schema(schema_yaml):
     return bigquery_schema
 
 
+def _backfill_staging_table(client, job_config, project_id, dataset, destination_table, bigquery_schema, submission_date, sample_id):
+    """Backfill for a submission_date, sample_id combination."""
+    full_table_id = f"{project_id}.{dataset}.{destination_table}_{sample_id}"
+    try:
+        table = client.get_table(full_table_id)
+    except NotFound:
+        table = bigquery.Table(full_table_id)
+        table.schema = bigquery_schema
+        table.time_partitioning = bigquery.TimePartitioning(
+            type_=bigquery.TimePartitioningType.DAY,
+            field='submission_date'
+        )
+        table.clustering_fields =['normalized_channel', 'sample_id']
+
+    if not table.created:
+        client.create_table(table)
+        click.echo(f"Destination table {full_table_id} created.")
+    else:
+        client.update_table(table, ["schema"])
+
+    if (
+            partition := get_backfill_partition(
+                submission_date,
+                "submission_date",
+                0,
+                PartitionType.DAY
+            )
+        ) is not None:
+        dest_table = f"{destination_table}_{sample_id}${partition}"
+
+    print(f"Running a backfill for sample_id={sample_id} to {dest_table}")
+
+    arguments = (
+            ['query', '--use_legacy_sql=false', '--replace', '--project_id=moz-fx-data-shared-prod',
+             '--format=none']
+            + [f'--dataset_id={dataset}']
+            + [f'--destination_table={dest_table}']
+    )
+
+    with tempfile.NamedTemporaryFile(mode="w+") as query_stream:
+        query_stream.write(
+            PARTITION_QUERY.format(submission_date=submission_date, sample_id=sample_id, full_table_id=full_table_id)
+        )
+        query_stream.seek(0)
+        subprocess.check_call(["bq"] + arguments, stdin=query_stream)
+
+
 def main():
     """Backfill table `backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20240322` in parallel."""
     args = parser.parse_args()
@@ -307,7 +335,6 @@ def main():
       job_config = bigquery.QueryJobConfig(dry_run=True, use_query_cache=False)
     else:
       job_config = bigquery.QueryJobConfig(dry_run=False, use_query_cache=False)
-
 
     date_range = BackfillDateRange(
         args.start_date,
@@ -322,9 +349,14 @@ def main():
     bigquery_schema = get_bigquery_schema(schema_yaml)
 
     for backfill_date in date_range:
-        backfilled_string= backfill_date.strftime("%Y-%m-%d")
         with ThreadPool(args.parallelism) as pool:
-            pool.map(partial(_backfill_staging_table, client, job_config, args.project_id, args.dataset, args.table, bigquery_schema, backfilled_string), list(range(0, 2)))
+            pool.map(
+                partial(
+                    _backfill_staging_table,
+                    client, job_config, args.project_id, args.dataset, args.table, bigquery_schema, backfill_date),
+                    list(range(0, 2)
+                         )
+            )
 
 if __name__ == "__main__":
     main()
