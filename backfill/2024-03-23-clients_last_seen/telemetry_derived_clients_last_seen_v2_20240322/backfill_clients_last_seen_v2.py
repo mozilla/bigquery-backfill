@@ -247,7 +247,8 @@ parser.add_argument(
     "-e",
     help="Last date to be backfilled",
     type=click.DateTime(formats=["%Y-%m-%d"]),
-    default='2024-03-28',
+    # default='2024-03-28',
+    default='2016-03-15',
 )
 
 
@@ -341,6 +342,7 @@ def main():
         args.end_date,
         range_type= PartitionType.DAY,
     )
+    print(args.end_date)
 
     schema_file_path = os.path.join(this_dir, "schema.yaml")
     with open(schema_file_path, 'r') as yaml_file:
@@ -354,7 +356,7 @@ def main():
                 partial(
                     _backfill_staging_table,
                     client, job_config, args.project_id, args.dataset, args.table, bigquery_schema, backfill_date),
-                    list(range(0, 2)
+                    list(range(0, 5)
                          )
             )
 
