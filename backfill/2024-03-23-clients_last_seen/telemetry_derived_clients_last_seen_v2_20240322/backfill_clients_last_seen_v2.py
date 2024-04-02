@@ -188,23 +188,6 @@ PARTITION_QUERY = """
       USING (client_id)
 """
 
-CREATE_TABLE_QUERY = """
-    CREATE OR REPLACE TABLE
-      `{project_id}.{dataset}.{table}_{sample_id}`
-    PARTITION BY
-        submission_date
-    CLUSTER BY
-        normalized_channel,
-        sample_id
-    AS
-    SELECT
-        *
-    FROM
-        `{project_id}.{dataset}.{table}`
-    WHERE
-        FALSE;
-"""
-
 parser = ArgumentParser()
 parser.add_argument(
     "--project_id",
@@ -247,8 +230,7 @@ parser.add_argument(
     "-e",
     help="Last date to be backfilled",
     type=click.DateTime(formats=["%Y-%m-%d"]),
-    # default='2024-03-28',
-    default='2016-03-15',
+    default='2024-03-28',
 )
 
 
@@ -356,7 +338,7 @@ def main():
                 partial(
                     _backfill_staging_table,
                     client, job_config, args.project_id, args.dataset, args.table, bigquery_schema, backfill_date),
-                    list(range(0, 5)
+                    list(range(0, 10)
                          )
             )
 
