@@ -43,16 +43,13 @@ Verify json extraction matches the values in the column:
 SELECT
   COALESCE(
     metrics.string.mozbuild_project,
-    REGEXP_EXTRACT( -- remove start and end quotations from json string
-      JSON_QUERY(additional_properties, '$.metrics.string."mozbuild.project"'),
-      r'^"(.*)"$'
-    )
+    JSON_VALUE(additional_properties, '$.metrics.string."mozbuild.project"')
   ),
   COUNT(*),
 FROM
-  `moz-fx-data-shared-prod.mozilla_mach_live.usage_v1`
+  `moz-fx-data-shared-prod.mozilla_mach_stable.usage_v1`
 WHERE
-  submission_timestamp = "2024-03-28"
+  DATE(submission_timestamp) = "2024-03-28"
 GROUP BY
   1
 ```
@@ -62,10 +59,7 @@ GROUP BY
 
 ```sql
 UPDATE `benwubenwutest.mozilla_mach_stable.usage_v1`
-SET metrics.string.mozbuild_project = REGEXP_EXTRACT( -- remove start and end quotations from json string
-  JSON_QUERY(additional_properties, '$.metrics.string."mozbuild.project"'),
-  r'^"(.*)"$'
-)
+SET metrics.string.mozbuild_project = JSON_VALUE(additional_properties, '$.metrics.string."mozbuild.project"')
 WHERE metrics.string.mozbuild_project IS NULL
   AND submission_timestamp > '2020-10-01'
 ```
@@ -100,10 +94,7 @@ ORDER BY
 
 ```sql
 UPDATE `moz-fx-data-shared-prod.mozilla_mach_stable.usage_v1`
-SET metrics.string.mozbuild_project = REGEXP_EXTRACT( -- remove start and end quotations from json string
-  JSON_QUERY(additional_properties, '$.metrics.string."mozbuild.project"'),
-  r'^"(.*)"$'
-)
+SET metrics.string.mozbuild_project = JSON_VALUE(additional_properties, '$.metrics.string."mozbuild.project"')
 WHERE metrics.string.mozbuild_project IS NULL
   AND submission_timestamp > '2020-10-20'
 ```
