@@ -13,6 +13,7 @@ WITH fenix_distribution_id AS (
     )[SAFE_OFFSET(0)] AS distribution_id,
   FROM
     `moz-fx-data-shared-prod.fenix.baseline`
+  WHERE submission_timestamp >= '2019-06-21'
   GROUP BY
     client_id,
     sample_id,
