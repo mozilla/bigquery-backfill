@@ -26,7 +26,7 @@ _previous AS (
     days_created_profile_bits,
     * EXCEPT (submission_date, days_seen_bits, days_active_bits, days_created_profile_bits),
   FROM
-    `moz-fx-data-shared-prod.backfills_staging_derived.org_mozilla_fenix_nightly_derived_baseline_clients_last_seen_v1_20240322`
+    `moz-fx-data-shared-prod.backfills_staging_derived.org_mozilla_fenix_nightly_derived_baseline_clients_last_seen_v1_20240322_active_bits`
   WHERE
     submission_date = DATE_SUB(@submission_date, INTERVAL 1 DAY)
     -- Filter out rows from yesterday that have now fallen outside the 28-day window.

@@ -27,7 +27,7 @@ SELECT
     NULL
   )
 FROM
-  `moz-fx-data-shared-prod.backfills_staging_derived.org_mozilla_fenix_nightly_derived_baseline_clients_last_seen_v1_20240322`
+  `moz-fx-data-shared-prod.backfills_staging_derived.org_mozilla_fenix_nightly_derived_baseline_clients_last_seen_v1_20240322_active_bits`
 WHERE
   submission_date = @submission_date;
 
@@ -58,7 +58,7 @@ WITH production_version AS
   COUNT(DISTINCT client_id) AS client_count,
   COUNT(DISTINCT is_new_profile) AS new_profile_count
  FROM
-  `moz-fx-data-shared-prod.backfills_staging_derived.org_mozilla_fenix_nightly_derived_baseline_clients_last_seen_v1_20240322`
+  `moz-fx-data-shared-prod.backfills_staging_derived.org_mozilla_fenix_nightly_derived_baseline_clients_last_seen_v1_20240322_active_bits`
  WHERE
   submission_date = @submission_date
   AND mozfun.bits28.days_since_seen(days_seen_bits) = 0
