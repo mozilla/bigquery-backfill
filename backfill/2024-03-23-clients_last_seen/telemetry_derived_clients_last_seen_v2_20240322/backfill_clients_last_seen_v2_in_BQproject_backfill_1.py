@@ -315,14 +315,12 @@ def _backfill_staging_table(client, job_config, project_id, dataset, destination
             + [f'--destination_table={dest_table}']
     )
 
-    print(table)
-    print(sample_id)
-    # with tempfile.NamedTemporaryFile(mode="w+") as query_stream:
-    #     query_stream.write(
-    #         PARTITION_QUERY.format(submission_date=submission_date, sample_id=sample_id, full_table_id=full_table_id)
-    #     )
-    #     query_stream.seek(0)
-    #     subprocess.check_call(["bq"] + arguments, stdin=query_stream)
+    with tempfile.NamedTemporaryFile(mode="w+") as query_stream:
+        query_stream.write(
+            PARTITION_QUERY.format(submission_date=submission_date, sample_id=sample_id, full_table_id=full_table_id)
+        )
+        query_stream.seek(0)
+        subprocess.check_call(["bq"] + arguments, stdin=query_stream)
 
 
 def main():
@@ -330,12 +328,8 @@ def main():
     args = parser.parse_args()
 
     client = bigquery.Client(args.project_id)
-    print(type(args.sample_start))
     sample_start = args.sample_start
     sample_end = args.sample_end
-
-    sample_ids = list(range(sample_start, sample_end))
-    print(sample_ids)
 
     if args.dry_run:
       print("Do a dry run")
@@ -348,7 +342,6 @@ def main():
         args.end_date,
         range_type= PartitionType.DAY,
     )
-    print(args.end_date)
 
     schema_file_path = os.path.join(this_dir, "schema.yaml")
     with open(schema_file_path, 'r') as yaml_file:
@@ -362,7 +355,7 @@ def main():
                 partial(
                     _backfill_staging_table,
                     client, job_config, args.project_id, args.dataset, args.table, bigquery_schema, backfill_date),
-                    sample_ids
+                    list(range(sample_start, sample_end))
             )
 
 if __name__ == "__main__":
