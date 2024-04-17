@@ -232,6 +232,22 @@ parser.add_argument(
     type=click.DateTime(formats=["%Y-%m-%d"]),
     default='2024-03-28',
 )
+parser.add_argument(
+    "--sample_start",
+    "--sample-start",
+    "-sample_s",
+    type=click.INT,
+    help="Last sample_id to backfill.",
+    default=0,
+)
+parser.add_argument(
+    "--sample_end",
+    "--sample-end",
+    "-sample_e",
+    type=click.INT,
+    help="Last sample_id to backfill.",
+    default=100,
+)
 
 
 def get_bigquery_schema(schema_yaml):
@@ -299,12 +315,14 @@ def _backfill_staging_table(client, job_config, project_id, dataset, destination
             + [f'--destination_table={dest_table}']
     )
 
-    with tempfile.NamedTemporaryFile(mode="w+") as query_stream:
-        query_stream.write(
-            PARTITION_QUERY.format(submission_date=submission_date, sample_id=sample_id, full_table_id=full_table_id)
-        )
-        query_stream.seek(0)
-        subprocess.check_call(["bq"] + arguments, stdin=query_stream)
+    print(table)
+    print(sample_id)
+    # with tempfile.NamedTemporaryFile(mode="w+") as query_stream:
+    #     query_stream.write(
+    #         PARTITION_QUERY.format(submission_date=submission_date, sample_id=sample_id, full_table_id=full_table_id)
+    #     )
+    #     query_stream.seek(0)
+    #     subprocess.check_call(["bq"] + arguments, stdin=query_stream)
 
 
 def main():
@@ -312,6 +330,12 @@ def main():
     args = parser.parse_args()
 
     client = bigquery.Client(args.project_id)
+    print(type(args.sample_start))
+    sample_start = args.sample_start
+    sample_end = args.sample_end
+
+    sample_ids = list(range(sample_start, sample_end))
+    print(sample_ids)
 
     if args.dry_run:
       print("Do a dry run")
@@ -338,8 +362,7 @@ def main():
                 partial(
                     _backfill_staging_table,
                     client, job_config, args.project_id, args.dataset, args.table, bigquery_schema, backfill_date),
-                    list(range(0, 100)
-                         )
+                    sample_ids
             )
 
 if __name__ == "__main__":
