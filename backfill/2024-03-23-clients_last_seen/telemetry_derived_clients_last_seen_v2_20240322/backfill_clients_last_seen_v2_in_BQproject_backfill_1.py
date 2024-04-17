@@ -232,6 +232,22 @@ parser.add_argument(
     type=click.DateTime(formats=["%Y-%m-%d"]),
     default='2024-03-28',
 )
+parser.add_argument(
+    "--sample_start",
+    "--sample-start",
+    "-sample_s",
+    type=click.INT,
+    help="Last sample_id to backfill.",
+    default=0,
+)
+parser.add_argument(
+    "--sample_end",
+    "--sample-end",
+    "-sample_e",
+    type=click.INT,
+    help="Last sample_id to backfill.",
+    default=100,
+)
 
 
 def get_bigquery_schema(schema_yaml):
@@ -312,6 +328,8 @@ def main():
     args = parser.parse_args()
 
     client = bigquery.Client(args.project_id)
+    sample_start = args.sample_start
+    sample_end = args.sample_end
 
     if args.dry_run:
       print("Do a dry run")
@@ -324,7 +342,6 @@ def main():
         args.end_date,
         range_type= PartitionType.DAY,
     )
-    print(args.end_date)
 
     schema_file_path = os.path.join(this_dir, "schema.yaml")
     with open(schema_file_path, 'r') as yaml_file:
@@ -338,8 +355,7 @@ def main():
                 partial(
                     _backfill_staging_table,
                     client, job_config, args.project_id, args.dataset, args.table, bigquery_schema, backfill_date),
-                    list(range(0, 100)
-                         )
+                    list(range(sample_start, sample_end))
             )
 
 if __name__ == "__main__":
