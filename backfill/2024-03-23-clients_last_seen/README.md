@@ -6,4 +6,4 @@ The definition of DAU is updated and implemented in the clients_last_seen and ba
 which requires a full backfill, given that these tables depend on past state.
 As part of the backfill new checks are added for automated validation of results, also included in this code.
 
-A GCP VM has been setup for some of these backfills.
+The GCP VM lvargas-deng-2975-20240322 has been setup mainly for the backfill of table `telemetry_derived.clients_last_seen_v2`.
