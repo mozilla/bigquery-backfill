@@ -53,9 +53,9 @@ SELECT
   is_default_browser,
   COALESCE(REGEXP_EXTRACT(locale, r'^(.+?)-'), locale, NULL) AS locale,
   CASE
-    WHEN isp = 'BrowserStack'
+    WHEN app_name = 'Fenix' AND isp = 'BrowserStack'
       THEN CONCAT(app_name, ' ', isp)
-    WHEN distribution_id = 'MozillaOnline'
+    WHEN app_name = 'Fenix' AND distribution_id = 'MozillaOnline'
       THEN CONCAT(app_name, ' ', distribution_id)
     ELSE app_name
   END AS app_name,

@@ -40,9 +40,9 @@ WITH baseline AS (
 SELECT
   segment,
   CASE
-    WHEN isp = 'BrowserStack'
+    WHEN app_name = 'Firefox Desktop' AND isp = 'BrowserStack'
       THEN CONCAT(app_name, ' ', isp)
-    WHEN distribution_id = 'MozillaOnline'
+    WHEN app_name = 'Firefox Desktop' AND distribution_id = 'MozillaOnline'
       THEN CONCAT(app_name, ' ', distribution_id)
     ELSE app_name
   END AS app_name,
