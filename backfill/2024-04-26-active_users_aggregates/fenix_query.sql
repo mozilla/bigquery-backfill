@@ -69,7 +69,7 @@ SELECT
   install_source,
   COUNT(DISTINCT IF(days_since_seen = 0, client_id, NULL)) AS daily_users,
   COUNT(DISTINCT IF(days_since_seen < 7, client_id, NULL)) AS weekly_users,
-  COUNT(DISTINCT client_id) < 28 AS monthly_users,
+  COUNT(DISTINCT client_id) AS monthly_users,
   COUNT(DISTINCT IF(days_since_seen = 0 AND durations > 0, client_id, NULL)) AS dau,
   COUNT(DISTINCT IF(days_since_seen < 7 AND durations > 0, client_id, NULL)) AS wau,
   COUNT(DISTINCT IF(durations > 0, client_id, NULL)) AS mau,
