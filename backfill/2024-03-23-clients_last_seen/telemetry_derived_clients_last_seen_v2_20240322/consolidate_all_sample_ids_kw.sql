@@ -44,6 +44,43 @@ SELECT
     )
 FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_1`;
 
+--QUERY #0 - DONE
+INSERT INTO `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2_20240421`
+SELECT
+  submission_date,
+  first_seen_date,
+  second_seen_date,
+  days_seen_bits,
+  days_active_bits,
+  days_visited_1_uri_bits,
+  days_visited_5_uri_bits,
+  days_visited_10_uri_bits,
+  days_had_8_active_ticks_bits,
+  days_opened_dev_tools_bits,
+  days_interacted_bits,
+  days_visited_1_uri_normal_mode_bits,
+  days_visited_1_uri_private_mode_bits,
+  days_created_profile_bits,
+  days_seen_in_experiment,
+  * EXCEPT (
+    submission_date,
+    first_seen_date,
+    second_seen_date,
+    days_seen_bits,
+    days_active_bits,
+    days_visited_1_uri_bits,
+    days_visited_5_uri_bits,
+    days_visited_10_uri_bits,
+    days_had_8_active_ticks_bits,
+    days_opened_dev_tools_bits,
+    days_interacted_bits,
+    days_visited_1_uri_normal_mode_bits,
+    days_visited_1_uri_private_mode_bits,
+    days_created_profile_bits,
+    days_seen_in_experiment
+    )
+FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_0`;
+
 --QUERY #2 - done
 INSERT INTO `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2_20240421`
 SELECT
@@ -117,9 +154,8 @@ SELECT
     days_seen_in_experiment
     )
 FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_3`;
-*/
 
---QUERY #4 - in progress
+--QUERY #4 - DONE
 INSERT INTO `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2_20240421`
 SELECT
   submission_date,
@@ -156,8 +192,7 @@ SELECT
     )
 FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_4`;
 
-/*
---QUERY #5 
+--QUERY #5 - DONE
 INSERT INTO  `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2_20240421`
 SELECT
   submission_date,
@@ -194,6 +229,8 @@ SELECT
     )
 FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_5`;
 
+--QUERY #6 - DONE
+INSERT INTO `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2_20240421`
 SELECT
   submission_date,
   first_seen_date,
@@ -227,8 +264,12 @@ SELECT
     days_created_profile_bits,
     days_seen_in_experiment
     )
-FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_6`
-UNION ALL
+FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_6`;
+*/
+
+--QUERY #7 - DONE
+/*
+INSERT INTO `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2_20240421`
 SELECT
   submission_date,
   first_seen_date,
@@ -262,8 +303,11 @@ SELECT
     days_created_profile_bits,
     days_seen_in_experiment
     )
-FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_7`
-UNION ALL
+FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_7`;
+*/
+
+--QUERY #8 
+INSERT INTO `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2_20240421`
 SELECT
   submission_date,
   first_seen_date,
@@ -297,8 +341,9 @@ SELECT
     days_created_profile_bits,
     days_seen_in_experiment
     )
-FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_8`
-UNION ALL
+FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_8`;
+
+/*
 SELECT
   submission_date,
   first_seen_date,
