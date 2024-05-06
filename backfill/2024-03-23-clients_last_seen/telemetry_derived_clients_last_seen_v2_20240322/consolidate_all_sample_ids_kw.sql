@@ -9,6 +9,6 @@ OPTIONS(
 )
 AS
 SELECT * 
-FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_0`;
+FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_0`
 
 --append everything to this table
