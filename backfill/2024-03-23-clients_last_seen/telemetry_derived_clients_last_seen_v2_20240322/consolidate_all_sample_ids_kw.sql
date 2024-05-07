@@ -77,6 +77,48 @@ bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telem
 bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_31 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507	
 
 bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_32 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_33 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_34 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_35 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_36 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_37 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_38 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_39 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_40 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_41 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_42 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_43 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_44 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_45 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_46 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_47 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_48 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_49 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_50 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_51 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_52 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_53 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
   
 bq cp --append_table=true moz-fx-data-shared-prod:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_90 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
 
