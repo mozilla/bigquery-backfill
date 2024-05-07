@@ -11,3 +11,9 @@ AS
 SELECT * 
 FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_0`
 limit 0;
+
+bq cp --append_table=true moz-fx-data-shared-prod:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_0 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-shared-prod:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_1 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-shared-prod:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_2 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
