@@ -119,6 +119,8 @@ bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telem
 bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_52 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
 
 bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_53 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
+
+bq cp --append_table=true moz-fx-data-backfill-1:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_54 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
   
 bq cp --append_table=true moz-fx-data-shared-prod:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_90 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
 
