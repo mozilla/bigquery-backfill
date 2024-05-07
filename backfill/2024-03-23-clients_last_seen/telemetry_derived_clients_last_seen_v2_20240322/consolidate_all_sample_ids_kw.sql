@@ -115,6 +115,9 @@ bq cp --append_table=true moz-fx-data-shared-prod:backfills_staging_derived.tele
 bq cp --append_table=true moz-fx-data-shared-prod:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_98 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
 bq cp --append_table=true moz-fx-data-shared-prod:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_99 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
 
+--make a backup of the final in case something bad happens with clustering order change
+bq cp moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507  moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_V2_20240507_bkp
+
 --update the clustering order
 
 --create a view with the desired order of columns
