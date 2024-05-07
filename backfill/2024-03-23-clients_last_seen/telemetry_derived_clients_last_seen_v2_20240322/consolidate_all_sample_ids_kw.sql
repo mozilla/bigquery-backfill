@@ -118,7 +118,43 @@ bq cp --append_table=true moz-fx-data-shared-prod:backfills_staging_derived.tele
 --make a backup of the final in case something bad happens with clustering order change
 bq cp moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507  moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_V2_20240507_bkp
 
---update the clustering order
+--update clustering order on `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2_20240507` to match how Lucia originally wanted (sample ID first)
 
+  
 --create a view with the desired order of columns
-
+CREATE VIEW `moz-fx-data-shared-prod.telemetry.clients_last_seen_v2_20240507`
+AS 
+SELECT
+  submission_date,
+  first_seen_date,
+  second_seen_date,
+  days_seen_bits,
+  days_active_bits,
+  days_visited_1_uri_bits,
+  days_visited_5_uri_bits,
+  days_visited_10_uri_bits,
+  days_had_8_active_ticks_bits,
+  days_opened_dev_tools_bits,
+  days_interacted_bits,
+  days_visited_1_uri_normal_mode_bits,
+  days_visited_1_uri_private_mode_bits,
+  days_created_profile_bits,
+  days_seen_in_experiment,
+  * EXCEPT (
+    submission_date,
+    first_seen_date,
+    second_seen_date,
+    days_seen_bits,
+    days_active_bits,
+    days_visited_1_uri_bits,
+    days_visited_5_uri_bits,
+    days_visited_10_uri_bits,
+    days_had_8_active_ticks_bits,
+    days_opened_dev_tools_bits,
+    days_interacted_bits,
+    days_visited_1_uri_normal_mode_bits,
+    days_visited_1_uri_private_mode_bits,
+    days_created_profile_bits,
+    days_seen_in_experiment
+    )
+FROM `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2_20240507`;
