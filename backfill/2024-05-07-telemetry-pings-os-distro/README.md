@@ -110,8 +110,8 @@ The job will be viewable at https://console.cloud.google.com/dataflow/jobs?proje
 ## Dedupe and Insert
 
 The dataflow output will have duplicate document ids, so we need to dedupe before inserting into the stable tables,
-similar to copy_deduplicate. We can also check if any document ids already exist in the stable table as a safeguard
-if we run the insert twice. There are no automation pings so there's no need to filter like in copy_deduplicate.
+similar to copy_deduplicate. We can also check if any document ids already exist in the stable table, just as 
+a safeguard. There are no automation pings, so there's no need to filter like in copy_deduplicate.
 
 This will be split into two steps for easier validation.  [`generate_statements.py`](generate_statements.py) will generate
 the sql needed.
@@ -120,16 +120,39 @@ We can dedupe and insert into a staging table with a statement like:
 ```sql
 CREATE TABLE `moz-fx-data-backfill-1.telemetry_os_distro_deduped.main_v5` 
 LIKE `moz-fx-data-backfill-1.telemetry_os_distro_output.main_v5` AS (
-SELECT 
-  * 
-FROM 
-  `moz-fx-data-backfill-1.telemetry_os_distro_output.main_v5` 
-QUALIFY 
-  ROW_NUMBER() OVER (PARTITION BY document_id ORDER BY submission_timestamp) = 1
-); 
+  WITH existing_doc_ids AS (
+    SELECT
+      document_id
+    FROM
+      `moz-fx-data-shared-prod.telemetry_stable.main_v5`
+    WHERE 
+      DATE(submission_timestamp) BETWEEN '2024-01-16' AND '2024-05-02'
+  ),
+  new_rows AS (
+    SELECT 
+      * 
+    FROM 
+      `moz-fx-data-backfill-1.telemetry_os_distro_output.main_v5` 
+    WHERE 
+      DATE(submission_timestamp) BETWEEN '2024-01-16' AND '2024-05-02'
+    QUALIFY 
+      ROW_NUMBER() OVER (PARTITION BY document_id ORDER BY submission_timestamp) = 1
+  )
+  SELECT
+    new_rows.*
+  FROM
+    new_rows
+  LEFT JOIN
+    existing_doc_ids
+  USING
+    (document_id)
+  WHERE
+    existing_doc_ids.document_id IS NULL
+);
 ```
 
-The generated script is in [`dedupe_pings.sql`](dedupe_pings.sql).
+The generated script is in [`dedupe_pings.sql`](dedupe_pings.sql).  Note: this will cost a lot less if run 
+with on-demand pricing.
 
 Final counts:
 
@@ -152,32 +175,12 @@ Final insert:
 ```sql
 INSERT INTO
   `moz-fx-data-shared-prod.telemetry_stable.main_v5`
-WITH existing_doc_ids AS (
-  SELECT
-    document_id
-  FROM
-    `moz-fx-data-shared-prod.telemetry_stable.main_v5`
-  WHERE 
-    DATE(submission_timestamp) BETWEEN '2024-01-16' AND '2024-05-02'
-),
-new_rows AS (
-  SELECT
-    *
-  FROM
-    `moz-fx-data-backfill-1.telemetry_os_distro_deduped.main_v5`
-  WHERE 
-    DATE(submission_timestamp) BETWEEN '2024-01-16' AND '2024-05-02'
-)
 SELECT
-  new_rows.*
+  *
 FROM
-  new_rows
-LEFT JOIN
-  existing_doc_ids
-USING
-  (document_id)
-WHERE
-  existing_doc_ids.document_id IS NULL;
+  `moz-fx-data-backfill-1.telemetry_os_distro_deduped.main_v5`
+WHERE 
+  DATE(submission_timestamp) BETWEEN '2024-01-16' AND '2024-05-02'
 ```
 
 The generated script is in [`final_insert.sql`](final_insert.sql).
