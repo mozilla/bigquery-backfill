@@ -15,7 +15,8 @@ See [incident doc](https://docs.google.com/document/d/1M7ageyDdS8sha0vYTbWwJrsRy
 
 The steps to backfill are:
 1. Run the affected pings through the decoder dataflow job, writing to staging tables
-2. Dedupe the staging tables and insert the stable tables
+2. Dedupe the staging tables 
+3. Insert into the stable tables (requires SRE assistance)
 
 Backfill for derived tables will be handled separately.
 
@@ -152,7 +153,7 @@ LIKE `moz-fx-data-backfill-1.telemetry_os_distro_output.main_v5` AS (
 ```
 
 The generated script is in [`dedupe_pings.sql`](dedupe_pings.sql).  Note: this will cost a lot less if run 
-with on-demand pricing.
+with on-demand pricing (4.4 TB vs. 2945 slot hours).
 
 Final counts:
 
