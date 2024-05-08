@@ -157,3 +157,13 @@ SELECT
     days_seen_in_experiment
     )
 FROM `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2_20240507`;
+
+--drop backup table since no longer needed
+DROP TABLE `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_V2_20240507_bkp`;
+
+--run QA checks
+SELECT sample_id, count(1)
+FROM `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2_20240507`
+WHERE submission_date < current_date
+GROUP BY 1 
+ORDER BY 1 ASC ;
