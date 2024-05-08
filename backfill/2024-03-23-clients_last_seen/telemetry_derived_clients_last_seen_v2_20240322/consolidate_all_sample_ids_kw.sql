@@ -118,7 +118,7 @@ bq cp --append_table=true moz-fx-data-shared-prod:backfills_staging_derived.tele
 bq cp moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507  moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_V2_20240507_bkp
 
 --update clustering order on `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2_20240507` to match how Lucia originally wanted (sample ID first)
-
+bq update --clustering_fields=sample_id,normalized_channel moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
   
 --create a view with the desired order of columns
 CREATE VIEW `moz-fx-data-shared-prod.telemetry.clients_last_seen_v2_20240507`
