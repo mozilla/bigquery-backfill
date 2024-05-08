@@ -12,8 +12,7 @@ SELECT *
 FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_0`
 limit 0;
 
---Run the 99 different copy commands below to append sample IDs 0 - 99 
---NOTE: For now, I skipped inserting sample IDs 60 - 69 because they look incomplete / missing a few days of data and it takes awhile to delete data from such a gigantic table; would prefer to correct the source table & then insert
+--Run the 100 different copy commands below to append sample IDs 0 - 99 
 bq cp --append_table=true moz-fx-data-shared-prod:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_0 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
 bq cp --append_table=true moz-fx-data-shared-prod:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_1 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
 bq cp --append_table=true moz-fx-data-shared-prod:backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_2 moz-fx-data-shared-prod:telemetry_derived.clients_last_seen_v2_20240507
