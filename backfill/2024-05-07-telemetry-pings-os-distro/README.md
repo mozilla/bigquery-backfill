@@ -181,7 +181,7 @@ SELECT
 FROM
   `moz-fx-data-backfill-1.telemetry_os_distro_deduped.main_v5`
 WHERE 
-  DATE(submission_timestamp) BETWEEN '2024-01-16' AND '2024-05-02'
+  DATE(submission_timestamp) BETWEEN '2024-01-16' AND '2024-05-02';
 ```
 
 The generated script is in [`final_insert.sql`](final_insert.sql).

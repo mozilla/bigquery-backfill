@@ -64,7 +64,7 @@ SELECT
 FROM
   `moz-fx-data-backfill-1.telemetry_os_distro_deduped.{table}`
 WHERE 
-  DATE(submission_timestamp) BETWEEN '2024-01-16' AND '2024-05-02'
+  DATE(submission_timestamp) BETWEEN '2024-01-16' AND '2024-05-02';
 """
 
 inserts = []
