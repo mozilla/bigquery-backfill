@@ -127,7 +127,8 @@ LIKE `moz-fx-data-backfill-1.telemetry_os_distro_output.main_v5` AS (
     FROM
       `moz-fx-data-shared-prod.telemetry_stable.main_v5`
     WHERE 
-      DATE(submission_timestamp) BETWEEN '2024-01-16' AND '2024-05-02'
+      -- look for days after 2024-05-01 to account for late-arriving duplicates
+      DATE(submission_timestamp) BETWEEN '2024-01-16' AND '2024-05-07'
   ),
   new_rows AS (
     SELECT 
@@ -159,18 +160,18 @@ Final counts:
 
 | table                         | raw count | deduped count |
 |-------------------------------|-----------|---------------|
-| event_v4                      | 	15919980 | 15860174      | 
-| main_v5                       | 	9065904  | 9028130       | 
-| main_use_counter_v4           | 	9065904  | 9028130       | 
-| sync_v4                       | 	3022285  | 3009242       | 
-| bhr_v4                        | 	813634   | 812862        | 
-| modules_v4                    | 	454503   | 454019        | 
-| new_profile_v4                | 	228295   | 227591        | 
-| crash_v4                      | 	220374   | 220142        | 
-| first_shutdown_use_counter_v4 | 	174975   | 174493        | 
-| first_shutdown_v5             | 	174975   | 174493        | 
-| update_v4                     | 	34881    | 34542         | 
-| heartbeat_v4                  | 	3119     | 3019          |
+| event_v4                      | 	15919980 | 15859467      |
+| main_v5                       | 	9065904  | 9027807       |
+| main_use_counter_v4           | 	9065904  | 9027807       |
+| sync_v4                       | 	3022285  | 3009154       |
+| bhr_v4                        | 	813634   | 812862        |
+| modules_v4                    | 	454503   | 454019        |
+| new_profile_v4                | 	228295   | 227583        |
+| crash_v4                      | 	220374   | 220141        |
+| first_shutdown_use_counter_v4 | 	174975   | 174488        |
+| first_shutdown_v5             | 	174975   | 174488        |
+| update_v4                     | 	34881    | 34533         |
+| heartbeat_v4                  | 	3119     | 3017          |
 
 Final insert:
 ```sql
