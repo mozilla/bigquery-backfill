@@ -2,9 +2,9 @@ import subprocess
 import concurrent.futures
 from datetime import datetime, timedelta
 
-start_date = datetime.strptime('2024-01-01', '%Y-%m-%d')
-end_date = datetime.strptime('2024-04-18', '%Y-%m-%d')
-max_jobs = 5
+start_date = datetime.strptime('2024-04-19', '%Y-%m-%d')
+end_date = datetime.strptime('2024-05-13', '%Y-%m-%d')
+max_jobs = 10
 
 # Define the command to be run
 def do_job(current_date):
@@ -22,7 +22,7 @@ def do_job(current_date):
 
     print(f"Running backfill to {dest_table}")
 
-    with open('../convert_backend.sql', 'r') as file:
+    with open('convert_backend.sql', 'r') as file:
         subprocess.check_call(["bq"] + arguments, stdin=file)
 
 
