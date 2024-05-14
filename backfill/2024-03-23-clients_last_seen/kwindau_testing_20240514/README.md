@@ -6,6 +6,7 @@ Steps Used to Test:
 ```
 sql/moz-fx-data-shared-prod/telemetry_derived/kwindau_days_active_bits
 ```
+NOTE - if this test works and we end up doing this, make sure to edit line 24 of the query to be the correct table name
 4. Run the below to create an empty table and then backfill for a single sample ID for a date range
 ```
 pyenv local 3.11
