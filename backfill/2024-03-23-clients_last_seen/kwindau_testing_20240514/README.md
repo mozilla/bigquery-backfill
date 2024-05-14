@@ -29,8 +29,14 @@ ADD COLUMN days_active_bits INT64;
 
 7. Merge the result into our copy of clients last seen v1 named "moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits"
 ```
-MERGE INTO `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits`
---??
+MERGE INTO `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits` T 
+USING
+(
+) S
+ON T.client_id = S.client_id
+AND T.submission_date = S.submission_date
+WHEN NOT MATCHED THEN
+
 
 
 ```
