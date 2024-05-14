@@ -3,7 +3,7 @@ import concurrent.futures
 from datetime import datetime, timedelta
 
 start_date = datetime.strptime('2024-01-01', '%Y-%m-%d')
-end_date = datetime.strptime('2024-04-18', '%Y-%m-%d')
+end_date = datetime.strptime('2024-04-17', '%Y-%m-%d')
 max_jobs = 5
 
 # Define the command to be run
