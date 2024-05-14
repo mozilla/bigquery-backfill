@@ -2,6 +2,14 @@ Testing workaround for creating: moz-fx-data-shared-prod.telemetry_derived.deskt
 
 Steps Used to Test:
 1. Copy `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2` to `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits` (done)
-2. Create a new empty table called `moz-fx-data-shared-prod.telemetry_derived.kwindau_days_active_bits`, then run the backfill
-3. Merge the result into clients last seen v1
-4. Compare clients last seen v1 with the correct sample IDs 
+2. Copy the code in the "step2" folder into a cloned bigquery ETL repo
+3. Run the below to create an empty table and then backfill for a single sample ID for a date range
+```
+pyenv local 3.11
+./bqetl bootstrap
+gcloud auth login
+./bqetl query schema deploy telemetry_derived.kwindau_days_active_bits --project_id=moz-fx-data-shared-prod
+./bqetl query backfill telemetry_derived.kwindau_days_active_bits --project_id=moz-fx-data-shared-prod --start-date=2016-03-12 --end-date=2024-03-28
+```
+4. Merge the result into clients last seen v1
+5. Compare clients last seen v1 with the correct sample IDs 
