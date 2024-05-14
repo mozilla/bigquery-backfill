@@ -59,3 +59,5 @@ except distinct
 SELECT *
 FROM ? 
 ```
+
+**NOTE: If we go this approach, we will have to make sure we update the production SQL to have the column "days_active_bits" at the end in both the schema and in the query.sql file**
