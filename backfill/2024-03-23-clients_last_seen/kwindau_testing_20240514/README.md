@@ -14,7 +14,7 @@ pyenv local 3.11
 ./bqetl bootstrap
 gcloud auth login
 ./bqetl query schema deploy telemetry_derived.kwindau_days_active_bits --project_id=moz-fx-data-shared-prod --force
-./bqetl query backfill telemetry_derived.kwindau_days_active_bits --project_id=moz-fx-data-shared-prod --start-date=2016-03-12 --end-date=2024-03-28
+./bqetl query backfill telemetry_derived.kwindau_days_active_bits --project_id=moz-fx-data-shared-prod --start-date=2016-03-12 --end-date=2017-01-31
 ```
 4. Merge the result into clients last seen v1
 5. Compare clients last seen v1 with the correct sample IDs 
