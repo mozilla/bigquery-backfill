@@ -1,1 +1,13 @@
-
+fields:
+- mode: NULLABLE
+  name: submission_date
+  type: DATE
+- mode: NULLABLE
+  name: days_seen_bits
+  type: INT64
+- mode: NULLABLE
+  name: days_active_bits
+  type: INT64
+- mode: NULLABLE
+  name: client_id
+  type: STRING
