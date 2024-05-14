@@ -21,7 +21,7 @@ _previous AS (
     days_active_bits,
     client_id
   FROM
-    `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2_days_active_bits` --fix this
+    `moz-fx-data-shared-prod.telemetry_derived.kwindau_days_active_bits` --NOTE - changed for testing
   WHERE
     submission_date = DATE_SUB(@submission_date, INTERVAL 1 DAY)
     AND udf.shift_28_bits_one_day(days_seen_bits) > 0
@@ -44,4 +44,3 @@ FROM
 FULL JOIN
   _previous
   USING (client_id)
-
