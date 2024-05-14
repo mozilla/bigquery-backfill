@@ -50,11 +50,11 @@ WHEN NOT MATCHED THEN
 ```
 --?
 SELECT count(1)
-FROM ``;
+FROM `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits`;
 
 --?
 SELECT count(1)
-FROM ``;
+FROM ;
 ```
 8. Make sure all values exactly match
 ```
