@@ -2,8 +2,11 @@ Testing workaround for creating: moz-fx-data-shared-prod.telemetry_derived.deskt
 
 Steps Used to Test:
 1. Copy `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2` to `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits` (done)
-2. Copy the code in the "step2" folder into a cloned bigquery ETL repo
-3. Run the below to create an empty table and then backfill for a single sample ID for a date range
+2. Copy the code in the "step2" folder into a cloned bigquery ETL repo, into a folder path
+```
+sql/moz-fx-data-shared-prod/telemetry_derived/kwindau_days_active_bits
+```
+4. Run the below to create an empty table and then backfill for a single sample ID for a date range
 ```
 pyenv local 3.11
 ./bqetl bootstrap
