@@ -2,7 +2,11 @@ Testing workaround for creating: moz-fx-data-shared-prod.telemetry_derived.deskt
 
 Steps Used to Test:
 1. Copy `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v2` to `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits` (done)
-2. Copy the code in the "step2" folder into a cloned bigquery ETL repo, into a folder path
+2. Clone bigquery-etl repo
+```
+git clone git@github.com:mozilla/bigquery-etl.git
+```
+3. Copy the 3 files in the "step2" folder into the cloned bigquery ETL repo at the following new path:
 ```
 sql/moz-fx-data-shared-prod/telemetry_derived/kwindau_days_active_bits
 ```
@@ -17,4 +21,33 @@ gcloud auth login
 ./bqetl query backfill telemetry_derived.kwindau_days_active_bits --project_id=moz-fx-data-shared-prod --start-date=2016-03-12 --end-date=2017-01-31
 ```
 4. Merge the result into clients last seen v1
-5. Compare clients last seen v1 with the correct sample IDs 
+```
+MERGE INTO ?
+
+```
+6. Run a counts QA comparison to make sure things match
+```
+--?
+SELECT count(1)
+FROM ``;
+
+--?
+SELECT count(1)
+FROM ``;
+```
+7. Make sure all values exactly match
+```
+--exact row match check #1 
+SELECT *
+FROM
+except distinct
+SELECT *
+FROM ?
+
+--exact row match check #2
+SELECT *
+FROM
+except distinct
+SELECT *
+FROM ? 
+```
