@@ -11,18 +11,18 @@ def do_job(current_date):
     current_partition = current_date.strftime('%Y%m%d')
     current_date_str = current_date.strftime('%Y-%m-%d')
 
-    dest_table = f"akomar_accounts_backend_events_v1${current_partition}"
+    dest_table = f"events_v1${current_partition}"
 
     arguments = (
             ['query', '--use_legacy_sql=false', '--replace', '--project_id=moz-fx-data-shared-prod',
-             '--format=none', f'--parameter=submission_date:DATE:{current_date_str}']
-            + [f'--dataset_id=mozdata:analysis']
+             '--format=none', f'--parameter=submission_date:DATE:{current_date_str}', '--dry_run']
+            + [f'--dataset_id=moz-fx-data-shared-prod:accounts_backend_stable']
             + [f'--destination_table={dest_table}']
     )
 
     print(f"Running backfill to {dest_table}")
 
-    with open('../convert_backend.sql', 'r') as file:
+    with open('convert_backend.sql', 'r') as file:
         subprocess.check_call(["bq"] + arguments, stdin=file)
 
 
