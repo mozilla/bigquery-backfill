@@ -19,7 +19,7 @@ pyenv local 3.11
 ./bqetl bootstrap
 gcloud auth login
 ./bqetl query schema deploy telemetry_derived.kwindau_days_active_bits --project_id=moz-fx-data-shared-prod --force
-./bqetl query backfill telemetry_derived.kwindau_days_active_bits --project_id=moz-fx-data-shared-prod --start-date=2016-03-12 --end-date=2017-01-31
+./bqetl query backfill telemetry_derived.kwindau_days_active_bits --project_id=moz-fx-data-shared-prod --start-date=2016-03-12 --end-date=2017-01-18
 ```
 5. Add a new, null column onto our table moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits
 ```
