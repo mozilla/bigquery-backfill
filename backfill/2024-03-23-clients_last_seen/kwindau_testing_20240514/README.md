@@ -58,21 +58,29 @@ WHERE submission_date BETWEEN '2016-03-12' AND '2017-01-18'
 SELECT count(1), min(submission_date), max(submission_date)
 FROM `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits`;
 ```
-8. Make sure all values exactly match
+
+8. Compare the backfill done via the old method vs the backfill done via the new method to make sure they produced the same results for the same time period
+    Note: Only look at client IDs done via a sample ID that worked OK
 ```
 --exact row match check #1 
 SELECT *
-FROM
+FROM `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits`
+WHERE sample_id = 1
+AND submission_date BETWEEN '2016-03-12' AND '2017-01-18'
 except distinct
 SELECT *
-FROM ?
+FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_1`
+WHERE submission_date BETWEEN  '2016-03-12' AND '2017-01-18'
 
 --exact row match check #2
 SELECT *
-FROM
+FROM `moz-fx-data-shared-prod.backfills_staging_derived.telemetry_derived_clients_last_seen_v2_20230322_1`
+WHERE submission_date BETWEEN '2016-03-12' AND '2017-01-18'
 except distinct
 SELECT *
-FROM ? 
+FROM `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits`
+WHERE sample_id = 1
+AND submission_date BETWEEN '2016-03-12' AND '2017-01-18'
 ```
 9. Drop the additional table since no longer needed
 ```
