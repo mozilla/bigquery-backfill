@@ -34,9 +34,9 @@ USING
 (
   SELECT a.*,
   b.days_active_bits 
-  FROM `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits a
+  FROM `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits` a
   LEFT JOIN
-  `moz-fx-data-shared-prod.telemetry_derived.telemetry_derived.kwindau_days_active_bits` b
+  `moz-fx-data-shared-prod.telemetry_derived.kwindau_days_active_bits` b
   ON a.client_id = b.client_id
   and a.submission_date = b.submission_date
 ) S
