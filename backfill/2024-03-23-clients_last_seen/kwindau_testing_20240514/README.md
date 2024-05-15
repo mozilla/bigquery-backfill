@@ -47,15 +47,16 @@ WHEN MATCHED THEN
   UPDATE
     SET T.days_active_bits = S.days_active_bits;
 ```
-7. Run a counts QA comparison to make sure things match
+7. Run a sanity check to make sure # of rows still matches between clients_last_seen_v1 and the new table with the column added for the same date range
 ```
 --?
-SELECT count(1)
-FROM `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits`;
+SELECT count(1) 
+FROM `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v1`
+WHERE submission_date BETWEEN '2016-03-12' AND '2017-01-18'
 
 --?
-SELECT count(1)
-FROM ;
+SELECT count(1), min(submission_date), max(submission_date)
+FROM `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits`;
 ```
 8. Make sure all values exactly match
 ```
