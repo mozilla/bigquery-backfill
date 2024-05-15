@@ -32,7 +32,7 @@ ADD COLUMN days_active_bits INT64;
 MERGE INTO `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits` T 
 USING
 (
-  SELECT a.*,
+  SELECT a.* EXCEPT (days_active_bits),
   b.days_active_bits 
   FROM `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits` a
   LEFT JOIN
