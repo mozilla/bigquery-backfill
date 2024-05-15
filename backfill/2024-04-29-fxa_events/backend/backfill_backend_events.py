@@ -2,7 +2,7 @@ import subprocess
 import concurrent.futures
 from datetime import datetime, timedelta
 
-start_date = datetime.strptime('2024-04-19', '%Y-%m-%d')
+start_date = datetime.strptime('2024-01-01', '%Y-%m-%d')
 end_date = datetime.strptime('2024-05-13', '%Y-%m-%d')
 max_jobs = 10
 
