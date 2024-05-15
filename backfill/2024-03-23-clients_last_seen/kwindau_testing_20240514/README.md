@@ -39,7 +39,7 @@ USING
   `moz-fx-data-shared-prod.telemetry_derived.kwindau_days_active_bits` b
   ON a.client_id = b.client_id
   and a.submission_date = b.submission_date
-  WHERE a.submission_date < current_date
+  WHERE a.submission_date BETWEEN '2016-03-12' AND '2017-01-18' --filter for now since I only loaded days active bits through that date range
 ) S
 ON T.client_id = S.client_id
 AND T.submission_date = S.submission_date
