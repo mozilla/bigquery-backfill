@@ -29,6 +29,7 @@ ADD COLUMN days_active_bits INT64;
 
 7. Merge the result into our copy of clients last seen v1 named "moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits"
 ```
+--part 1: 3/12/16 - 4/12/16
 MERGE INTO `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits` T 
 USING
 (
@@ -39,13 +40,40 @@ USING
   `moz-fx-data-shared-prod.telemetry_derived.kwindau_days_active_bits` b
   ON a.client_id = b.client_id
   and a.submission_date = b.submission_date
-  WHERE a.submission_date BETWEEN '2016-03-12' AND '2017-01-18' --filter for now since I only loaded days active bits through that date range
+  WHERE a.submission_date BETWEEN '2016-03-12' AND '2016-04-12'
 ) S
 ON T.client_id = S.client_id
 AND T.submission_date = S.submission_date
 WHEN MATCHED THEN
   UPDATE
     SET T.days_active_bits = S.days_active_bits;
+
+--part 2: 4/13/16 - 6/13/16
+MERGE INTO `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits` T 
+USING
+(
+  SELECT a.* EXCEPT (days_active_bits),
+  b.days_active_bits 
+  FROM `moz-fx-data-shared-prod.telemetry_derived.kwindau_clients_last_seen_v2_including_active_bits` a
+  LEFT JOIN
+  `moz-fx-data-shared-prod.telemetry_derived.kwindau_days_active_bits` b
+  ON a.client_id = b.client_id
+  and a.submission_date = b.submission_date
+  WHERE a.submission_date BETWEEN '2016-04-13' AND '2016-06-13'
+) S
+ON T.client_id = S.client_id
+AND T.submission_date = S.submission_date
+WHEN MATCHED THEN
+  UPDATE
+    SET T.days_active_bits = S.days_active_bits;
+
+--part 3: 6/14/16 - 8/14/16
+
+--part 4: 8/15/16 - 10/15/16
+
+--part 5: 10/16/16 - 12/16/16
+
+--part 6: 12/17/16 - 1/18/17
 ```
 7. Run a sanity check to make sure # of rows still matches between clients_last_seen_v1 and the new table with the column added for the same date range
 ```
