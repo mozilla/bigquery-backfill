@@ -74,5 +74,9 @@ except distinct
 SELECT *
 FROM ? 
 ```
+9. Drop the additional table since no longer needed
+```
+DROP TABLE  `moz-fx-data-shared-prod.telemetry_derived.kwindau_days_active_bits`
+```
 
 **NOTE: If we go this approach, we will have to make sure we update the production SQL to have the column "days_active_bits" at the end in both the schema and in the query.sql file**
