@@ -39,6 +39,7 @@ USING
   `moz-fx-data-shared-prod.telemetry_derived.kwindau_days_active_bits` b
   ON a.client_id = b.client_id
   and a.submission_date = b.submission_date
+  WHERE a.submission_date < current_date
 ) S
 ON T.client_id = S.client_id
 AND T.submission_date = S.submission_date
