@@ -42,7 +42,7 @@ USING
 ) S
 ON T.client_id = S.client_id
 AND T.submission_date = S.submission_date
-WHEN NOT MATCHED THEN
+WHEN MATCHED THEN
   UPDATE
     SET T.days_active_bits = S.days_active_bits;
 ```
