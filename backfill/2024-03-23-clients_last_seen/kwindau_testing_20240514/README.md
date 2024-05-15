@@ -49,7 +49,7 @@ WHEN MATCHED THEN
 ```
 7. Run a sanity check to make sure # of rows still matches between clients_last_seen_v1 and the new table with the column added for the same date range
 ```
---?
+--87,148,685,988
 SELECT count(1) 
 FROM `moz-fx-data-shared-prod.telemetry_derived.clients_last_seen_v1`
 WHERE submission_date BETWEEN '2016-03-12' AND '2017-01-18'
