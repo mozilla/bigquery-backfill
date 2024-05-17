@@ -21,10 +21,6 @@ WITH baseline AS (
     CAST(NULL AS STRING) AS install_source,
     normalized_app_name as app_name,
     days_since_seen,
-    ad_click,
-    organic_search_count,
-    search_count,
-    search_with_ads,
     uri_count,
     active_hours_sum,
     um.app_version as app_version,
@@ -34,7 +30,7 @@ WITH baseline AS (
   FROM
     `moz-fx-data-shared-prod.telemetry_derived.unified_metrics_v1` AS um
   WHERE
-    um.submission_date = '2021-01-01' AND um.submission_date <= CURRENT_DATE
+    um.submission_date = @submission_date
     AND normalized_app_name = 'Firefox Desktop'
 )
 SELECT
@@ -70,10 +66,6 @@ SELECT
   ) AS dau,
   COUNT(DISTINCT IF(days_since_seen < 7 AND active_hours_sum > 0 AND uri_count > 0, client_id, NULL)) AS wau,
   COUNT(DISTINCT IF(active_hours_sum > 0 AND uri_count > 0, client_id, NULL)) AS mau,
-  SUM(ad_click) AS ad_clicks,
-  SUM(organic_search_count) AS organic_search_count,
-  SUM(search_count) AS search_count,
-  SUM(search_with_ads) AS search_with_ads,
   SUM(uri_count) AS uri_count,
   SUM(active_hours_sum) AS active_hours
 FROM
