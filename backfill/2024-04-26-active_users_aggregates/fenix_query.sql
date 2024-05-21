@@ -7,7 +7,7 @@ WITH baseline AS (
     OR attribution_source IS NOT NULL AS attributed,
     city,
     country,
-    um.distribution_id AS distribution_id,
+    att.distribution_id AS distribution_id,
     um.first_seen_date AS first_seen_date,
     is_default_browser,
     normalized_channel AS channel,
