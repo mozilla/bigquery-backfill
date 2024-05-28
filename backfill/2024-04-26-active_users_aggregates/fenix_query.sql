@@ -1,4 +1,20 @@
-WITH baseline AS (
+WITH distribution_id AS
+(
+  SELECT
+    client_info.client_id,
+    ARRAY_AGG(
+      metrics.string.metrics_distribution_id IGNORE NULLS
+      ORDER BY
+        submission_timestamp ASC
+    )[SAFE_OFFSET(0)] AS distribution_id
+  FROM
+    `moz-fx-data-shared-prod.fenix.metrics`
+  WHERE
+    DATE(submission_timestamp) BETWEEN @submission_date AND DATE_ADD(@submission_date, INTERVAL 7 DAY)
+  GROUP BY
+    client_id
+),
+baseline AS (
   SELECT
     activity_segment AS segment,
     attribution_medium,
@@ -7,7 +23,7 @@ WITH baseline AS (
     OR attribution_source IS NOT NULL AS attributed,
     city,
     country,
-    um.distribution_id AS distribution_id,
+    dist.distribution_id AS distribution_id,
     um.first_seen_date AS first_seen_date,
     is_default_browser,
     normalized_channel AS channel,
@@ -33,11 +49,15 @@ WITH baseline AS (
   FROM
     `moz-fx-data-shared-prod.telemetry_derived.unified_metrics_v1` AS um
   LEFT JOIN
+    distribution_id AS dist
+  ON
+    um.client_id = dist.client_id
+  LEFT JOIN
     fenix.firefox_android_clients AS att
   ON
     um.client_id = att.client_id
   WHERE
-    um.submission_date >= '2021-01-01' AND um.submission_date <= CURRENT_DATE
+    um.submission_date = @submission_date
     AND normalized_app_name IN ('Fenix', 'Fenix BrowserStack')
 )
 SELECT
@@ -53,8 +73,6 @@ SELECT
   is_default_browser,
   COALESCE(REGEXP_EXTRACT(locale, r'^(.+?)-'), locale, NULL) AS locale,
   CASE
-    WHEN app_name = 'Fenix' AND isp = 'BrowserStack'
-      THEN CONCAT(app_name, ' ', isp)
     WHEN app_name = 'Fenix' AND distribution_id = 'MozillaOnline'
       THEN CONCAT(app_name, ' ', distribution_id)
     ELSE app_name
@@ -73,10 +91,6 @@ SELECT
   COUNT(DISTINCT IF(days_since_seen = 0 AND durations > 0, client_id, NULL)) AS dau,
   COUNT(DISTINCT IF(days_since_seen < 7 AND durations > 0, client_id, NULL)) AS wau,
   COUNT(DISTINCT IF(durations > 0, client_id, NULL)) AS mau,
-  SUM(ad_click) AS ad_clicks,
-  SUM(organic_search_count) AS organic_search_count,
-  SUM(search_count) AS search_count,
-  SUM(search_with_ads) AS search_with_ads,
   SUM(uri_count) AS uri_count,
   SUM(active_hours_sum) AS active_hours
 FROM
