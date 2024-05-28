@@ -10,7 +10,7 @@ WITH distribution_id AS
   FROM
     `moz-fx-data-shared-prod.fenix.metrics`
   WHERE
-    DATE(submission_timestamp) BETWEEN @submission_date AND DATE_ADD(@submission_date, INTERVAL 7 DAY)
+    DATE(submission_timestamp) BETWEEN DATE_SUB(@submission_date, INTERVAL 7 DAY) AND DATE_ADD(@submission_date, INTERVAL 7 DAY)
   GROUP BY
     client_id
 ),
