@@ -1,4 +1,20 @@
-WITH baseline AS (
+WITH distribution_id AS
+(
+  SELECT
+    client_info.client_id,
+    ARRAY_AGG(
+      metrics.string.metrics_distribution_id IGNORE NULLS
+      ORDER BY
+        submission_timestamp ASC
+    )[SAFE_OFFSET(0)] AS distribution_id
+  FROM
+    `moz-fx-data-shared-prod.fenix.metrics`
+  WHERE
+    DATE(submission_timestamp) BETWEEN @submission_date AND DATE_ADD(@submission_date, INTERVAL 1 DAY)
+  GROUP BY
+    client_id
+),
+baseline AS (
   SELECT
     activity_segment AS segment,
     attribution_medium,
@@ -7,7 +23,7 @@ WITH baseline AS (
     OR attribution_source IS NOT NULL AS attributed,
     city,
     country,
-    att.distribution_id AS distribution_id,
+    dist.distribution_id AS distribution_id,
     um.first_seen_date AS first_seen_date,
     is_default_browser,
     normalized_channel AS channel,
@@ -32,6 +48,10 @@ WITH baseline AS (
     durations
   FROM
     `moz-fx-data-shared-prod.telemetry_derived.unified_metrics_v1` AS um
+  LEFT JOIN
+    distribution_id AS dist
+  ON
+    um.client_id = dist.client_id
   LEFT JOIN
     fenix.firefox_android_clients AS att
   ON
