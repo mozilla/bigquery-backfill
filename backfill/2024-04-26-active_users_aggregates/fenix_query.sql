@@ -8,7 +8,8 @@ WITH distribution_id AS
         submission_timestamp ASC
     )[SAFE_OFFSET(0)] AS distribution_id
   FROM
-    `moz-fx-data-shared-prod.fenix.metrics`
+    `moz-fx-data-shared-prod.fenix.metrics` -- used from 2021 until 2023-12-31
+    -- `moz-fx-data-shared-prod.fenix.baseline` -- used from 2024-01-01
   WHERE
     DATE(submission_timestamp) BETWEEN DATE_SUB(@submission_date, INTERVAL 7 DAY) AND DATE_ADD(@submission_date, INTERVAL 7 DAY)
   GROUP BY
