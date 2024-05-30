@@ -20,7 +20,11 @@ WITH baseline AS
     um.locale,
     CAST(NULL AS STRING) AS adjust_network,
     CAST(NULL AS STRING) AS install_source,
-    normalized_app_name as app_name,
+    CASE normalized_app_name
+      WHEN 'Focus Android Glean BrowserStack' THEN 'Focus Android BrowserStack'
+      WHEN  'Focus Android Glean' THEN 'Focus Android'
+      WHEN 'Focus Android' THEN 'Focus Android Legacy'
+    END AS app_name,
     days_since_seen,
     uri_count,
     active_hours_sum,
@@ -31,7 +35,7 @@ WITH baseline AS
   FROM
     `moz-fx-data-shared-prod.telemetry_derived.unified_metrics_v1` AS um
   WHERE
-    um.submission_date BETWEEN DATE_SUB(@submission_date, INTERVAL 28 DAY) AND @submission_date
+    um.submission_date BETWEEN DATE_SUB(@submission_date, INTERVAL 28 DAY) AND submission_date
     AND normalized_app_name IN ('Focus Android', 'Focus Android Glean', 'Focus Android Glean BrowserStack')
 ),
 um_dau AS (
@@ -39,14 +43,9 @@ um_dau AS (
     submission_date,
     client_id,
     (
-      LOGICAL_AND(uri_count > 0)
-      AND LOGICAL_AND(active_hours_sum > 0)
-      AND LOGICAL_AND(days_since_seen = 0)
+      LOGICAL_AND(days_since_seen = 0) AND LOGICAL_AND(durations > 0)
     ) AS is_dau
   FROM baseline
-  WHERE submission_date = @submission_date
-    AND COALESCE(isp, "") <> 'BrowserStack'
-    AND COALESCE(distribution_id, "") <> 'MozillaOnline'
   GROUP BY ALL
 ),
 um_is_active AS (
@@ -70,12 +69,7 @@ SELECT
   EXTRACT(YEAR FROM first_seen_date) AS first_seen_year,
   is_default_browser,
   COALESCE(REGEXP_EXTRACT(locale, r'^(.+?)-'), locale, NULL) AS locale,
-  CASE app_name
-    WHEN  'Focus Android Glean' THEN 'Focus Android'
-    WHEN 'Focus Android Glean BrowserStack' THEN 'Focus Android BrowserStack'
-    WHEN 'Focus Android' THEN 'Focus Android Legacy'
-    ELSE app_name
-  END AS app_name,
+  IF(app_name = "Focus Android" AND LOWER(distribution_id) = "mozillaonline", CONCAT("Focus Android", " ", distribution_id), app_name) AS app_name,
   channel,
   os,
   os_version,
@@ -89,7 +83,7 @@ SELECT
   COUNTIF(is_mau) AS mau,
   COUNT(DISTINCT IF(days_since_seen = 0, client_id, NULL)) AS daily_users,
   COUNT(DISTINCT IF(days_since_seen < 7, client_id, NULL)) AS weekly_users,
-  COUNT(DISTINCT client_id) AS monthly_users,
+  COUNT(DISTINCT IF(days_since_seen < 28, client_id, NULL)) AS monthly_users,
   SUM(uri_count) AS uri_count,
   SUM(active_hours_sum) AS active_hours
 FROM
