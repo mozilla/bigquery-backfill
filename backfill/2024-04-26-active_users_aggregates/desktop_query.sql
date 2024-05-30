@@ -89,7 +89,7 @@ SELECT
   COUNTIF(is_mau) AS mau,
   COUNT(DISTINCT IF(days_since_seen = 0, client_id, NULL)) AS daily_users,
   COUNT(DISTINCT IF(days_since_seen < 7, client_id, NULL)) AS weekly_users,
-  COUNT(DISTINCT IF(days_since_seen < 28, client_id, NULL) AS monthly_users,
+  COUNT(DISTINCT IF(days_since_seen < 28, client_id, NULL)) AS monthly_users,
   SUM(uri_count) AS uri_count,
   SUM(active_hours_sum) AS active_hours
 FROM
