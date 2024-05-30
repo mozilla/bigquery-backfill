@@ -44,8 +44,7 @@ um_dau AS (
       AND LOGICAL_AND(days_since_seen = 0)
     ) AS is_dau
   FROM baseline
-  WHERE submission_date = @submission_date
-    AND COALESCE(isp, "") <> 'BrowserStack'
+  WHERE COALESCE(isp, "") <> 'BrowserStack'
     AND COALESCE(distribution_id, "") <> 'MozillaOnline'
   GROUP BY
     submission_date, client_id
