@@ -35,7 +35,7 @@ WITH baseline AS
   FROM
     `moz-fx-data-shared-prod.telemetry_derived.unified_metrics_v1` AS um
   WHERE
-    um.submission_date BETWEEN DATE_SUB(@submission_date, INTERVAL 28 DAY) AND submission_date
+    um.submission_date BETWEEN DATE_SUB(@submission_date, INTERVAL 28 DAY) AND @submission_date
     AND normalized_app_name IN ('Focus Android', 'Focus Android Glean', 'Focus Android Glean BrowserStack')
 ),
 um_dau AS (
