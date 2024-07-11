@@ -1,3 +1,5 @@
+--- Important!
+--- This query must be adjusted to use the previous 7 days for wau, the previous 28 days for mau, the build number for os_version and days_active_bits for segment.
 WITH baseline AS (
   SELECT
     activity_segment AS segment,
