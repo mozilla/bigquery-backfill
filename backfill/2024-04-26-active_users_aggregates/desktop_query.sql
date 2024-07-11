@@ -1,5 +1,8 @@
+--- Important!
+--- This query must be adjusted to integrate the build number for os_version and days_active_bits for segment.
 WITH baseline AS
 (
+WITH baseline AS (
   SELECT
     activity_segment AS segment,
     attribution_medium,
