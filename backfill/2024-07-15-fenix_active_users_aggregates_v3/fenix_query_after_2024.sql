@@ -1,3 +1,5 @@
+-- Query to backfill from '2024-01-01' until CURRENT_DATE.
+-- This query uses the baseline ping to retrieve the distribution_id for completeness in this period.
 WITH distribution_id AS
 (
   SELECT
@@ -8,10 +10,9 @@ WITH distribution_id AS
         submission_timestamp ASC
     )[SAFE_OFFSET(0)] AS distribution_id
   FROM
-    `moz-fx-data-shared-prod.fenix.metrics` -- from 2021 until 2023-12-31
-    -- `moz-fx-data-shared-prod.fenix.baseline` -- from 2024-01-01
+    `moz-fx-data-shared-prod.fenix.baseline`
   WHERE
-    DATE(submission_timestamp) BETWEEN DATE_SUB(@submission_date, INTERVAL 28 DAY) AND DATE_ADD(@submission_date, INTERVAL 7 DAY)
+    DATE(submission_timestamp) BETWEEN DATE_SUB(@submission_date, INTERVAL 35 DAY) AND DATE_ADD(@submission_date, INTERVAL 7 DAY) --  Look back 28 days to cover all client_ids relevant to mau, adding 7 days before and after the submission_date to cover more pings in order to determine the distribution_id.
   GROUP BY
     client_id
 ),
