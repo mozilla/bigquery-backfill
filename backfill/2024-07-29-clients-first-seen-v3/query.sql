@@ -2,7 +2,7 @@ WITH v2_data AS (
   SELECT 
   * EXCEPT (normalized_os) 
   FROM `moz-fx-data-shared-prod.telemetry_derived.clients_first_seen_v2`
-  WHERE first_seen_date = @backfill_date
+  WHERE first_seen_date = @submission_date
 ), 
 
 np_ping_data AS (
@@ -48,7 +48,7 @@ np_ping_data AS (
    `moz-fx-data-shared-prod.telemetry.new_profile` np
    USING(client_id)
   WHERE v2.metadata.first_seen_date_source_ping = "new_profile"
-  AND DATE(np.submission_timestamp) = @backfill_date
+  AND DATE(np.submission_timestamp) = @submission_date
     GROUP BY
     client_id,
     submission_date
@@ -98,7 +98,7 @@ sd_ping_data AS
    `moz-fx-data-shared-prod.telemetry.first_shutdown` fs
    USING(client_id)
   WHERE v2.metadata.first_seen_date_source_ping = "shutdown"
-  AND DATE(fs.submission_timestamp) = @backfill_date
+  AND DATE(fs.submission_timestamp) = @submission_date
     GROUP BY
     client_id,
     submission_date
@@ -137,7 +137,7 @@ main_ping_data AS
    `moz-fx-data-shared-prod.telemetry_derived.clients_daily_v6` mp
    USING(client_id)
   WHERE v2.metadata.first_seen_date_source_ping = "shutdown"
-  AND submission_date = @backfill_date
+  AND submission_date = @submission_date
   GROUP BY
     client_id,
     submission_date
