@@ -3,7 +3,7 @@
 See https://mozilla-hub.atlassian.net/browse/DENG-2407
 
 ## accounts_backend
-Backfill and validation is documented in [backend/README.md](backend_test/README.md).
+Backfill and validation is documented in [backend/README.md](backend/README.md).
 
 We're backfilling accounts_backend_stable.events_v1 table from 2024-01-01 to 2024-04-17 (inclusive) since the `events` ping was enabled on 2024-04-17. We're backfilling from `accounts_events` table, so we need to convert custom pings-as-events to event metrics. This is done in [backend/convert_backend.sql](convert_backend.sql).
 
@@ -11,4 +11,14 @@ We're backfilling accounts_backend_stable.events_v1 table from 2024-01-01 to 202
 This runs 20 processes in parallel, finishing in under a minute.
 ```bash
 seq 0 107 | xargs -I {} date -d "2024-01-01 {} days" +%Y%m%d | xargs -P20 -n1 -I {} bash -c 'bq cp --force mozdata:analysis.akomar_accounts_backend_events_v1\${} moz-fx-data-shared-prod:accounts_backend_stable.events_v1\${}'
+```
+
+## accounts_frontend
+Backfill and validation is documented in [frontend/README.md](frontend/README.md).
+
+We're backfilling accounts_frontend_stable.events_v1 table from 2024-01-01 to 2024-04-17 (inclusive) since the `events` ping was enabled on 2024-04-17. We're backfilling from `accounts_events` table, so we need to convert custom pings-as-events to event metrics. This is done in [frontend/convert_frontend.sql](frontend/convert_frontend.sql).
+
+### Inserting data to production table
+```bash
+seq 0 107 | xargs -I {} date -d "2024-01-01 {} days" +%Y%m%d | xargs -P20 -n1 -I {} bash -c 'bq cp --force mozdata:analysis.akomar_accounts_frontend_events_v1\${} moz-fx-data-shared-prod:accounts_frontend_stable.events_v1\${}'
 ```
