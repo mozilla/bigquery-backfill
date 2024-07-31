@@ -16,3 +16,9 @@ https://colab.research.google.com/drive/13olbigFxZexoxR_ZHJaiwwr0WoRkKKnw#scroll
 ```bash
 python backfill_frontend_events.py
 ```
+
+## Inserting data to production table
+This runs 20 processes in parallel.
+```bash
+seq 0 107 | xargs -I {} date -d "2024-01-01 {} days" +%Y%m%d | xargs -P20 -n1 -I {} bash -c 'bq cp --force mozdata:analysis.akomar_accounts_frontend_events_v1\${} moz-fx-data-shared-prod:accounts_frontend_stable.events_v1\${}'
+```
