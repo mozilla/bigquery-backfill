@@ -1,4 +1,4 @@
-# Test backfill of backend events
+# Test backfill of frontend events
 1. Create a copy of events table to test backfill query
 ```
 bq cp moz-fx-data-shared-prod:accounts_frontend_stable.events_v1 mozdata:analysis.akomar_accounts_frontend_events_v1
