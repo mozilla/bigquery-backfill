@@ -136,7 +136,7 @@ main_ping_data AS
   LEFT JOIN 
    `moz-fx-data-shared-prod.telemetry_derived.clients_daily_v6` mp
    USING(client_id)
-  WHERE v2.metadata.first_seen_date_source_ping = "shutdown"
+  WHERE v2.metadata.first_seen_date_source_ping = "main"
   AND submission_date = @submission_date
   GROUP BY
     client_id,
