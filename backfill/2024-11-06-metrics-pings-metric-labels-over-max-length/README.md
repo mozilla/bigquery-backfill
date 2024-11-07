@@ -77,6 +77,10 @@ ORDER BY
 --   2 DESC
 ```
 
+## Setting up the Backfill Project
+
+To grant dataset creation permissions and to get access to `payload_bytes_error`: https://github.com/mozilla-services/cloudops-infra/pull/6055
+
 ## Reingest Using Decoder
 
 To start, we need to create the temporary datasets and tables to use as dataflow input, output, and error.
