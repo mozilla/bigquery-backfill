@@ -80,35 +80,9 @@ ORDER BY
 ## Setting up the Backfill Project
 
 To grant dataset creation permissions and to get access to `payload_bytes_error`: https://github.com/mozilla-services/cloudops-infra/pull/6055
+This step provided the `payload_bytes_error` data as well as `firefox_desktop` datasets.
 
 ## Reingest Using Decoder
-
-To start, we need to create the temporary datasets and tables to use as dataflow input, output, and error.
-We can do that by running the script at 
-[`mirror-prod-tables.sh`](mirror-prod-tables.sh).
-
-This will create the datasets `firefox_desktop_metrics_output`, `firefox_desktop_metrics_deduped`, and 
-`payload_bytes_error_firefox_desktop_metrics`.
-
-We will then create a `payload_bytes_error`-like table with only the rows that we want to reprocess:
-
-```sql
-CREATE TABLE 
-    moz-fx-data-backfill-1.payload_bytes_error_firefox_desktop_metrics.structured_input
-LIKE 
-    moz-fx-data-backfill-1.payload_bytes_error_firefox_desktop_metrics.structured
-AS
-(
-  SELECT 
-    *
-  FROM 
-    `moz-fx-data-shared-prod.payload_bytes_error.structured` 
-  WHERE 
-    DATE(submission_timestamp) BETWEEN "2024-10-25" AND "2024-11-06"
-    AND error_message LIKE 'org.everit.json.schema.ValidationException: #/metrics/% expected maxLength: 61, actual: %'
-    AND document_namespace = "firefox-desktop"
-)
-```
 
 The script in [start_dataflow.sh](start_dataflow.sh)
 will start the dataflow job when run from the `ingestion-beam/` directory in 
@@ -122,12 +96,10 @@ The dataflow output will have duplicate document ids, so we need to dedupe befor
 similar to copy_deduplicate. We can also check if any document ids already exist in the stable table, just as 
 a safeguard. There are no automation pings, so there's no need to filter like in copy_deduplicate.
 
-This will be split into two steps for easier validation.
+This will be split into two steps for easier validation. Set the destination table to `moz-fx-data-backfill-1.firefox_desktop_stable.metrics_v1` and run the following query to deduplicate pings:
 
 ```sql
-CREATE TABLE `moz-fx-data-backfill-1.firefox_desktop_metrics_deduped.metrics_v1` 
-LIKE `moz-fx-data-backfill-1.firefox_desktop_metrics_output.metrics_v1` AS (
-  WITH existing_doc_ids AS (
+WITH existing_doc_ids AS (
     SELECT
       document_id
     FROM
@@ -139,7 +111,7 @@ LIKE `moz-fx-data-backfill-1.firefox_desktop_metrics_output.metrics_v1` AS (
     SELECT 
       * 
     FROM 
-      `moz-fx-data-backfill-1.firefox_desktop_metrics_output.metrics_v1` 
+      `moz-fx-data-backfill-1.firefox_desktop_live.metrics_v1` 
     WHERE 
       DATE(submission_timestamp) BETWEEN "2024-10-25" AND "2024-11-06"
     QUALIFY 
@@ -155,70 +127,17 @@ LIKE `moz-fx-data-backfill-1.firefox_desktop_metrics_output.metrics_v1` AS (
     (document_id)
   WHERE
     existing_doc_ids.document_id IS NULL
-);
-```
-
-```sql
-INSERT INTO
-  `moz-fx-data-shared-prod.firefox_desktop_stable.metrics_v1`
-SELECT
-  *
-FROM
-  `moz-fx-data-backfill-1.firefox_desktop_metrics_deduped.metrics_v1`
-WHERE 
-  DATE(submission_timestamp) BETWEEN "2024-10-25" AND "2024-11-06";
 ```
 
 
-We can dedupe and insert into a staging table with a statement like:
-```sql
-CREATE TABLE `moz-fx-data-backfill-1.firefox_desktop_metrics_deduped.metrics_v1` 
-LIKE `moz-fx-data-backfill-1.firefox_desktop_metrics_output.metrics_v1` AS (
-  WITH existing_doc_ids AS (
-    SELECT
-      document_id
-    FROM
-      `moz-fx-data-shared-prod.firefox_desktop_stable.metrics_v1`
-    WHERE 
-      -- look for days after 2024-05-01 to account for late-arriving duplicates
-      DATE(submission_timestamp) BETWEEN "2024-10-25" AND "2024-11-06"
-  ),
-  new_rows AS (
-    SELECT 
-      * 
-    FROM 
-      `moz-fx-data-backfill-1.firefox_desktop_metrics_output.metrics_v1` 
-    WHERE 
-      DATE(submission_timestamp) BETWEEN "2024-10-25" AND "2024-11-06"
-    QUALIFY 
-      ROW_NUMBER() OVER (PARTITION BY document_id ORDER BY submission_timestamp) = 1
-  )
-  SELECT
-    new_rows.*
-  FROM
-    new_rows
-  LEFT JOIN
-    existing_doc_ids
-  USING
-    (document_id)
-  WHERE
-    existing_doc_ids.document_id IS NULL
-);
+The `_stable` tables that get automatically created by the DSRE process have schemas that are incompatible with those in `moz-fx-data-shared-prod`. The order of columns does in some cases not match.
+
+One option would be to create the table schemas from the `_stable` tables in `moz-fx-data-shared-prod` initially. In this backfill, `insert_to_prod.py` will generated the `INSERT` statement that explicitly selects fields in the right order for them to be written back to the destination table:
+
+```
+python3 insert_to_prod.py
 ```
 
-Final counts:
+The result `insert.sql` statement needs to be run by DSRE.
 
-<todo>
-
-Final insert:
-
-```sql
-INSERT INTO
-  `moz-fx-data-shared-prod.firefox_desktop_stable.metrics_v1`
-SELECT
-  *
-FROM
-  `moz-fx-data-backfill-1.firefox_desktop_metrics_deduped.metrics_v1`
-WHERE 
-  DATE(submission_timestamp) BETWEEN "2024-10-25" AND "2024-11-06";
-```
+Final insert resulted in 441,929 rows being added.

@@ -8,7 +8,7 @@ JOB_NAME="firefox-desktop-metric-labels-backfill-1"
 # this script assumes it's being run from the ingestion-beam directory
 # of the gcp-ingestion repo.
 
-mvn compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dmaven.compiler.release=11 -Dexec.args="\
+mvn -X compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dmaven.compiler.release=11 -Dexec.args="\
     --runner=Dataflow \
     --jobName=$JOB_NAME \
     --project=$PROJECT  \
@@ -17,14 +17,14 @@ mvn compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dmaven.com
     --geoIspDatabase=gs://moz-fx-data-prod-geoip/GeoIP2-ISP/20241101/GeoIP2-ISP.mmdb \
     --schemasLocation=gs://moz-fx-data-prod-dataflow/schemas/202411060452_e01d1666.tar.gz \
     --inputType=bigquery_table \
-    --input='$PROJECT:payload_bytes_error_firefox_desktop_metrics.structured_input' \
+    --input='$PROJECT:payload_bytes_error.backfill' \
     --bqReadMethod=storageapi \
     --outputType=bigquery \
     --bqWriteMethod=file_loads \
-    --bqClusteringFields=normalized_channel,sample_id \
-    --output=${PROJECT}:firefox_desktop_metrics_output.\${document_type}_v\${document_version} \
+    --bqClusteringFields=submission_timestamp \
+    --output=${PROJECT}:firefox_desktop_live.metrics_v1 \
     --errorOutputType=bigquery \
-    --errorOutput=${PROJECT}:payload_bytes_error_firefox_desktop_metrics.structured \
+    --errorOutput=${PROJECT}:payload_bytes_error.structured \
     --experiments=shuffle_mode=service \
     --region=us-central1 \
     --usePublicIps=false \
