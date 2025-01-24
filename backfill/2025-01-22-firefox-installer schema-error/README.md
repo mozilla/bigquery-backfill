@@ -170,8 +170,8 @@ This inserts 12 171 249 rows into `moz-fx-data-backfill-1.firefox_installer_stab
 
 ## Insert into prod stable table
 
-This step requires DSRE assistance to write to the stable table (TODO: create a ticket).  The backfill staging table
-is deduped, so to insert into the prod table, we can run a `SELECT *` with a deestination table:
+This step requires DSRE assistance to write to the stable table (https://mozilla-hub.atlassian.net/browse/DSRE-1892).  
+The backfill staging table is deduped, so to insert into the prod table, we can run a `SELECT *` with a destination table:
 ```
 bq query \
   --nouse_legacy_sql \
@@ -184,3 +184,24 @@ Alternatively, we could use an `INSERT` statement, but that requires the columns
 which they are not because the prod table has columns added to the end of the schema.  We could explicitly list the columns
 but that's potentially more error-prone.
 
+## Validate stable table
+
+We can look at `moz-fx-data-shared-prod:firefox_installer_stable.install_v1` to check that the data looks as expected.
+
+Ping count by version:
+```sql
+SELECT
+  COUNT(*) AS ping_count,
+  version,
+  DATE(submission_timestamp) AS submission_date,
+FROM
+  `moz-fx-data-shared-prod.firefox_installer_stable.install_v1`
+WHERE
+  DATE(submission_timestamp) >= "2024-12-20"
+GROUP BY ALL
+HAVING
+  ping_count > 50
+```
+https://sql.telemetry.mozilla.org/queries/104802/source#258025
+
+This shows that the ping count from version 134.0 now looks as expected.
