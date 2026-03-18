@@ -84,3 +84,114 @@ See [start_dataflow.sh](./start_dataflow.sh) for the full configuration. Key set
 - Errors: `moz-fx-data-backfill-1:payload_bytes_error.structured`
 - GeoIP/schemas from 2026-03-17 to match the original ingestion date
 
+
+## Validation
+
+All input rows were successfully reprocessed with 0 errors.
+Key fields are fully populated:
+
+```sql
+-- interaction: all key fields 100% populated (148,184,292 / 148,184,292)
+SELECT
+  COUNTIF(metrics.string.ad_country_code IS NOT NULL) AS has_country_code,
+  COUNTIF(metrics.string.ad_interaction IS NOT NULL) AS has_interaction,
+  COUNTIF(metrics.string.ad_advertiser IS NOT NULL) AS has_advertiser,
+  COUNT(*) AS total
+FROM `moz-fx-data-backfill-1.ads_backend_live.interaction_v1`
+WHERE DATE(submission_timestamp) = '2026-03-17'
+
+-- request_stats: all key fields 100% populated (723,148,951 / 723,148,951)
+SELECT
+  COUNTIF(metrics.string.ad_country_code IS NOT NULL) AS has_country_code,
+  COUNTIF(metrics.quantity.technical_operations_count_requested IS NOT NULL) AS has_count_requested,
+  COUNTIF(metrics.quantity.technical_operations_count_returned IS NOT NULL) AS has_count_returned,
+  COUNT(*) AS total
+FROM `moz-fx-data-backfill-1.ads_backend_live.request_stats_v1`
+WHERE DATE(submission_timestamp) = '2026-03-17'
+```
+
+The `ad.categories` field is stored as NULL in BQ, which is expected since BigQuery represents empty arrays as NULL.
+
+`additional_properties` is empty for all rows in both tables (no data loss from schema mismatch):
+
+```sql
+-- interaction: 0 non-empty additional_properties
+SELECT
+  COUNTIF(additional_properties IS NOT NULL AND additional_properties != '{}') AS non_empty,
+  COUNT(*) AS total
+FROM `moz-fx-data-backfill-1.ads_backend_live.interaction_v1`
+WHERE DATE(submission_timestamp) = '2026-03-17'
+
+-- request_stats: 0 non-empty additional_properties
+SELECT
+  COUNTIF(additional_properties IS NOT NULL AND additional_properties != '{}') AS non_empty,
+  COUNT(*) AS total
+FROM `moz-fx-data-backfill-1.ads_backend_live.request_stats_v1`
+WHERE DATE(submission_timestamp) = '2026-03-17'
+```
+
+## Copy to stable with document_id generation
+
+The decoder outputs NULL `document_id` for all rows because the `payload_bytes_error` table does not have
+a `document_id` column and the `uri` is also NULL for these server-side pings. The original UUIDs generated
+by the mars server (see [server_events.go](https://github.com/mozilla-services/mars/blob/7c0981d4a924d0d01e9d45a9afd379aca53a5eda/internal/logging/glean/server_events.go#L127))
+are not recoverable.
+
+Deduplication is not needed — this is server-side telemetry which does not produce duplicate pings.
+For consistency with existing data we generate new random UUIDs when copying to stable to match the production data pattern.
+
+Note: There is a theoretical risk of UUID collisions with existing prod data. With ~2 billion total UUIDs
+and 122 bits of randomness in v4 UUIDs, the collision probability is ~10^-19 — effectively zero.
+
+```sql
+-- interaction
+INSERT INTO `moz-fx-data-backfill-1.ads_backend_stable.interaction_v1`
+SELECT
+  additional_properties,
+  client_info,
+  GENERATE_UUID() AS document_id,
+  * EXCEPT(additional_properties, client_info, document_id)
+FROM `moz-fx-data-backfill-1.ads_backend_live.interaction_v1`
+WHERE DATE(submission_timestamp) = '2026-03-17'
+
+-- request_stats
+INSERT INTO `moz-fx-data-backfill-1.ads_backend_stable.request_stats_v1`
+SELECT
+  additional_properties,
+  client_info,
+  GENERATE_UUID() AS document_id,
+  * EXCEPT(additional_properties, client_info, document_id)
+FROM `moz-fx-data-backfill-1.ads_backend_live.request_stats_v1`
+WHERE DATE(submission_timestamp) = '2026-03-17'
+```
+
+## Insert into prod stable table
+
+Requires DSRE assistance for production write access:
+
+```
+bq query \
+  --destination_table 'moz-fx-data-shared-prod:ads_backend_stable.interaction_v1' \
+  --append_table=true \
+  'SELECT * FROM `moz-fx-data-backfill-1.ads_backend_stable.interaction_v1` WHERE DATE(submission_timestamp) = "2026-03-17"'
+
+bq query \
+  --destination_table 'moz-fx-data-shared-prod:ads_backend_stable.request_stats_v1' \
+  --append_table=true \
+  'SELECT * FROM `moz-fx-data-backfill-1.ads_backend_stable.request_stats_v1` WHERE DATE(submission_timestamp) = "2026-03-17"'
+```
+
+## Validate stable table
+
+Verify production data looks correct after insertion:
+
+```sql
+SELECT
+  COUNT(*) AS ping_count,
+  DATE(submission_timestamp) AS submission_date,
+  document_type
+FROM `moz-fx-data-shared-prod.ads_backend_stable.<ping_type>_v1`
+WHERE DATE(submission_timestamp) >= '2026-03-10'
+GROUP BY ALL
+ORDER BY submission_date
+```
