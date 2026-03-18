@@ -3,7 +3,7 @@
 set -exo pipefail
 
 PROJECT="moz-fx-data-backfill-1"
-JOB_NAME="ads-backend-backfill-deng-10814"
+JOB_NAME="ads-backend-backfill-deng-10814-4"
 
 # This script assumes it's being run from the ingestion-beam directory
 # of the gcp-ingestion repo, on the branch with the decoder changes from
@@ -12,7 +12,7 @@ JOB_NAME="ads-backend-backfill-deng-10814"
 # You may need to run:
 #   gcloud auth application-default set-quota-project moz-fx-data-backfill-1
 
-mvn compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dmaven.compiler.release=11 -Dexec.args="\
+mvn clean compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dmaven.compiler.release=11 -Dexec.args="\
     --runner=Dataflow \
     --jobName=$JOB_NAME \
     --project=$PROJECT \
@@ -35,6 +35,6 @@ mvn compile exec:java -Dexec.mainClass=com.mozilla.telemetry.Decoder -Dmaven.com
     --usePublicIps=false \
     --gcsUploadBufferSizeBytes=16777216 \
     --tempLocation=gs://dataflow-staging-us-central1-215736861657/temp/ \
-    --numWorkers=5 \
-    --maxNumWorkers=200 \
+    --numWorkers=50 \
+    --maxNumWorkers=400 \
 "
