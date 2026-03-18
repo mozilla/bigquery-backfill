@@ -56,15 +56,10 @@ Destination tables (in `moz-fx-data-shared-prod`):
 
 ## Set up backfill project
 
-Copy errored rows from `payload_bytes_error` to a backfill project staging table. This will require terraform changes in cloudops-infra (similar to [cloudops-infra PR #6194](https://github.com/mozilla-services/cloudops-infra/pull/6194) for the firefox-installer backfill).
+Provision the backfill project via terraform in cloudops-infra: https://github.com/mozilla-services/cloudops-infra/pull/6818.
 
-```sql
-INSERT INTO `moz-fx-data-backfill-1.payload_bytes_error.backfill`
-SELECT
-  *
-FROM `moz-fx-data-shared-prod.payload_bytes_error.structured`
-WHERE DATE(submission_timestamp) = '2026-03-17'
-  AND document_namespace = 'ads_backend'
-```
+The terraform module in `projects/data-backfill/tf/prod/projects/backfill.tf` will:
+- Create `ads_backend_live`, `ads_backend_stable`, and `payload_bytes_error` datasets in `moz-fx-data-backfill-1`
+- Copy error rows from `moz-fx-data-shared-prod.payload_bytes_error.structured` to `moz-fx-data-backfill-1.payload_bytes_error.backfill`
 
-Note: Column order may differ between source and destination tables. If so, list columns explicitly (see firefox-installer backfill for example).
+Since `ads_backend` data is access-restricted in production the backfill project editors are limited.
