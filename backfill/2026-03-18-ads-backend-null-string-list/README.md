@@ -63,3 +63,24 @@ The terraform module in `projects/data-backfill/tf/prod/projects/backfill.tf` wi
 - Copy error rows from `moz-fx-data-shared-prod.payload_bytes_error.structured` to `moz-fx-data-backfill-1.payload_bytes_error.backfill`
 
 Since `ads_backend` data is access-restricted in production the backfill project editors are limited.
+
+## Decoder changes
+
+The payloads contain `null` where the schema expects `[]` for string_list metrics. The decoder is modified to coerce null string_list values to empty arrays before schema validation.
+
+PR: https://github.com/mozilla/gcp-ingestion/pull/2913
+
+## Deploy decoder job
+
+Run from the `ingestion-beam/` directory of `gcp-ingestion`, on the branch with the decoder changes from PR #2913:
+
+```
+ingestion-beam % /path/to/start_dataflow.sh
+```
+
+See [start_dataflow.sh](./start_dataflow.sh) for the full configuration. Key settings:
+- Input: `moz-fx-data-backfill-1:payload_bytes_error.backfill`
+- Output: `moz-fx-data-backfill-1:${document_namespace}_live.${document_type}_v${document_version}`
+- Errors: `moz-fx-data-backfill-1:payload_bytes_error.structured`
+- GeoIP/schemas from 2026-03-17 to match the original ingestion date
+
