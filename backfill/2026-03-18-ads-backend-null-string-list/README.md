@@ -185,15 +185,18 @@ bq query \
 
 ## Validate stable table
 
-Verify production data looks correct after insertion:
+Post-insert counts confirmed by Daniel Mueller — 2026-03-17 is now in line with surrounding weekdays:
 
-```sql
-SELECT
-  COUNT(*) AS ping_count,
-  DATE(submission_timestamp) AS submission_date,
-  document_type
-FROM `moz-fx-data-shared-prod.ads_backend_stable.<ping_type>_v1`
-WHERE DATE(submission_timestamp) >= '2026-03-10'
-GROUP BY ALL
-ORDER BY submission_date
+**interaction_v1** (before: 656M, added 148M):
+```
+2026-03-16    817,915,583
+2026-03-17    804,593,910
+2026-03-18    785,071,801
+```
+
+**request_stats_v1** (before: 3.35B, added 723M):
+```
+2026-03-16    4,073,956,215
+2026-03-17    4,070,638,615
+2026-03-18    3,997,456,420
 ```
