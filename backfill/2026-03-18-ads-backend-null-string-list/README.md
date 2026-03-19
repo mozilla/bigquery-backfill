@@ -171,11 +171,13 @@ Requires DSRE assistance for production write access:
 
 ```
 bq query \
+  --nouse_legacy_sql \
   --destination_table 'moz-fx-data-shared-prod:ads_backend_stable.interaction_v1' \
   --append_table=true \
   'SELECT * FROM `moz-fx-data-backfill-1.ads_backend_stable.interaction_v1` WHERE DATE(submission_timestamp) = "2026-03-17"'
 
 bq query \
+  --nouse_legacy_sql \
   --destination_table 'moz-fx-data-shared-prod:ads_backend_stable.request_stats_v1' \
   --append_table=true \
   'SELECT * FROM `moz-fx-data-backfill-1.ads_backend_stable.request_stats_v1` WHERE DATE(submission_timestamp) = "2026-03-17"'
