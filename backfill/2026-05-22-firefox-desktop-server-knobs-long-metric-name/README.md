@@ -66,14 +66,17 @@ bytes; the aggregated table exposes the dimensions we need for scoping).
 
 ## 1. Set up backfill project
 
-Permissions are granted via a cloudops-infra PR (see precedent
+Permissions and the backfill input table are both provisioned by a cloudops-infra PR
+adding a `module "bug_2042215"` entry in
+`projects/data-backfill/tf/prod/projects/backfill.tf` (see precedent
 [cloudops-infra#6055](https://github.com/mozilla-services/cloudops-infra/pull/6055) /
-[#6194](https://github.com/mozilla-services/cloudops-infra/pull/6194)). The PR must grant
-the `moz-fx-data-backfill-1` project:
+[#6194](https://github.com/mozilla-services/cloudops-infra/pull/6194)).
+
+The module configures the `moz-fx-data-backfill-1` project with:
 
 - Read access to the relevant rows in `moz-fx-data-shared-prod.payload_bytes_error.structured`
   (filtered to the `document_namespace`/`document_type`/`error_type`/`error_message` we
-  care about — see the WHERE clause in the next code block).
+  care about — encoded in the module's `init_query`).
 - Dataset-level write access on the **staging** datasets in the backfill project:
   `moz-fx-data-backfill-1.firefox_desktop_live` and
   `moz-fx-data-backfill-1.firefox_desktop_stable`. These are fresh datasets created by
@@ -82,15 +85,14 @@ the `moz-fx-data-backfill-1` project:
   — the final append into `moz-fx-data-shared-prod.firefox_desktop_stable.baseline_v1`
   is performed in §5 by DSRE.
 
-Once permissions are in place, copy the affected error rows into a backfill input table:
+Additionally, the module's `init_query` is run as a BigQuery job at `terraform apply`
+time. It executes the filtering SELECT against
+`moz-fx-data-shared-prod.payload_bytes_error.structured` and writes the matching rows
+to `moz-fx-data-backfill-1.payload_bytes_error.backfill` — the input table that the
+dataflow job consumes in §3. The query is:
 
 ```sql
-INSERT INTO `moz-fx-data-backfill-1.payload_bytes_error.backfill`
 SELECT
-  -- List all columns explicitly because column order may differ between source and target.
-  -- Use `bq show --schema moz-fx-data-shared-prod:payload_bytes_error.structured` to get the
-  -- column list (see 2025-01-22 backfill README for the exact column list — it changes
-  -- rarely, so reuse if still current).
   *
 FROM
   `moz-fx-data-shared-prod.payload_bytes_error.structured`
@@ -101,6 +103,9 @@ WHERE
   AND error_type         = 'ParsePayload'
   AND error_message LIKE '%cert_validation_success_by_ca_2%'
 ```
+
+The job's `job_id` is set to `bug_2042215`, so subsequent `terraform apply` runs do not
+re-execute the query. There is no manual INSERT step.
 
 ## 2. Mirror prod schemas
 
