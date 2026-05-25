@@ -17,8 +17,7 @@ set -exo pipefail
 PROJECT="moz-fx-data-backfill-1"
 JOB_NAME="firefox-desktop-server-knobs-long-metric-name-backfill-1"
 
-# TBD: update to a schemas tarball that includes mozilla-pipeline-schemas#871.
-# Find the latest with:
+# Found the latest tarball with:
 #   gsutil ls gs://moz-fx-data-prod-dataflow/schemas/ | tail
 SCHEMAS_LOCATION="gs://moz-fx-data-prod-dataflow/schemas/202605250235_b7297c1a6.tar.gz"
 
@@ -27,8 +26,8 @@ START_DATE="2026-05-19"
 END_DATE="2026-05-20"   # confirmed via affected_pings.sql (zero rejections from 2026-05-21 onward)
 
 # GeoIP databases — use the latest published versions at backfill time.
-GEO_CITY_DB="gs://moz-fx-data-prod-geoip/GeoIP2-City/20260521/GeoIP2-City.mmdb"  # TBD: latest
-GEO_ISP_DB="gs://moz-fx-data-prod-geoip/GeoIP2-ISP/20260521/GeoIP2-ISP.mmdb"     # TBD: latest
+GEO_CITY_DB="gs://moz-fx-data-prod-geoip/GeoIP2-City/20260521/GeoIP2-City.mmdb"
+GEO_ISP_DB="gs://moz-fx-data-prod-geoip/GeoIP2-ISP/20260521/GeoIP2-ISP.mmdb"
 
 mvn compile exec:java \
   -Dexec.mainClass=com.mozilla.telemetry.Decoder \
