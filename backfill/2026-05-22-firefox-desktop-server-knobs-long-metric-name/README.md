@@ -4,7 +4,7 @@ Bug for error: https://bugzilla.mozilla.org/show_bug.cgi?id=2042207
 
 Bug for backfill: https://bugzilla.mozilla.org/show_bug.cgi?id=2042215
 
-DSRE ticket for prod insert: TBD
+DSRE ticket for prod insert: https://mozilla-hub.atlassian.net/browse/SREIN-1378
 
 ## Summary
 
