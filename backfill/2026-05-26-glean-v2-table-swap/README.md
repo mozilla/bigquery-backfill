@@ -77,6 +77,7 @@ Queries for the rest of the test tables are in [test_table_queries.sql](./test_t
    - https://ops-master.jenkinsv2.prod.mozaws.net/job/gcp-pipelines/job/data-ingestion-sink/
    - bigquery-prod and bigquery-stage https://ops-master.jenkinsv2.prod.mozaws.net/job/gcp-pipelines/job/data-shared/
 3. Stop structured loader sink for prod and stage: deploy https://github.com/mozilla/dataservices-infra/compare/benwu/stage-loader-zero, which sets `enabled: false` on the `structured-decoded-loader`
+   - Announce in #data-platform-infra-wg that live table updates will be paused
    - Verify that there are no more loader pods active
 4. Run the schema generator Airflow task and verify v1 schemas are updated and v2 schemas are deleted in generated-schemas
 5. Copy v1 live tables to the backfill project
