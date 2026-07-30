@@ -19,16 +19,16 @@ some choices:
 1. Swap live tables first because copy_deduplicate can go from live v2 to stable v1 without issue
 2. Sink loader, ingestion deploys, and bigquery deploys will be paused during live and stable table replacement causing a backlog for the loader
     * Alternative is to only pause these while replacing the live tables and restart them while replacing the stable tables which would result in a much smaller the backlog. But we aren’t able to deploy bigquery schemas when stable and live don’t match, meaning we would need to bypass the standard deployment flow to deploy the ingestion sink. While possible, this is more steps and complexity meaning more things that can go wrong.
-    * I would estimate the table replacement to take &lt;30 minutes, largely from `firefox_desktop_stable.metrics_v1`
+    * I would estimate the table replacement to take <30 minutes, largely from `firefox_desktop_stable.metrics_v1`
 3. v1 table replacement is done with a `DROP TABLE v1` and `ALTER TABLE v2 RENAME TO v1` which should prevent doubling up on storage costs for time travel bytes. The tradeoff compared to `CREATE OR REPLACE TABLE v1 COPY v2` is that it isn’t atomic and will cause some downtime where the table doesn’t exist
-    * most tables can be dropped and renamed in &lt;20 seconds
+    * most tables can be dropped and renamed in <20 seconds
     * In testing, `firefox_desktop_stable.metrics_v1` takes ~10 minutes to rename so in that case, `CREATE OR REPLACE v1 COPY v2`
         * The table currently has 773 TB of physical storage which would be ~$7144 for 14 days of time travel + fail-safe
     * `org_mozilla_firefox_stable.metrics_v1` took ~2.5 minutes
     * `firefox_desktop_live.metrics_v1` took 15 seconds
 
 Backfill is done and validated for org_mozilla_fennec_aurora and org_mozilla_fenix_nightly so these are some more informed steps with example queries.
-These will be first run on the test set of tables:
+These will first be run on the test set of tables:
 ```sql
 org_mozilla_fenix_nightly_stable.metrics_v1
 org_mozilla_fenix_nightly_stable.sync_v1
@@ -46,9 +46,10 @@ org_mozilla_fennec_aurora_stable.adjust_attribution_v1
 
 ## Setup steps to be completed in advance
 
-1. Update SQL generators to handle v1 tables with glean.2 schema [https://github.com/mozilla/bigquery-etl/pull/9233](https://github.com/mozilla/bigquery-etl/pull/9233)
+1. ~~Update SQL generators to handle v1 tables with glean.2 schema [https://github.com/mozilla/bigquery-etl/pull/9233](https://github.com/mozilla/bigquery-etl/pull/9233)~~ **DONE**
 2. Provision backfill project for v1 table backups
     - Grant editor access to one of the projects via https://github.com/mozilla-services/cloudops-infra/blob/master/projects/data-backfill/tf/prod/projects/backfill.tf
+    - https://github.com/mozilla-services/cloudops-infra/pull/6954
 3. Verify prod stable table row counts between v1 and v2 (will differ because shredder is only running on v2)
     * Script: [validate_row_counts.py](./validate_row_counts.py). Compares per-partition row counts and tolerates up to a 5% drop in v2 from shredder.
 4. Create dataset per app for live/stable and prod/stage
@@ -200,7 +201,9 @@ CLONE `moz-fx-data-backfill-1.org_mozilla_fennec_aurora_live_stage.metrics_v1`;
 ```
    Queries for the rest of the test tables are in [test_table_queries.sql](./test_table_queries.sql)
    under "Backout, stage" and "Backout, prod". Do this for both live and stable tables that were swapped.
+
 5. Re-enable the structured loader (`enabled: true` / remove the override) and turn Jenkins
    deploys back on, so the sink picks the v2 schemas back up.
+
 6. Copy any data that landed in v2 after the swap back into v1, mirroring the forward
    "copy current day live data" step but in the reverse direction.
