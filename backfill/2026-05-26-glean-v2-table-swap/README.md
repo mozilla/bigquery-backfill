@@ -106,6 +106,7 @@ DROP TABLE `moz-fx-data-shar-nonprod-efed.org_mozilla_fennec_aurora_live.metrics
 ALTER TABLE `moz-fx-data-shar-nonprod-efed.org_mozilla_fennec_aurora_live.metrics_v2` RENAME TO metrics_v1;
 ```
 Queries for the rest of the test tables are in [test_table_queries.sql](./test_table_queries.sql) under "Stage step 6".
+
 7. Copy current day live data from v1 live backup tables to v2 live prod tables.
     * This can run concurrently with stable table replacement.
     * Script: [copy_live_data.py](./copy_live_data.py) `--env stage`. Reads from the `_stage` live backups and appends today's partition to the renamed live tables. Pass `--dry-run` to preview.
