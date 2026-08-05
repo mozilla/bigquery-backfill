@@ -128,7 +128,29 @@ Queries for the rest of the test tables are in [test_table_queries.sql](./test_t
 11. Turn structured loader back on by reverting the stage change: set `enabled: true` (or remove the override) on the `structured-decoded-loader` workload in `values-stage.yaml`.
 
 12. Verify that pings correctly write to the new v1 live tables
-    - TODO: construct test payloads to send to edge server
+
+    Send a test metrics ping for `org-mozilla-fenix-nightly` to the stage edge. The generic
+    submission URI is `/submit/<namespace>/<doc_type>/<doc_version>/<doc_id>`
+    ([ParseUri.java](https://github.com/mozilla/gcp-ingestion/blob/main/ingestion-beam/src/main/java/com/mozilla/telemetry/decoder/ParseUri.java)).
+
+    ```bash
+    DOC_ID=$(uuidgen | tr 'A-Z' 'a-z')
+    curl -i -X POST \
+      "https://stage.ingestion-edge.nonprod.dataops.mozgcp.net/submit/org-mozilla-fenix-nightly/metrics/1/${DOC_ID}" \
+      -H 'Content-Type: application/json' \
+      -H 'User-Agent: Glean/68.0.1 (Kotlin on Android)' \
+      --data-binary @test_payload.json
+    echo "${DOC_ID}"
+    ```
+
+    Expect a 200. Then, after a few minutes, look for the ping in the live table by document id:
+    ```sql
+    SELECT *
+    FROM `moz-fx-data-shar-nonprod-efed.org_mozilla_fenix_nightly_live.metrics_v1`
+    WHERE DATE(submission_timestamp) = CURRENT_DATE()
+      AND document_id = '<DOC_ID>';
+    ```
+    Check that it landed correctly and `additional_properties` isn't full of values.
 
 ## Production
 
@@ -188,7 +210,8 @@ Queries for the rest of the test tables are in [test_table_queries.sql](./test_t
 8. Turn structured loader back on by reverting the prod change: set `enabled: true` (or remove the override) on the `structured-decoded-loader` workload in `values-prod.yaml`.
 
 9. Verify that pings correctly write to the new v1 live tables
-    - Pings from the backlog should have the old distribution written to additional_properties
+    - ~~Pings from the backlog should have the old distribution written to additional_properties~~
+      - Edit: nobody is actually sending those fields so they won't show up
 
 ## Cleanup
 
