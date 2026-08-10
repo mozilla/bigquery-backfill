@@ -47,7 +47,7 @@ args = parser.parse_args()
 destination_project, backup_suffix = ENVIRONMENTS[args.env]
 submission_date = args.submission_date
 
-client = bigquery.Client()
+client = bigquery.Client(project="moz-fx-data-backfill-1")
 
 for base_dataset, base_table in tables:
     backup_table = f"{backfill_project}.{base_dataset}_{backup_suffix}.{base_table}"
@@ -58,7 +58,7 @@ for base_dataset, base_table in tables:
         reformat(
             f"""
             SELECT {select_expr}
-            FROM {backup_table}
+            FROM `{backup_table}`
             WHERE DATE(submission_timestamp) = "{submission_date.isoformat()}"
             """
         ),

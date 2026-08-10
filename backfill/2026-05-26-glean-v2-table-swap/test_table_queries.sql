@@ -10,7 +10,7 @@
 
 
 -- ============================================================================
--- Setup step 5: Copy v1 stable tables to backfill project
+-- Setup step 5: Copy stage v1 stable tables to backfill project
 -- ============================================================================
 
 CREATE SNAPSHOT TABLE `moz-fx-data-backfill-1.org_mozilla_fenix_nightly_stable_stage.metrics_v1`
@@ -256,7 +256,7 @@ ALTER TABLE `moz-fx-data-shared-prod.org_mozilla_fennec_aurora_live.adjust_attri
 
 
 -- ============================================================================
--- Prod, stable backup: Copy v1 stable tables to backfill project
+-- Prod, stable backup: Copy prod v1 stable tables to backfill project
 -- ============================================================================
 
 CREATE SNAPSHOT TABLE `moz-fx-data-backfill-1.org_mozilla_fenix_nightly_stable_prod.metrics_v1`
@@ -546,3 +546,60 @@ CLONE `moz-fx-data-backfill-1.org_mozilla_fennec_aurora_stable_prod.health_v1`;
 ALTER TABLE `moz-fx-data-shared-prod.org_mozilla_fennec_aurora_stable.adjust_attribution_v1` RENAME TO adjust_attribution_v2;
 CREATE TABLE `moz-fx-data-shared-prod.org_mozilla_fennec_aurora_stable.adjust_attribution_v1`
 CLONE `moz-fx-data-backfill-1.org_mozilla_fennec_aurora_stable_prod.adjust_attribution_v1`;
+
+
+-- ============================================================================
+-- Drop play_store_attribution: these tables are empty for both test apps and
+-- never got a v2, so they skip the backup/rename steps entirely. Drop v1 during
+-- the deploy pause and let the next bigquery deploy recreate it with the
+-- glean.2 schema. Verify the tables are empty in all four dataset variants
+-- before running this.
+-- ============================================================================
+
+-- Emptiness check to run first. Reads partition metadata instead of the tables
+-- so it needs no partition filter and scans no data. Expect zero rows back;
+-- anything returned means that table has data and needs the normal
+-- backup/swap treatment instead of a drop.
+WITH partitions AS (
+  SELECT 'stage' AS env, 'org_mozilla_fenix_nightly_live' AS dataset, table_name, partition_id, total_rows
+  FROM `moz-fx-data-shar-nonprod-efed.org_mozilla_fenix_nightly_live.INFORMATION_SCHEMA.PARTITIONS`
+  UNION ALL
+  SELECT 'stage', 'org_mozilla_fennec_aurora_live', table_name, partition_id, total_rows
+  FROM `moz-fx-data-shar-nonprod-efed.org_mozilla_fennec_aurora_live.INFORMATION_SCHEMA.PARTITIONS`
+  UNION ALL
+  SELECT 'stage', 'org_mozilla_fenix_nightly_stable', table_name, partition_id, total_rows
+  FROM `moz-fx-data-shar-nonprod-efed.org_mozilla_fenix_nightly_stable.INFORMATION_SCHEMA.PARTITIONS`
+  UNION ALL
+  SELECT 'stage', 'org_mozilla_fennec_aurora_stable', table_name, partition_id, total_rows
+  FROM `moz-fx-data-shar-nonprod-efed.org_mozilla_fennec_aurora_stable.INFORMATION_SCHEMA.PARTITIONS`
+  UNION ALL
+  SELECT 'prod', 'org_mozilla_fenix_nightly_live', table_name, partition_id, total_rows
+  FROM `moz-fx-data-shared-prod.org_mozilla_fenix_nightly_live.INFORMATION_SCHEMA.PARTITIONS`
+  UNION ALL
+  SELECT 'prod', 'org_mozilla_fennec_aurora_live', table_name, partition_id, total_rows
+  FROM `moz-fx-data-shared-prod.org_mozilla_fennec_aurora_live.INFORMATION_SCHEMA.PARTITIONS`
+  UNION ALL
+  SELECT 'prod', 'org_mozilla_fenix_nightly_stable', table_name, partition_id, total_rows
+  FROM `moz-fx-data-shared-prod.org_mozilla_fenix_nightly_stable.INFORMATION_SCHEMA.PARTITIONS`
+  UNION ALL
+  SELECT 'prod', 'org_mozilla_fennec_aurora_stable', table_name, partition_id, total_rows
+  FROM `moz-fx-data-shared-prod.org_mozilla_fennec_aurora_stable.INFORMATION_SCHEMA.PARTITIONS`
+)
+SELECT env, dataset, SUM(total_rows) AS row_count
+FROM partitions
+WHERE table_name = 'play_store_attribution_v1'
+GROUP BY env, dataset
+HAVING SUM(total_rows) > 0
+ORDER BY env, dataset;
+
+-- Stage
+DROP TABLE `moz-fx-data-shar-nonprod-efed.org_mozilla_fenix_nightly_live.play_store_attribution_v1`;
+DROP TABLE `moz-fx-data-shar-nonprod-efed.org_mozilla_fennec_aurora_live.play_store_attribution_v1`;
+DROP TABLE `moz-fx-data-shar-nonprod-efed.org_mozilla_fenix_nightly_stable.play_store_attribution_v1`;
+DROP TABLE `moz-fx-data-shar-nonprod-efed.org_mozilla_fennec_aurora_stable.play_store_attribution_v1`;
+
+-- Prod
+DROP TABLE `moz-fx-data-shared-prod.org_mozilla_fenix_nightly_live.play_store_attribution_v1`;
+DROP TABLE `moz-fx-data-shared-prod.org_mozilla_fennec_aurora_live.play_store_attribution_v1`;
+DROP TABLE `moz-fx-data-shared-prod.org_mozilla_fenix_nightly_stable.play_store_attribution_v1`;
+DROP TABLE `moz-fx-data-shared-prod.org_mozilla_fennec_aurora_stable.play_store_attribution_v1`;

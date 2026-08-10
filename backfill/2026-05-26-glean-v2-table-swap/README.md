@@ -44,6 +44,13 @@ org_mozilla_fennec_aurora_stable.health_v1
 org_mozilla_fennec_aurora_stable.adjust_attribution_v1
 ```
 
+`play_store_attribution_v1` is left out of the steps below. It's empty for both apps and
+never got a v2, so there's nothing to back up and no reason to do the drop/rename dance.
+Instead drop v1 during the deploy pause and let the next bigquery deploy recreate it with
+the glean.2 schema. Confirm the tables are empty in both stage and prod, live and stable,
+before dropping. Queries are in [test_table_queries.sql](./test_table_queries.sql) under
+"Drop play_store_attribution".
+
 ## Setup steps to be completed in advance
 
 1. ~~Update SQL generators to handle v1 tables with glean.2 schema [https://github.com/mozilla/bigquery-etl/pull/9233](https://github.com/mozilla/bigquery-etl/pull/9233)~~ **DONE**
@@ -84,9 +91,11 @@ Queries for the rest of the test tables are in [test_table_queries.sql](./test_t
    - https://ops-master.jenkinsv2.prod.mozaws.net/job/gcp-pipelines/job/data-ingestion-sink/
    - bigquery-prod and bigquery-stage https://ops-master.jenkinsv2.prod.mozaws.net/job/gcp-pipelines/job/data-shared/
 
-3. Stop structured loader sink for prod and stage: deploy https://github.com/mozilla/dataservices-infra/compare/benwu/stage-loader-zero, which sets `enabled: false` on the `structured-decoded-loader`
+3. ~~Stop structured loader sink for prod and stage: deploy https://github.com/mozilla/dataservices-infra/compare/benwu/stage-loader-zero, which sets `enabled: false` on the `structured-decoded-loader`~~
    - Announce in #data-platform-infra-wg that live table updates will be paused
    - Verify that there are no more loader pods active
+   - **EDIT**: This is done manually in GKE
+
 4. Run the schema generator Airflow task and verify v1 schemas are updated and v2 schemas are deleted in generated-schemas
 
 5. Copy v1 live tables to the backfill project
@@ -257,3 +266,12 @@ CLONE `moz-fx-data-backfill-1.org_mozilla_fennec_aurora_live_stage.metrics_v1`;
 
 6. Copy any data that landed in v2 after the swap back into v1, mirroring the forward
    "copy current day live data" step but in the reverse direction.
+
+# Retroactive Changes
+
+Writing these here for now until I have time to clean everything up
+
+- Do stable table backups for prod at the start
+- Don't need to turn of sink loader until verifying schema generation is good, reduces sink downtime
+- Need to force deploy ingestion sink in jenkins
+- Need to look into optimizing the selects in the copy_live_data script
