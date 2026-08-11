@@ -153,5 +153,3 @@ setup
 - 5:24: remove the tables from shredder and copy_dedupe special cases https://github.com/mozilla/telemetry-airflow/pull/2378
   - also: https://github.com/mozilla/telemetry-airflow/pull/2410
 - 6:15: run copy_deduplicate to test
-
-- TODO: delete v2 tables

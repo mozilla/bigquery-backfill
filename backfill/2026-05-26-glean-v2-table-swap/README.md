@@ -5,6 +5,17 @@ For https://mozilla-hub.atlassian.net/browse/DENG-10877
 Follow up to the initial plan in
 https://docs.google.com/document/d/1STMFrEpK6UPLKJGGojESJ_rniGAg3yf4RMo8H0RAeps/edit?tab=t.0
 
+## Retroactive Changes
+
+This section is from after the swap, noting things that should be changed in the next iteration.
+I'm keeping the actual step below the same to keep the history.
+
+- Do stable table backups for prod at the start
+- Don't need to turn of sink loader until verifying schema generation is good, reduces sink downtime
+- Need to force deploy ingestion sink in jenkins
+- Need to look into optimizing the selects in the copy_live_data script
+- May need to recreate event_monitoring_live_v1 for some apps afterwards because they include every ping with events which may also have metrics
+
 ## Goal
 
 Replace the existing v1 glean live and stable tables with the backfilled v2 tables that
@@ -266,12 +277,3 @@ CLONE `moz-fx-data-backfill-1.org_mozilla_fennec_aurora_live_stage.metrics_v1`;
 
 6. Copy any data that landed in v2 after the swap back into v1, mirroring the forward
    "copy current day live data" step but in the reverse direction.
-
-# Retroactive Changes
-
-Writing these here for now until I have time to clean everything up
-
-- Do stable table backups for prod at the start
-- Don't need to turn of sink loader until verifying schema generation is good, reduces sink downtime
-- Need to force deploy ingestion sink in jenkins
-- Need to look into optimizing the selects in the copy_live_data script
