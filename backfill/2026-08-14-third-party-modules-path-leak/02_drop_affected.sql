@@ -4,9 +4,9 @@
 --
 --   bq query \
 --     --use_legacy_sql=false \
---     --project_id=moz-fx-data-backfill-1 \
+--     --project_id=moz-fx-data-backfill-2 \
 --     --parameter=submission_date:DATE:2026-03-15 \
---     --destination_table='moz-fx-data-backfill-1:telemetry_stable.third_party_modules_v4$20260315' \
+--     --destination_table='moz-fx-data-backfill-2:telemetry_stable.third_party_modules_v4$20260315' \
 --     --replace=true \
 --     "$(cat 02_drop_affected.sql)"
 CREATE TEMP FUNCTION is_leak(x STRING) AS (

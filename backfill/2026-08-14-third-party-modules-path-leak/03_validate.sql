@@ -23,7 +23,7 @@ WITH staging AS (
         WHERE is_leak(e.requested_dll_name)
       )
     ) AS remaining_leaks
-  FROM `moz-fx-data-backfill-1.telemetry_stable.third_party_modules_v4`
+  FROM `moz-fx-data-backfill-2.telemetry_stable.third_party_modules_v4`
   GROUP BY submission_date
 ),
 prod AS (

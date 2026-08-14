@@ -9,7 +9,7 @@
 
 set -e
 
-PROJECT="moz-fx-data-backfill-1"
+PROJECT="moz-fx-data-backfill-2"
 SRC_PROJECT="moz-fx-data-shared-prod"
 DATASET="telemetry_stable"
 TABLE_NAME="third_party_modules_v4"

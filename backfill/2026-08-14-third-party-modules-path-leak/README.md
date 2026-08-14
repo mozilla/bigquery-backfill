@@ -36,7 +36,7 @@ Analysis query: https://sql.telemetry.mozilla.org/queries/124609?p_channel=all&p
 in `projects/data-backfill/tf/prod/projects/backfill.tf` (precedent:
 [cloudops-infra#6055](https://github.com/mozilla-services/cloudops-infra/pull/6055)).
 Needs only: read on the prod table, and dataset-level write on the staging dataset
-`moz-fx-data-backfill-1.telemetry_stable`. No prod write (that's step 6, via DSRE).
+`moz-fx-data-backfill-2.telemetry_stable`. No prod write (that's step 6, via DSRE).
 
 **2. Mirror prod schema.** `./mirror-prod-table.sh` creates the staging table with
 prod's exact schema so `bq cp -f` works in step 6. **Confirm the partitioning /
@@ -76,7 +76,7 @@ a cleaned partition. Either process that window last and don't re-run
 expired (>30 days after the fixed build ships).
 
 **7. Confirm + clean up.** Re-run `01_scope_by_date.sql` against prod (expect no
-rows), then `bq rm -r -f moz-fx-data-backfill-1:telemetry_stable`.
+rows), then `bq rm -r -f moz-fx-data-backfill-2:telemetry_stable`.
 
 ## Going forward
 
