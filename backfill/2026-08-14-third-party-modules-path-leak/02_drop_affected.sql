@@ -1,8 +1,6 @@
--- Step 2: drop affected records from one partition by writing only the CLEAN rows
--- to the backfill staging table. Any ping that carries a leaked path in either
--- DLL-name field is removed entirely (we drop the record, we do not rewrite it).
---
--- Run once per affected partition (see 01_scope_by_date.sql for the list), e.g.:
+-- Step 2: write only the CLEAN rows of one partition to the staging table
+-- (prod minus affected rows, copied byte-for-byte via SELECT *). Run once per
+-- affected partition (see 01_scope_by_date.sql), e.g.:
 --
 --   bq query \
 --     --use_legacy_sql=false \
@@ -11,10 +9,6 @@
 --     --destination_table='moz-fx-data-backfill-1:telemetry_stable.third_party_modules_v4$20260315' \
 --     --replace=true \
 --     "$(cat 02_drop_affected.sql)"
---
--- The kept partition is prod minus the affected rows; clean rows are copied
--- byte-for-byte (SELECT *). The final copy_to_prod step then overwrites the prod
--- partition with this reduced set, which is what removes the affected records.
 CREATE TEMP FUNCTION is_leak(x STRING) AS (
   x IS NOT NULL
   AND STRPOS(x, '\\') > 0
