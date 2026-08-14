@@ -15,7 +15,7 @@
 set -e
 
 DATES_FILE="${1:?usage: run_drop.sh <dates-file>}"
-PROJECT="moz-fx-data-backfill-1"
+PROJECT="moz-fx-data-backfill-2"
 DATASET="telemetry_stable"
 TABLE_NAME="third_party_modules_v4"
 PARALLELISM="${PARALLELISM:-8}"

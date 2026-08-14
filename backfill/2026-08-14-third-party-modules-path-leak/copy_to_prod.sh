@@ -13,7 +13,7 @@
 set -e
 
 DATES_FILE="${1:?usage: copy_to_prod.sh <dates-file>}"
-SRC_PROJECT="moz-fx-data-backfill-1"
+SRC_PROJECT="moz-fx-data-backfill-2"
 DST_PROJECT="moz-fx-data-shared-prod"
 DATASET="telemetry_stable"
 TABLE_NAME="third_party_modules_v4"
