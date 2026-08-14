@@ -1,12 +1,7 @@
--- Step 3: validate the staging table before anything is copied to prod.
---
--- Because we DROP affected records (rather than rewrite them), staging is prod
--- minus the affected rows. Two checks, per partition:
+-- Step 3: validate staging before copying to prod. Two checks per partition:
 --   1. remaining_leaks in staging MUST be 0.
---   2. dropped count MUST equal the number of affected rows in prod, i.e.
---         staging_rows == prod_rows - prod_affected_rows
---      This guarantees we removed exactly the affected records and nothing else.
---
+--   2. staging_rows == prod_rows - prod_affected_rows (dropped exactly the
+--      affected rows and nothing else).
 -- Counts only — no path value is emitted.
 CREATE TEMP FUNCTION is_leak(x STRING) AS (
   x IS NOT NULL

@@ -2,12 +2,10 @@
 #
 # Overwrite each prod stable partition with the cleaned version from the backfill
 # staging table. This REPLACES prod partitions in place (`bq cp -f`) with the set
-# that has the affected records removed — that overwrite is what drops the affected
+# that has the affected records removed. That overwrite is what drops the affected
 # rows from prod.
 #
-# This step requires DSRE assistance — it is the only step that writes to
-# moz-fx-data-shared-prod (see DSRE ticket in README.md). Do NOT run until
-# 03_validate.sql returns zero rows.
+# This step requires DSRE assistance.
 #
 # Usage:
 #   ./copy_to_prod.sh affected_dates.txt
