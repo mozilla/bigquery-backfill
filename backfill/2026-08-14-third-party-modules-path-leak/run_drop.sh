@@ -9,7 +9,7 @@
 #   ./run_drop.sh affected_dates.txt
 #
 # where affected_dates.txt is, e.g., the output of:
-#   bq query --use_legacy_sql=false --format=csv "$(cat 01_scope_by_date.sql)" \
+#   bq query --use_legacy_sql=false --format=csv < 01_scope_by_date.sql \
 #     | tail -n +2 | cut -d, -f1 | sort -u > affected_dates.txt
 
 set -e
@@ -20,12 +20,12 @@ DATASET="telemetry_stable"
 TABLE_NAME="third_party_modules_v4"
 PARALLELISM="${PARALLELISM:-8}"
 
-SQL="$(cat "$(dirname "$0")/02_drop_affected.sql")"
-export SQL PROJECT DATASET TABLE_NAME
+SQL_FILE="$(dirname "$0")/02_drop_affected.sql"
+export SQL_FILE PROJECT DATASET TABLE_NAME
 
-cat "${DATES_FILE}" | xargs -P "${PARALLELISM}" -I{} bash -c '
+cat "${DATES_FILE}" | xargs -P "${PARALLELISM}" -n1 bash -c '
   set -ex
-  DATE="{}"
+  DATE="$1"
   PART="${DATE//-/}"
   bq query \
     --use_legacy_sql=false \
@@ -33,6 +33,6 @@ cat "${DATES_FILE}" | xargs -P "${PARALLELISM}" -I{} bash -c '
     --parameter=submission_date:DATE:"${DATE}" \
     --destination_table="${PROJECT}:${DATASET}.${TABLE_NAME}\$${PART}" \
     --replace=true \
-    "${SQL}"
-'
+    < "${SQL_FILE}"
+' _
 echo "Drop complete. Now run 03_validate.sql before copying to prod."

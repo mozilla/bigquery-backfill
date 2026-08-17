@@ -47,8 +47,7 @@ clustering flags against `bq show` on prod** before running.
 count of affected records (= rows that will drop).
 
 ```
-bq query --use_legacy_sql=false --format=csv "$(cat 01_scope_by_date.sql)" \
-  | tail -n +2 | cut -d, -f1 | sort -u > affected_dates.txt
+bq query --use_legacy_sql=false --format=csv < 01_scope_by_date.sql | tail -n +2 | cut -d, -f1 | sort -u > affected_dates.txt
 ```
 
 **4. Stage cleaned partitions.** `./run_drop.sh affected_dates.txt` runs
@@ -62,12 +61,13 @@ zero affected rows remain and exactly the affected rows were dropped
 do not proceed otherwise.
 
 ```
-bq query --use_legacy_sql=false --format=pretty "$(cat 03_validate.sql)"
+bq query --use_legacy_sql=false --format=pretty < 03_validate.sql
 ```
 
-**6. Overwrite prod (DSRE).** `./copy_to_prod.sh affected_dates.txt` `bq cp -f`s
-each cleaned partition over prod — the only step that writes to
-`moz-fx-data-shared-prod`.
+**6. Overwrite prod (DSRE).** `./copy_to_prod.sh` `bq cp -f`s each cleaned partition
+over prod — the only step that writes to `moz-fx-data-shared-prod`. The script reads
+the partition list straight from the staging table (which contains only the affected
+partitions), so DSRE runs a single self-contained command with no dates file to pass.
 
 *copy_deduplicate caveat:* for the **trailing ~30 days** where live data still
 exists, a *re-run* of `copy_deduplicate` would re-promote uncleaned live data over
