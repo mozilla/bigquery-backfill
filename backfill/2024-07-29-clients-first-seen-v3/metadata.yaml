@@ -1,0 +1,32 @@
+friendly_name: Clients First Seen v3 backfill
+description: |-
+  The metadata here is to be used in conjunction with the clients_first_seen_v3
+  backfill. The table is partitioned, but does not get written over each time the script
+  runs nor does it depend on the past as the query.sql pulls data from clients_first_seen_v2
+  and combines it with specific columns that were either not added in clients_first_seen_v2
+  or there were errors (normalized_os)
+owners:
+- mhirose@mozilla.com
+labels:
+  application: firefox
+  incremental: true
+  schedule: daily
+  depends_on_past: true
+  owner1: mhirose
+scheduling:
+  dag_name: bqetl_analytics_tables
+  task_name: clients_first_seen_v3
+  depends_on_past: false
+bigquery:
+  time_partitioning:
+    type: day
+    field: first_seen_date
+    require_partition_filter: false
+    expiration_days: null
+  clustering:
+    fields:
+    - normalized_channel
+    - sample_id
+    - country
+    - normalized_os
+references: {}
