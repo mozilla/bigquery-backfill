@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-import subprocess
-from datetime import date, timedelta
+from datetime import timedelta
 
 from backfill_config import (
     ACCOUNTS_BACKEND_START_DATE,
@@ -14,28 +13,7 @@ from backfill_config import (
     SYNCSTORAGE_START_DATE,
     SYNCSTORAGE_END_DATE,
 )
-
-# All Glean server event pings contain a single event, which allows the UPDATE statement to be a bit simpler.
-UPDATE_QUERY_TEMPLATE = """
-UPDATE `{table_id}`
-SET events = ARRAY(SELECT AS STRUCT events[0].* REPLACE (0 AS `timestamp`))
-WHERE DATE(submission_timestamp) BETWEEN @start_date AND @end_date
-  AND events[0].timestamp > 0
-"""
-
-
-def fix_events(table_id: str, start_date: date, end_date: date) -> None:
-    update_query = UPDATE_QUERY_TEMPLATE.format(table_id=table_id)
-    print(f"Fixing {table_id} partitions from {start_date} to {end_date}...")
-    command = [
-        "bq",
-        "query",
-        f"--project_id={BACKFILL_PROJECT}",
-        "--use_legacy_sql=false",
-        f"--parameter=start_date:DATE:{start_date}",
-        f"--parameter=end_date:DATE:{end_date}"
-    ]
-    subprocess.run(command, input=update_query, text=True, check=True)
+from fix_events import fix_events
 
 
 # subscription_platform_backend has very few events, so just do the update as a single query.

@@ -46,6 +46,12 @@ Run [`04_check_backfill_events.sh`](04_check_backfill_events.sh).
 
 Run [`05_copy_partitions_to_production.py`](05_copy_partitions_to_production.py).
 
-## Step 6: Confirm no affected Glean server events remain in production
+**Note:** This won't copy the `relay_backend_stable.events_v1` partitions after all because that would resurrect rows recently deleted by shredder.
 
-Run [`06_recheck_production_events.sh`](06_recheck_production_events.sh).
+## Step 6: Fix `relay_backend_stable.events_v1` records directly in production
+
+Run [`06_fix_events_in_production.py`](06_fix_events_in_production.py).
+
+## Step 7: Confirm no affected Glean server events remain in production
+
+Run [`07_recheck_production_events.sh`](07_recheck_production_events.sh).
