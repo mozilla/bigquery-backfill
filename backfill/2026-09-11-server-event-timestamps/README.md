@@ -42,16 +42,46 @@ Run [`04_check_backfill_events.sh`](04_check_backfill_events.sh).
 | subscription_platform_backend_stable.events_v1 |                    0 |          NULL |          NULL |
 | syncstorage_stable.events_v1                   |                    0 |          NULL |          NULL |
 
-## Step 5: Copy fixed partitions back to production
+## Step 5: Copy fixed partitions back to production (completed 2026-09-16)
 
 Run [`05_copy_partitions_to_production.py`](05_copy_partitions_to_production.py).
 
 **Note:** This won't copy the `relay_backend_stable.events_v1` partitions after all because that would resurrect rows recently deleted by shredder.
 
-## Step 6: Fix `relay_backend_stable.events_v1` records directly in production
+### Output
+
+```
+Copying 335 partitions from moz-fx-data-backfill-1:subscription_platform_backend_stable.events_v1 to moz-fx-data-shared-prod:subscription_platform_backend_stable.events_v1, between 2025-06-13 and 2026-05-13...
+Copied 335 of 335 partitions from moz-fx-data-backfill-1:subscription_platform_backend_stable.events_v1 to moz-fx-data-shared-prod:subscription_platform_backend_stable.events_v1.
+
+Copying 267 partitions from moz-fx-data-backfill-1:syncstorage_stable.events_v1 to moz-fx-data-shared-prod:syncstorage_stable.events_v1, between 2025-08-12 and 2026-05-05...
+Copied 267 of 267 partitions from moz-fx-data-backfill-1:syncstorage_stable.events_v1 to moz-fx-data-shared-prod:syncstorage_stable.events_v1.
+
+Copying 635 partitions from moz-fx-data-backfill-1:accounts_backend_stable.events_v1 to moz-fx-data-shared-prod:accounts_backend_stable.events_v1, between 2024-08-17 and 2026-05-13...
+Copied 635 of 635 partitions from moz-fx-data-backfill-1:accounts_backend_stable.events_v1 to moz-fx-data-shared-prod:accounts_backend_stable.events_v1.
+```
+
+## Step 6: Fix `relay_backend_stable.events_v1` records directly in production (completed 2026-09-16)
 
 Run [`06_fix_events_in_production.py`](06_fix_events_in_production.py).
 
-## Step 7: Confirm no affected Glean server events remain in production
+### Output
+
+```
+Fixing moz-fx-data-shared-prod.relay_backend_stable.events_v1 partitions from 2025-08-12 to 2026-03-17...
+Waiting on bqjob_r192aa55689e4bda5_000001a0ab3cf03d_1 ... (48s) Current status: DONE   
+Number of affected rows: 152391648
+```
+
+## Step 7: Confirm no affected Glean server events remain in production (completed 2026-09-16)
 
 Run [`07_recheck_production_events.sh`](07_recheck_production_events.sh).
+
+### Output
+
+|                    table_id                    | affected_event_count | min_timestamp | max_timestamp |
+|------------------------------------------------|---------------------:|---------------|---------------|
+| accounts_backend_stable.events_v1              |                    0 |          NULL |          NULL |
+| relay_backend_stable.events_v1                 |                    0 |          NULL |          NULL |
+| subscription_platform_backend_stable.events_v1 |                    0 |          NULL |          NULL |
+| syncstorage_stable.events_v1                   |                    0 |          NULL |          NULL |
