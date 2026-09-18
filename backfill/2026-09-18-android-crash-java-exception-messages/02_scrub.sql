@@ -208,5 +208,10 @@ UPDATE `moz-fx-data-shared-prod.telemetry_derived.firefox_crashes_v1` AS t
 SET metrics.object.crash_java_exception = remove_java_exception_messages(t.metrics.object.crash_java_exception),
     metrics.object.meta_annotations     = scrub_meta_annotations(t.metrics.object.meta_annotations)
 WHERE DATE(submission_timestamp) BETWEEN '2024-08-01' AND '2026-09-18'
+  AND normalized_app_id IN (
+    'org_mozilla_firefox', 'org_mozilla_firefox_beta', 'org_mozilla_fenix',
+    'org_mozilla_fenix_nightly', 'org_mozilla_fennec_aurora',
+    'org_mozilla_focus', 'org_mozilla_focus_beta', 'org_mozilla_focus_nightly',
+    'org_mozilla_klar')
   AND (needs_java_exception_scrub(t.metrics.object.crash_java_exception)
        OR needs_meta_annotations_scrub(t.metrics.object.meta_annotations));
