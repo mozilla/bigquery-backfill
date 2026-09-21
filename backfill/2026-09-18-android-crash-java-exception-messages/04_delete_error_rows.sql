@@ -51,7 +51,7 @@ decoded AS (
          TO_BASE64(MD5(payload)) AS payload_md5,
          `moz-fx-data-shared-prod.udf_js.gunzip`(payload) AS txt
   FROM raw
-  WHERE DATE(submission_timestamp) BETWEEN '2024-08-01' AND CURRENT_DATE()
+  WHERE DATE(submission_timestamp) BETWEEN '2024-08-01' AND '2026-09-18'
 ),
 parsed AS (
   SELECT d.*, SAFE.PARSE_JSON(txt) AS ping FROM decoded AS d
@@ -73,6 +73,7 @@ FROM `moz-fx-data-shared-prod.payload_bytes_error.structured` AS t
 WHERE DATE(t.submission_timestamp) IN (
         SELECT DISTINCT DATE(submission_timestamp)
         FROM `moz-fx-data-shared-prod.analysis.benwu_affected_error_keys`)
+  AND DATE(submission_timestamp) BETWEEN '2024-08-01' AND '2026-09-18'
   AND t.document_type = 'crash'
   AND t.document_version = '1'
   AND t.document_namespace IN (
@@ -100,7 +101,6 @@ WHERE DATE(t.submission_timestamp) IN (
           AND k.payload_md5 = TO_BASE64(MD5(t.payload)));
 
 -- ---------------------------------------------------------------------------
--- Step 4: verify. Re-run scratch/affected_error_rows_by_app_day.sql; it should
+-- Step 4: verify. Re-run 03_scope_error_rows.sql; it should
 -- return no rows. Then drop the key table.
 -- ---------------------------------------------------------------------------
---   DROP TABLE `moz-fx-data-shared-prod.analysis.benwu_affected_error_keys`;
